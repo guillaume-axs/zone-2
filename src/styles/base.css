@@ -1,0 +1,63 @@
+/* Socle : reset minimal + comportements tactiles.
+   Les règles tactiles ne sont pas cosmétiques — elles suppriment les artefacts
+   par défaut de la WebView Android (halo bleu au tap, sélection au maintien du doigt). */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  /* Empêche le redimensionnement automatique du texte au changement d'orientation */
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-ui);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+
+  /* Supprime le halo de surbrillance au tap sur Android */
+  -webkit-tap-highlight-color: transparent;
+
+  /* Empêche la sélection de texte parasite lors d'un appui maintenu */
+  -webkit-user-select: none;
+  user-select: none;
+
+  /* Marges de sécurité pour l'encoche et la barre de navigation système */
+  padding: env(safe-area-inset-top) env(safe-area-inset-right)
+           env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+/* La sélection reste possible là où elle a du sens */
+input,
+textarea {
+  -webkit-user-select: text;
+  user-select: text;
+  font: inherit;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+  /* Supprime le délai de 300 ms hérité du double-tap sur mobile */
+  touch-action: manipulation;
+}
+
+/* Étiquette : petites capitales espacées, en monospace */
+.label {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--fg-4);
+}

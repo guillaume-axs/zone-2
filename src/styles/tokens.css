@@ -1,0 +1,27 @@
+/* Jetons de la charte graphique — source : DECISIONS.md, sujet 7.
+   Ne pas écrire de couleur en dur ailleurs dans l'application. */
+
+:root {
+  /* Fond */
+  --bg: #0c0c0e;
+
+  /* Texte, du plus contrasté au plus discret */
+  --fg-hero: #f5f1e8;
+  --fg: #ede8de;
+  --fg-2: #c9c4b8;
+  --fg-3: #8a867c;
+  --fg-4: #5e5b54;
+  --fg-5: #46443f;
+
+  /* Filets */
+  --rule: #232320;
+  --rule-2: #1a1a18;
+
+  /* Accent — usage parcimonieux : une seule donnée mise en avant par écran */
+  --accent: #e8663d;
+
+  /* Familles typographiques */
+  --font-display: 'Instrument Serif', Georgia, serif;
+  --font-ui: 'Space Grotesk', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+}

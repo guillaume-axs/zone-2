@@ -1,0 +1,85 @@
+.screen {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 32px 24px 40px;
+}
+
+.screen__head {
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 14px;
+}
+
+/* Le chiffre, traité comme la donnée principale de l'écran */
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.stat__value {
+  font-family: var(--font-display);
+  font-size: 76px;
+  line-height: 0.94;
+  letter-spacing: -0.02em;
+  color: var(--fg-hero);
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.stat__unit {
+  font-family: var(--font-ui);
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--fg-3);
+}
+
+/*
+ * Le bouton s'appuie sur les attributs de données de React Aria plutôt que sur
+ * les pseudo-classes CSS. C'est tout l'intérêt de la bibliothèque : `:hover` reste
+ * collé après un appui sur mobile, `data-hovered` non — il n'est posé que pour un
+ * vrai survol, jamais pour un doigt.
+ */
+.btn {
+  font-family: var(--font-ui);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--bg);
+  background: var(--accent);
+  border-radius: 10px;
+  /* 52 px : au-dessus du minimum de 48 dp recommandé pour une cible tactile */
+  min-height: 52px;
+  padding: 0 22px;
+  width: 100%;
+  transition: transform 120ms ease, opacity 120ms ease;
+}
+
+.btn[data-hovered] {
+  opacity: 0.92;
+}
+
+.btn[data-pressed] {
+  transform: scale(0.975);
+  opacity: 0.85;
+}
+
+.btn[data-focus-visible] {
+  outline: 2px solid var(--fg-hero);
+  outline-offset: 3px;
+}
+
+.screen__foot {
+  border-top: 1px solid var(--rule);
+  padding-top: 14px;
+}
+
+.screen__foot .label {
+  /* Consigne de test : lisible, mais volontairement en retrait */
+  line-height: 1.7;
+  text-transform: none;
+  letter-spacing: 0.04em;
+  font-size: 11px;
+}
