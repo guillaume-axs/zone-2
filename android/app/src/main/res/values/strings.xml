@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Zone 2</string>
+    <string name="title_activity_main">Zone 2</string>
+    <string name="package_name">fr.zone2.app</string>
+    <string name="custom_url_scheme">fr.zone2.app</string>
+</resources>
