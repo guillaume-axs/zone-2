@@ -67,7 +67,7 @@ rien ici.
 
 ## Étape 1 — Dépôt et hygiène de base
 
-- [x] `git init` dans `~/projects/zone-2`
+- [x] `git init` à la racine du projet
 - [x] Créer `.gitignore` :
   ```
   node_modules/
