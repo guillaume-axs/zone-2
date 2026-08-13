@@ -210,7 +210,7 @@ On valide le build **à la main avant** de l'automatiser : un échec en CI est b
 
 ⚠️ **Action externe et irréversible — nécessite la validation explicite du PO.**
 
-Validé par le PO le 2026-08-13, précédé d'un audit de sécurité complet (voir `DECISIONS.md`, sujet 9).
+Validé par le PO le 2026-08-13, précédé d'un audit de sécurité complet (voir `DECISIONS.md`, sujet 8).
 
 - [x] Créer le dépôt public `zone-2` sur GitHub → https://github.com/guillaume-axs/zone-2
 - [x] `git remote add origin` puis pousser `main`
