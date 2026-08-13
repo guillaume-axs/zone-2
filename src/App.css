@@ -1,9 +1,17 @@
 .screen {
-  min-height: 100dvh;
+  /* Hauteur exacte de la fenêtre visible. `dvh` suit la barre d'adresse
+     quand elle se rétracte, contrairement à `vh`. */
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 32px 24px 40px;
+
+  /* Les marges de sécurité s'ajoutent au rembourrage visuel, sans jamais
+     déborder : `box-sizing: border-box` les inclut dans la hauteur. */
+  padding-top: calc(32px + env(safe-area-inset-top));
+  padding-right: calc(24px + env(safe-area-inset-right));
+  padding-bottom: calc(40px + env(safe-area-inset-bottom));
+  padding-left: calc(24px + env(safe-area-inset-left));
 }
 
 .screen__head {
