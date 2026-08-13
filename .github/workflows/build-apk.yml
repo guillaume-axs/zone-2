@@ -12,7 +12,29 @@ permissions:
   contents: read
 
 jobs:
+  # Barrière : aucun APK n'est construit si un secret a fui dans l'historique.
+  # Le dépôt étant public, une clé exposée doit être considérée comme compromise
+  # dès la seconde où elle est poussée — la détecter après coup ne sert à rien,
+  # d'où la vérification systématique.
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # Historique complet : un secret introduit puis « corrigé » au commit
+          # suivant reste exploitable, et resterait invisible à un scan partiel.
+          fetch-depth: 0
+
+      - name: Analyse de l'historique avec gitleaks
+        run: |
+          VERSION=8.30.1
+          curl -sSfL -o gitleaks.tar.gz \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${VERSION}/gitleaks_${VERSION}_linux_x64.tar.gz"
+          tar -xzf gitleaks.tar.gz gitleaks
+          ./gitleaks git --no-banner --redact --exit-code 1 .
+
   build:
+    needs: secrets
     runs-on: ubuntu-latest
 
     steps:
