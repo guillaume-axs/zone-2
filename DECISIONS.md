@@ -358,6 +358,56 @@ Pas une animation décorative en boucle : une pulsation **pilotée par les donn�
 
 ---
 
+## Sujet 8 — Publication et posture de sécurité ✅ *(décidé le 2026-08-13)*
+
+Le dépôt est **public**. Cela impose une règle simple : **rien d'identifiant n'entre dans le dépôt**, et ce qui
+y est entré par erreur doit être purgé de l'historique, pas seulement du dernier commit — `.gitignore` n'a
+aucun effet rétroactif.
+
+**Purgé avant la première publication** *(historique réécrit, rien n'ayant encore été poussé)* :
+
+| Élément | Motif |
+|---|---|
+| L'`applicationId` d'origine, qui contenait un patronyme → **`fr.zone2.app`** | Un `applicationId` est **définitif après publication sur le Play Store** et apparaît dans l'URL du Store, les journaux et les permissions. Le coût du changement était de quinze minutes avant publication, infini après. |
+| Le brief initial, rédigé à la première personne | Objectifs de santé et traits personnels — sans valeur pour un lecteur, indexables à jamais. |
+| Le chemin absolu du poste de travail | Révélait le nom de session de la machine. |
+
+> Ce tableau nomme la **catégorie** de ce qui a été retiré, jamais la valeur. Documenter une purge en citant
+> la donnée purgée la réintroduit — et aucun outil ne le signalera, puisqu'un patronyme n'est pas un secret
+> au sens d'un scanner.
+
+**Ce qui reste identifiant est volontaire** : le prénom comme auteur des commits et le pseudo dans l'adresse
+masquée `@users.noreply.github.com`. C'est le lien avec le profil GitHub — c'est le but. L'adresse
+personnelle, elle, n'apparaît nulle part.
+
+### Deux garde-fous permanents, plutôt qu'un audit ponctuel
+
+Un audit ne protège que du jour où il est mené. Le risque réel arrive plus tard, quand Supabase et ses clés
+d'API entreront dans le projet.
+
+| Garde-fou | Quand il agit |
+|---|---|
+| **Push protection** GitHub | **Avant** la fuite — le push est refusé, le secret ne touche jamais les serveurs |
+| **gitleaks en CI** *(job `secrets`, version épinglée)* | **Après** le push — analyse l'**historique complet**, car un secret introduit puis « corrigé » au commit suivant reste exploitable |
+| **Protection de `main`** | PR obligatoire, `secrets` et `build` doivent passer, aucun *force push*, **administrateurs inclus** |
+
+Le job `build` **dépend** de `secrets` : aucun artefact n'est produit si l'analyse échoue.
+
+**Enseignement de l'audit :** l'outil et la relecture manuelle ne trouvent pas les mêmes choses. gitleaks n'a
+rien signalé — mais la relecture a rattrapé un **message de commit** citant l'ancien identifiant (les filtres
+d'historique ne touchent pas aux messages) et un chemin absolu présent depuis le commit initial. **Les deux
+sont nécessaires.**
+
+### Distribution
+
+L'APK est publié dans une release à étiquette fixe `latest`, donc à **adresse invariable** :
+`releases/download/latest/zone2.apk`. Un artefact d'Actions ne convient pas — livré en ZIP et réservé aux
+utilisateurs authentifiés, il est inutilisable depuis un téléphone, c'est-à-dire au seul endroit où l'on
+souhaite installer l'application. La clé de signature reste celle de debug : une future version signée pour
+publication exigera une désinstallation préalable.
+
+---
+
 ## Qualité « portfolio » — les 4 axes validés
 
 1. **Moteur de métriques testé** — module TypeScript pur : EF, découplage, comparaisons glissantes.
