@@ -76,3 +76,41 @@ jobs:
           path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 30
+
+  # Publie l'APK sous une adresse fixe, installable en un geste depuis le
+  # téléphone. Un artefact d'Actions ne convient pas pour ça : il est livré dans
+  # un ZIP et exige d'être authentifié — deux obstacles de trop quand on est
+  # debout dans une salle de sport.
+  publication:
+    needs: build
+    # Uniquement sur `main` : une PR ne doit rien publier, et son jeton est en
+    # lecture seule de toute façon.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: zone2-debug-${{ github.sha }}
+
+      - name: Republier la release « latest »
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DEPOT: ${{ github.repository }}
+          REVISION: ${{ github.sha }}
+        run: |
+          mv app-debug.apk zone2.apk
+          # La release est recréée plutôt que modifiée : c'est le seul moyen de
+          # faire suivre l'étiquette `latest` jusqu'au dernier commit.
+          gh release delete latest --yes --cleanup-tag --repo "$DEPOT" || true
+          gh release create latest zone2.apk \
+            --repo "$DEPOT" \
+            --target "$REVISION" \
+            --title "Dernier build" \
+            --notes "APK de développement construit automatiquement depuis \`main\`.
+
+          Signé avec la clé de debug — destiné à l'installation manuelle, pas à une distribution.
+
+          Révision : \`${REVISION}\`"

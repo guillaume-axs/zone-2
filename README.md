@@ -6,6 +6,13 @@ stationnaire. Objectifs de l'athlète : perte de masse grasse et préparation de
 > **État : en construction.** Itération 1 — mise en place de la chaîne de livraison.
 > Rien n'est encore utilisable au quotidien.
 
+## Installer
+
+**[⬇ Télécharger le dernier APK](https://github.com/guillaume-axs/zone-2/releases/download/latest/zone2.apk)**
+— reconstruit à chaque modification de `main`, adresse invariable.
+
+Signé avec la clé de debug : Android demandera d'autoriser l'installation depuis une source inconnue.
+
 ## Le problème
 
 L'entraînement en zone 2 se pilote à l'**efficience** (le rapport entre la puissance produite et le coût
