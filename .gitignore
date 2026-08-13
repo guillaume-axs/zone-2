@@ -8,6 +8,10 @@ dist-ssr/
 .env.*
 !.env.example
 
+# Notes personnelles — ce dépôt est public, rien d'identifiant n'y entre
+docs/brief-initial.md
+docs/prive/
+
 # Éditeurs / OS
 .vscode/*
 !.vscode/extensions.json

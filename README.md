@@ -43,4 +43,3 @@ un vélo de salle.
 
 - [`DECISIONS.md`](DECISIONS.md) — les arbitrages techniques et métier, avec leurs motifs et les options écartées
 - [`docs/superpowers/plans/`](docs/superpowers/plans/) — les plans d'itération
-- [`docs/brief-initial.md`](docs/brief-initial.md) — le besoin d'origine, avant tout arbitrage

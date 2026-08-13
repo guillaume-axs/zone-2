@@ -272,10 +272,15 @@ Le serif n'apparaît **jamais** ailleurs (ni titres, ni listes, ni boutons).
 > Extrait des maquettes validées. **Seule source de vérité** : les maquettes HTML sous `.superpowers/`
 > sont un répertoire de travail jetable, ce bloc-ci est versionné.
 
-**Polices**
+**Polices** — *révisé le 2026-08-13 : les polices sont **embarquées**, pas chargées depuis un CDN.*
 
-```html
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+Le lien Google Fonts initialement prévu a été abandonné : il rend le premier affichage dépendant du réseau,
+ce qui contredit le principe « local d'abord » — l'application doit s'afficher correctement en salle, hors ligne.
+Les sept fichiers `.woff2` (sous-ensemble latin, 156 Ko au total) vivent dans `public/fonts/`, déclarés par
+`src/styles/fonts.css`.
+
+```
+Instrument Serif 400 · Space Grotesk 400/500/600/700 · IBM Plex Mono 400/500
 ```
 
 **Palette** — telle qu'employée dans la maquette V2
