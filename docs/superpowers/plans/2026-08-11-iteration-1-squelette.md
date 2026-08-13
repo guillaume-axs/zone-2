@@ -67,8 +67,8 @@ rien ici.
 
 ## Étape 1 — Dépôt et hygiène de base
 
-- [ ] `git init` dans `~/projects/zone-2`
-- [ ] Créer `.gitignore` :
+- [x] `git init` dans `~/projects/zone-2`
+- [x] Créer `.gitignore` :
   ```
   node_modules/
   dist/
@@ -86,9 +86,9 @@ rien ici.
   *.apk
   *.keystore
   ```
-- [ ] Créer `README.md` : titre, une phrase d'objectif, la pile technique, un renvoi vers `DECISIONS.md`
-- [ ] Créer la branche `main`, puis travailler sur `feat/squelette-android`
-- [ ] Commit : `chore: initialise le dépôt et le gitignore`
+- [x] Créer `README.md` : titre, une phrase d'objectif, la pile technique, un renvoi vers `DECISIONS.md`
+- [x] Créer la branche `main`, puis travailler sur `feat/squelette-android`
+- [x] Commit : `chore: initialise le dépôt et le gitignore`
 
 **Vérification :** `git status` ne liste aucun fichier indésirable.
 
@@ -96,11 +96,11 @@ rien ici.
 
 ## Étape 2 — Base Vite + React + TypeScript
 
-- [ ] `npm create vite@latest . -- --template react-ts` (dans le dossier existant)
-- [ ] `npm install`
-- [ ] Supprimer les fichiers de démonstration : `src/App.css`, `src/assets/react.svg`, `public/vite.svg`
-- [ ] Vider `src/index.css` de son contenu par défaut
-- [ ] Commit : `feat: initialise la base vite react typescript`
+- [x] `npm create vite@latest . -- --template react-ts` (dans le dossier existant)
+- [x] `npm install`
+- [x] Supprimer les fichiers de démonstration : `src/App.css`, `src/assets/react.svg`, `public/vite.svg`
+- [x] Vider `src/index.css` de son contenu par défaut
+- [x] Commit : `feat: initialise la base vite react typescript`
 
 **Vérification :** `npm run dev` sert une page sans erreur en console.
 
@@ -110,13 +110,13 @@ rien ici.
 
 Reprendre le code de référence de `DECISIONS.md`, section « Code de référence — à reprendre tel quel ».
 
-- [ ] Dans `index.html`, ajouter dans le `<head>` le lien Google Fonts
+- [x] Dans `index.html`, ajouter dans le `<head>` le lien Google Fonts
       (Instrument Serif, Space Grotesk, IBM Plex Mono)
-- [ ] Créer `src/styles/tokens.css` avec les 10 jetons de couleur en variables CSS
+- [x] Créer `src/styles/tokens.css` avec les 10 jetons de couleur en variables CSS
       (`--bg`, `--fg-hero`, `--fg`, `--fg-2`, `--fg-3`, `--fg-4`, `--fg-5`, `--rule`, `--rule-2`, `--accent`)
-- [ ] Créer `src/styles/base.css` : reset minimal, `body` en `--bg`, familles de polices, la classe `.label`
-- [ ] Importer les deux feuilles dans `src/main.tsx`
-- [ ] Commit : `feat: applique la charte graphique`
+- [x] Créer `src/styles/base.css` : reset minimal, `body` en `--bg`, familles de polices, la classe `.label`
+- [x] Importer les deux feuilles dans `src/main.tsx`
+- [x] Commit : `feat: applique la charte graphique`
 
 **Vérification :** au navigateur, fond `#0C0C0E`, un titre en Instrument Serif, un label en IBM Plex Mono.
 
@@ -126,13 +126,13 @@ Reprendre le code de référence de `DECISIONS.md`, section « Code de référen
 
 On installe directement le **vrai** schéma du sujet 4 plutôt qu'une table jetable.
 
-- [ ] `npm install dexie dexie-react-hooks`
-- [ ] Créer `src/db/schema.ts` : le type TypeScript `Session` conforme au modèle
+- [x] `npm install dexie dexie-react-hooks`
+- [x] Créer `src/db/schema.ts` : le type TypeScript `Session` conforme au modèle
       (`id`, `startedAt`, `durationS` — seul champ obligatoire —, `avgPowerW`, `avgHrBpm`, `distanceM`,
       `rpe`, `notes`, `source`, `context`, `createdAt`, `updatedAt`, `deletedAt`)
-- [ ] Créer `src/db/db.ts` : la classe Dexie, base `zone2`, version 1, table `sessions` indexée sur
+- [x] Créer `src/db/db.ts` : la classe Dexie, base `zone2`, version 1, table `sessions` indexée sur
       `id, startedAt, deletedAt`
-- [ ] Commit : `feat: ajoute la base locale dexie`
+- [x] Commit : `feat: ajoute la base locale dexie`
 
 **Vérification :** dans les outils de développement, onglet Application, la base `zone2` existe avec sa table.
 
@@ -140,13 +140,13 @@ On installe directement le **vrai** schéma du sujet 4 plutôt qu'une table jeta
 
 ## Étape 5 — Écran de preuve de vie
 
-- [ ] `npm install react-aria-components`
-- [ ] Remplacer `src/App.tsx` par un écran unique affichant :
+- [x] `npm install react-aria-components`
+- [x] Remplacer `src/App.tsx` par un écran unique affichant :
   - un titre en Instrument Serif
   - le **nombre de séances en base**, lu en direct via `useLiveQuery`
   - un `<Button>` **de React Aria Components** libellé « Ajouter une séance factice », qui insère une
     `Session` avec `durationS: 3600` et les horodatages
-- [ ] Commit : `feat: ajoute l'ecran de preuve de vie`
+- [x] Commit : `feat: ajoute l'ecran de preuve de vie`
 
 **Vérification :** le compteur s'incrémente à chaque appui ; après un rechargement complet de la page,
 le compteur conserve sa valeur.
@@ -155,15 +155,15 @@ le compteur conserve sa valeur.
 
 ## Étape 6 — Capacitor et plateforme Android
 
-- [ ] `npm install @capacitor/core @capacitor/cli`
-- [ ] `npx cap init "Zone 2" "fr.zone2.app" --web-dir dist`
+- [x] `npm install @capacitor/core @capacitor/cli`
+- [x] `npx cap init "Zone 2" "fr.zone2.app" --web-dir dist`
       *(identifiant validé par le PO le 2026-08-11 — définitif après publication)*
-- [ ] `npm install @capacitor/android`
-- [ ] `npx cap add android`
-- [ ] Dans `android/variables.gradle`, vérifier `minSdkVersion = 24`, `compileSdkVersion = 36`,
+- [x] `npm install @capacitor/android`
+- [x] `npx cap add android`
+- [x] Dans `android/variables.gradle`, vérifier `minSdkVersion = 24`, `compileSdkVersion = 36`,
       `targetSdkVersion = 36`
-- [ ] `npm run build && npx cap sync android`
-- [ ] Commit : `feat: ajoute capacitor et la plateforme android`
+- [x] `npm run build && npx cap sync android`
+- [x] Commit : `feat: ajoute capacitor et la plateforme android`
 
 **Vérification :** le dossier `android/` existe et `dist/` a bien été copié dans les ressources Android.
 
@@ -173,10 +173,10 @@ le compteur conserve sa valeur.
 
 On valide le build **à la main avant** de l'automatiser : un échec en CI est bien plus pénible à diagnostiquer.
 
-- [ ] Vérifier le JDK : `java -version` doit annoncer 21
-- [ ] `cd android && ./gradlew assembleDebug`
-- [ ] Récupérer `android/app/build/outputs/apk/debug/app-debug.apk`
-- [ ] Le transférer sur le Galaxy S22 et l'installer (autoriser les sources inconnues)
+- [x] Vérifier le JDK : `java -version` doit annoncer 21
+- [x] `cd android && ./gradlew assembleDebug`
+- [x] Récupérer `android/app/build/outputs/apk/debug/app-debug.apk`
+- [x] Le transférer sur le Galaxy S22 et l'installer (autoriser les sources inconnues)
 
 **Vérification — c'est le premier vrai jalon :**
 - l'app se lance
