@@ -190,7 +190,7 @@ On valide le build **à la main avant** de l'automatiser : un échec en CI est b
 
 ## Étape 8 — Build automatique en intégration continue
 
-- [ ] Créer `.github/workflows/build-apk.yml` :
+- [x] Créer `.github/workflows/build-apk.yml` :
   - déclencheur : `push` sur toute branche, et `workflow_dispatch`
   - `runs-on: ubuntu-latest`
   - `actions/checkout@v4`
@@ -200,7 +200,7 @@ On valide le build **à la main avant** de l'automatiser : un échec en CI est b
   - `npm ci` → `npm run build` → `npx cap sync android`
   - `cd android && ./gradlew assembleDebug`
   - `actions/upload-artifact@v4` sur le chemin de l'APK, rétention 30 jours
-- [ ] Commit : `ci: construit l'apk a chaque push`
+- [x] Commit : `ci: construit l'apk a chaque push`
 
 **Vérification :** le workflow passe au vert et l'APK est téléchargeable depuis l'onglet Actions.
 
