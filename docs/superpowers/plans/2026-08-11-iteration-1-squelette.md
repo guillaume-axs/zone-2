@@ -210,11 +210,16 @@ On valide le build **à la main avant** de l'automatiser : un échec en CI est b
 
 ⚠️ **Action externe et irréversible — nécessite la validation explicite du PO.**
 
-- [ ] Créer le dépôt public `zone-2` sur GitHub
-- [ ] `git remote add origin` puis pousser `main`
-- [ ] Ouvrir une PR depuis `feat/squelette-android`
-- [ ] Vérifier que le workflow s'exécute bien sur la PR
-- [ ] Fusionner
+Validé par le PO le 2026-08-13, précédé d'un audit de sécurité complet (voir `DECISIONS.md`, sujet 9).
+
+- [x] Créer le dépôt public `zone-2` sur GitHub → https://github.com/guillaume-axs/zone-2
+- [x] `git remote add origin` puis pousser `main`
+- [x] Vérifier que le workflow s'exécute — **vert au premier essai**, `secrets` 7 s puis `build` 1 min 54
+- [x] Récupérer l'APK produit par la CI et vérifier son identifiant de paquet (`fr.zone2.app`)
+
+*La PR depuis `feat/squelette-android` n'a pas eu lieu : le travail a été mené directement sur `main` avant
+l'existence du dépôt distant, il n'y avait donc rien à fusionner. Le passage par branche + PR s'applique à
+partir de l'itération 2.*
 
 **Vérification :** l'APK produit par GitHub Actions, téléchargé depuis le dépôt distant, s'installe et
 fonctionne sur le S22.
