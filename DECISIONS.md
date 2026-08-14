@@ -29,20 +29,22 @@ parce que le risque n°1 déclaré est le décrochage une fois la nouveauté pas
 - Comptes tiers, fonctions sociales, Strava/Garmin
 - Toute la capture live BLE → **étape 2**
 
-**Champs du formulaire** — un seul obligatoire :
+**Champs du formulaire** *(révisé le 2026-08-14 — voir sujet 9)* — un seul obligatoire :
 
 | Champ | Statut |
 |---|---|
-| Date & heure | pré-rempli « maintenant », modifiable |
 | Durée (min) | **obligatoire** |
 | Puissance moyenne (W) | optionnel — lue sur la console du vélo |
 | FC moyenne (bpm) | optionnel |
-| Distance (km) | optionnel |
-| RPE 1–10 | optionnel |
-| Contexte (3 tags) | optionnel — salle chaude / fatigué / jambes lourdes |
-| Note | optionnel |
+| Contexte (4 tags) | optionnel — salle chaude / fatigué / à jeun / malade |
 
 Une séance sans FC ni watts s'enregistre quand même : elle compte dans le volume, elle n'apparaît pas dans la courbe d'EF.
+
+**Quatre champs retirés du formulaire, conservés dans le modèle** — date & heure, distance, RPE, note.
+Ils ne sont pas indexés dans Dexie : les réintroduire ne coûtera aucune migration. La date et l'heure
+sont désormais horodatées à l'enregistrement, sans champ de saisie ; la correction après coup relève
+de l'écran d'édition de l'historique. La note a été coupée parce qu'un champ libre qu'on ne remplit
+jamais coûte plus en friction qu'il ne rapporte en information.
 
 **Décision produit clé :** le dashboard ne dit rien avant ~8-10 séances. Le MVP doit donc être gratifiant
 **dès la première saisie** → le bloc stats du mois est aussi important que les courbes.
@@ -405,6 +407,53 @@ L'APK est publié dans une release à étiquette fixe `latest`, donc à **adress
 utilisateurs authentifiés, il est inutilisable depuis un téléphone, c'est-à-dire au seul endroit où l'on
 souhaite installer l'application. La clé de signature reste celle de debug : une future version signée pour
 publication exigera une désinstallation préalable.
+
+---
+
+## Sujet 9 — Cas d'usage et ordonnancement ✅ *(décidé le 2026-08-14)*
+
+Les huit sujets précédents décrivent **ce que** l'application fait. Aucun ne disait **dans quelles
+situations** on s'en sert. Le trou est apparu en réduisant le formulaire de saisie : impossible de
+choisir les champs sans savoir qui les remplit, et quand.
+
+### Deux modes, pas trois
+
+| Mode | Situation | Saisi à la main |
+|---|---|---|
+| **Live** — la raison d'être | Ceinture en place, application lancée au début de la séance | La **puissance** seule, en fin de séance |
+| **Manuel** — le filet | Ceinture oubliée, téléphone déchargé, plantage, autre salle | **Tout**, après coup |
+
+L'utilisateur qui lit sa fréquence cardiaque sur une montre n'est pas un troisième mode : c'est le mode
+manuel. Il renonce au retour en direct — savoir s'il est en zone 2 pendant l'effort — mais l'application
+lui sert quand même d'historique. Aucun développement supplémentaire.
+
+**Conséquence sur le formulaire de saisie manuelle : il n'est pas du travail jetable.** C'est le mode
+manuel définitif. Le mode live viendra simplement pré-remplir deux de ses champs, la durée et la FC.
+
+**Écarté explicitement :** l'import de fichiers `.fit` et les intégrations Garmin, Polar Flow ou Strava.
+Chantier entier pour un bénéfice nul dans l'usage visé, déjà refusé au sujet 1.
+
+### Séances factices pendant l'attente de la ceinture
+
+Aucune source de fréquence cardiaque n'existe aujourd'hui : ni ceinture, ni montre, ni poignées sur le
+vélo. Plutôt que d'attendre la livraison sans rien produire, on saisit des séances aux valeurs inventées
+mais plausibles. L'efficience se calcule, les graphiques ont de quoi s'afficher et se valider.
+
+**Purge : par réinstallation de l'APK, pas par du code.** Le jour où la ceinture arrive, désinstaller puis
+réinstaller vide les données locales et repart sur une base propre. Pas de champ « séance de test », pas
+de mode démo : ce serait de la complexité permanente pour un problème qui dure trois semaines. Le risque
+réel n'est pas technique — c'est qu'une intention humaine de « ne pas en tenir compte » ne suffit pas :
+l'application, elle, moyennerait le vrai et le faux sans faire la différence.
+
+### Ordre des itérations
+
+**2. Formulaire de saisie · 3. Graphiques · 4. Capture BLE**
+
+Le BLE est le risque qui peut tuer le projet, et le programmer en dernier est contestable. Il l'est moins
+ici pour une raison matérielle : **rien du BLE n'est testable sans ceinture** — pas de connexion GATT à
+tenir, pas de reconnexion à éprouver, pas de service à faire survivre à One UI. Le chemin critique du
+projet est le délai de livraison, pas le code. Les séances factices permettent d'avancer sur tout le reste
+pendant ce temps.
 
 ---
 
