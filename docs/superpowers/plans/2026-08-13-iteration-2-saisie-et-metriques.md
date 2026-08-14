@@ -336,6 +336,30 @@ SessionForm(props: { onSave: (input: SessionInput) => Promise<void> }): JSX.Elem
 Le composant ne connaît pas Dexie. Il valide, puis appelle `onSave`. C'est ce qui permet de le
 déplacer plus tard sans rien casser.
 
+### ⚠️ Prérequis bloquant — étude UX avant toute maquette
+
+**Aucune ligne d'interface n'est écrite avant cette étude, et elle vaudra pour tous les écrans
+suivants, pas seulement celui-ci.**
+
+- [ ] Chercher d'abord un skill ou un plugin UX existant *(règle sourcing-first : local, puis
+      communauté, puis sur mesure en dernier recours)*
+- [ ] À défaut, rechercher réellement les pratiques 2026 des éditeurs mobiles de référence :
+      saisie numérique au pouce, choix du clavier, traitement des champs optionnels, moment et
+      forme du retour de validation, zone d'atteinte du pouce, hauteur des cibles tactiles
+- [ ] Restituer au PO les règles retenues **avec leur justification et leur source**, avant de coder
+- [ ] Montrer une prévisualisation fidèle sur le S22 plutôt que décrire le rendu
+
+**Critère d'acceptance :** le PO doit pouvoir citer les règles appliquées et dire pourquoi.
+Il découvre l'UX sur ce projet — la restitution pédagogique fait partie du livrable, au même
+titre que le code.
+
+**Borne, pour éviter la dérive :** l'étude produit des décisions appliquées à cet écran, pas un
+mémoire. Elle est justifiée parce que ses conclusions serviront aux six écrans suivants.
+
+> Le code des étapes ci-dessous a été écrit **avant** la réduction du formulaire à quatre champs
+> (`durée · puissance · FC · contexte`, voir sujet 9 de `DECISIONS.md`). Il sera réécrit à l'issue
+> de l'étude UX. Le conserver ici sert de point de comparaison, pas de spécification.
+
 - [ ] **Étape 1 — Écrire le composant**
 
 Créer `src/forms/SessionForm.tsx` :
