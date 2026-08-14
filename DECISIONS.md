@@ -457,6 +457,81 @@ pendant ce temps.
 
 ---
 
+## Sujet 10 — Règles UX de saisie ✅ *(décidé le 2026-08-14)*
+
+**Ces règles valent pour tous les écrans de l'application, pas seulement pour la saisie d'une séance.**
+Elles ont été établies par une revue des recommandations publiées (Nielsen Norman Group, Baymard
+Institute, Luke Wroblewski) et des pratiques des applications de log d'entraînement de référence.
+Un écran qui s'en écarte doit dire pourquoi.
+
+### 1. Clavier numérique sans `<input type="number">`
+
+Tout champ chiffré est un `type="text"` portant `inputmode="numeric"`.
+
+Le type natif `number` a des flèches d'incrément trop petites pour le pouce et accepte des saisies
+qu'il marque « invalides » selon sa propre logique, pas la nôtre. `inputmode` ne change pas le champ,
+il change le clavier que le système remonte — c'est tout ce qu'on veut.
+
+### 2. Le stepper se mérite
+
+Un stepper (– / +) n'est justifié que si le champ a **une valeur habituelle** autour de laquelle
+l'utilisateur fait de petits ajustements *(NN/G)*. Il échange de la précision contre de la vitesse :
+le marché n'est bon que si l'écart au défaut reste petit.
+
+| Champ | Valeur habituelle | Forme retenue |
+|---|---|---|
+| Durée | oui, ~45 min par pas de 5 | **stepper hybride** — valeur pré-remplie et tapable au clavier |
+| Puissance | non | champ au clavier |
+| FC | non | champ au clavier |
+
+Sur mobile, les boutons – et + se placent **horizontalement** de part et d'autre de la valeur
+(verticalement, le pouce se trompe de cible), avec une zone tactile d'au moins **48 dp**.
+
+### 3. Hiérarchie visuelle plutôt que mention « optionnel »
+
+**Écart assumé par rapport à la règle publiée.** Baymard et NN/G recommandent de marquer explicitement
+les champs obligatoires *et* optionnels. Cette règle vient des tunnels de commande, où l'optionnel est
+l'exception : marquer 3 champs sur 15 informe. Nos écrans sont inverses — 1 champ obligatoire, 3
+optionnels — et le mot répété trois fois sur quatre lignes serait du bruit.
+
+La forme porte donc le message : le champ obligatoire occupe le haut, seul et en grand ; les optionnels
+sont visuellement en retrait dessous, séparés par un filet.
+
+En revanche, la conclusion de fond de Baymard est retenue sans réserve : **le levier n'est pas le
+marquage, c'est le nombre de champs.** Tout ajout de champ se justifie contre cette règle.
+
+### 4. Valider à la sortie du champ — « reward early, punish late »
+
+La validation se déclenche au `blur`, jamais pendant la frappe. Valider à chaque caractère revient à
+afficher « FC trop basse » pendant que l'utilisateur tape le premier chiffre de 130.
+
+**Exception, et c'est le cœur de la règle :** un champ **déjà en erreur** repasse en validation à la
+frappe, pour que l'erreur disparaisse dès qu'elle est corrigée. L'erreur arrive tard, sa levée arrive tôt.
+
+Mesures de Luke Wroblewski, validation en ligne contre validation à la soumission : **−22 % d'erreurs,
+−42 % de temps de saisie**, satisfaction en hausse.
+
+### 5. Zone du pouce
+
+L'action principale est en bas de l'écran, pleine largeur. Une main tenant un S22 atteint confortablement
+le tiers inférieur ; le haut demande de repositionner l'appareil. L'information importante se **lit** en
+haut, l'action s'**atteint** en bas.
+
+### 6. Critère d'acceptance chiffré : le nombre de gestes
+
+L'étalon n'est pas l'esthétique, c'est le nombre d'interactions. Hevy, référence du log de séance,
+enregistre une série en deux taps, avec un principe directeur explicite : l'application doit être assez
+rapide pour être remplie entre deux séries.
+
+| Cas | Budget |
+|---|---|
+| Séance minimale (durée seule) | **≤ 3 gestes** |
+| Séance complète (durée + watts + FC) | **≤ 10 gestes** |
+
+Un écran qui dépasse son budget est refusé, quelle que soit son allure.
+
+---
+
 ## Qualité « portfolio » — les 4 axes validés
 
 1. **Moteur de métriques testé** — module TypeScript pur : EF, découplage, comparaisons glissantes.
