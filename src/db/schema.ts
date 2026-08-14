@@ -14,7 +14,7 @@ export type SessionSource = 'manual' | 'live'
  * Contexte de la séance. Sert à interpréter l'efficience : une baisse due à la
  * chaleur ou à la fatigue n'est pas une perte de forme.
  */
-export type SessionContext = 'chaleur' | 'fatigue' | 'jeune' | 'maladie'
+export type SessionContext = 'chaleur' | 'fatigue' | 'a-jeun' | 'maladie'
 
 export interface Session {
   /** UUID généré côté client — la synchronisation distante n'invente jamais d'identifiant. */
