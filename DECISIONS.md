@@ -517,6 +517,13 @@ L'action principale est en bas de l'écran, pleine largeur. Une main tenant un S
 le tiers inférieur ; le haut demande de repositionner l'appareil. L'information importante se **lit** en
 haut, l'action s'**atteint** en bas.
 
+**Corollaire clavier :** cette zone est la première que le clavier virtuel recouvre. La barre d'action
+est donc `position: sticky; bottom: 0` et se relève de `env(keyboard-inset-height)`. La WebView
+Capacitor se redimensionne avec le clavier (`adjustResize`), ce qui rend le procédé valide en natif —
+**à vérifier sur l'APK**, une maquette en iframe ne peut pas le démontrer. Repli acceptable si l'écran
+natif se comporte autrement : fermer le clavier avant d'enregistrer, soit un geste de plus, que seule
+la séance complète paie — la séance minimale n'ouvre jamais le clavier *(règle 6)*.
+
 ### 6. Critère d'acceptance chiffré : le nombre de gestes
 
 L'étalon n'est pas l'esthétique, c'est le nombre d'interactions. Hevy, référence du log de séance,
@@ -530,24 +537,26 @@ rapide pour être remplie entre deux séries.
 
 Un écran qui dépasse son budget est refusé, quelle que soit son allure.
 
-### 7. Rien n'est décidé en silence, rien n'est irréversible
+### 7. L'information est présentée au moment où elle est actionnable
 
-Deux règles jumelles, qui découlent de la contrainte « la donnée ne doit jamais être perdue ».
+Le motif d'abord, la règle ensuite.
 
-**Avant d'écrire :** toute valeur que l'application décide à la place de l'utilisateur est affichée
-avant l'action. L'écran de saisie horodate la séance sans champ de date *(sujet 9)* — il indique donc
-`SERA HORODATÉE · AUJOURD'HUI 18:32` au-dessus du bouton. On ne se saisit pas de cette valeur, on la
-constate. Sans cet affichage, une séance de la veille saisie le lendemain est datée du mauvais jour
-sans que rien ne le signale.
+**Motif :** l'erreur coûteuse n'est pas la saisie invalide — les bornes du schéma l'attrapent — c'est
+la saisie **plausible mais fausse** (45 W au lieu de 145). Aucune validation ne peut la détecter. Seul
+l'utilisateur le peut, et seulement s'il voit ce qu'il vient d'écrire, à un instant où il peut encore
+le corriger.
 
-**Après avoir écrit :** l'écriture renvoie sur l'écran où la donnée créée est **visible**, avec une
-annulation à portée de pouce. Après l'enregistrement d'une séance, retour à l'accueil, la séance en
-tête de l'historique, bouton *Annuler*.
+**Règle :** l'écriture renvoie sur l'écran où la donnée créée est **visible**, avec une annulation à
+portée de pouce. Après l'enregistrement d'une séance : retour à l'accueil, la séance en tête de
+l'historique, bouton *Annuler*. C'est le motif du choix A contre un retour sur formulaire vide, qui
+masquerait l'erreur au moment précis où elle est encore fraîche.
 
-Motif : l'erreur coûteuse n'est pas la saisie invalide — les bornes du schéma l'attrapent — c'est la
-saisie **plausible mais fausse** (45 W au lieu de 145). Aucune validation ne peut la détecter. Seul
-l'utilisateur le peut, et seulement s'il voit ce qu'il vient d'écrire. C'est le motif du choix A contre
-un retour sur formulaire vide, qui masquerait l'erreur au moment précis où elle est encore fraîche.
+**Corollaire — on n'affiche pas ce sur quoi l'utilisateur ne peut pas agir.** Une première version de
+cette règle imposait aussi d'annoncer *avant* l'action toute valeur décidée par l'application, d'où une
+ligne `SERA HORODATÉE · AUJOURD'HUI 18:32` au-dessus du bouton d'enregistrement. Abandonnée : il n'y a
+pas de champ date *(sujet 9)*, donc cette ligne signale un problème qu'elle ne donne aucun moyen de
+corriger — et la date est de toute façon lisible sur l'écran d'après, là où *Annuler* la rend
+actionnable. Une information non actionnable est du bruit, quelle que soit sa justesse.
 
 L'annulation s'appuie sur le `deletedAt` du modèle *(sujet 4)* : rien n'est effacé, même annulé.
 
