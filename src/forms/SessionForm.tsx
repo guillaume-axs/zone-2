@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { sessionSchema, type SessionInput } from './sessionSchema'
@@ -6,7 +7,7 @@ import './SessionForm.css'
 
 /** Étiquettes des contextes. Les valeurs sont celles du modèle, les mots ceux de l'utilisateur. */
 const CONTEXTS = [
-  { value: 'chaleur', label: 'Salle chaude' },
+  { value: 'chaleur', label: 'Chaleur' },
   { value: 'fatigue', label: 'Fatigué' },
   { value: 'a-jeun', label: 'À jeun' },
   { value: 'maladie', label: 'Malade' },
@@ -54,27 +55,67 @@ export default function SessionForm({ onSaved, initial }: Props) {
 
   const context = watch('context') ?? []
 
+  const dureeRef = useRef<HTMLInputElement | null>(null)
+  const puissanceRef = useRef<HTMLInputElement | null>(null)
+  const fcRef = useRef<HTMLInputElement | null>(null)
+
   /**
-   * Champ numérique. Deux précautions :
+   * Champ numérique. Quatre comportements, tous là pour économiser un geste
+   * ou éviter une correction :
    *  - `setValueAs` traduit la chaîne du DOM en nombre, et le vide en `undefined`
    *    (un champ optionnel laissé vide ne doit pas devenir `NaN`) ;
    *  - la frappe est filtrée aux chiffres, pour qu'aucune lettre n'atteigne zod
-   *    et n'y déclenche un message technique.
+   *    et n'y déclenche un message technique ;
+   *  - la touche « suivant » du clavier passe au champ suivant. Sans cela elle
+   *    soumettrait le formulaire : `enterKeyHint` ne change que le dessin de la
+   *    touche, jamais son comportement ;
+   *  - `avanceA` fait basculer au champ suivant dès que le nombre de chiffres
+   *    attendu est atteint. Réservé aux champs dont la longueur maximale est
+   *    certaine — voir le commentaire de l'appel.
    */
-  function numeric(name: 'durationMin' | 'avgPowerW' | 'avgHrBpm') {
+  function numeric(
+    name: 'durationMin' | 'avgPowerW' | 'avgHrBpm',
+    opts: {
+      champ: React.RefObject<HTMLInputElement | null>
+      suivant?: React.RefObject<HTMLInputElement | null>
+      avanceA?: number
+    },
+  ) {
     const field = register(name, {
       setValueAs: (v) => (v === '' || v == null ? undefined : Number(v)),
     })
     return {
       ...field,
+      ref(el: HTMLInputElement | null) {
+        field.ref(el)
+        opts.champ.current = el
+      },
       onChange(e: React.ChangeEvent<HTMLInputElement>) {
         e.target.value = e.target.value.replace(/\D/g, '')
-        return field.onChange(e)
+        const r = field.onChange(e)
+        if (opts.avanceA && e.target.value.length >= opts.avanceA) {
+          opts.suivant?.current?.focus()
+        }
+        return r
+      },
+      onKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+        if (e.key !== 'Enter') return
+        e.preventDefault()
+        if (opts.suivant?.current) opts.suivant.current.focus()
+        else e.currentTarget.blur()
       },
       // Règle 6 — corriger une durée doit coûter un geste, pas trois :
       // le champ se sélectionne entier, la frappe remplace.
       onFocus(e: React.FocusEvent<HTMLInputElement>) {
         e.target.select()
+        // Le clavier met environ 200 ms à s'ouvrir. Sans ce délai, le champ est
+        // recentré dans une fenêtre qui n'a pas encore rétréci, donc au mauvais
+        // endroit — et il se retrouve caché sous le clavier.
+        const el = e.target
+        window.setTimeout(
+          () => el.scrollIntoView({ block: 'center', behavior: 'smooth' }),
+          250,
+        )
       },
     }
   }
@@ -130,7 +171,7 @@ export default function SessionForm({ onSaved, initial }: Props) {
             –
           </button>
           <input
-            {...numeric('durationMin')}
+            {...numeric('durationMin', { champ: dureeRef, suivant: puissanceRef })}
             className="stepper__value"
             type="text"
             inputMode="numeric"
@@ -160,7 +201,15 @@ export default function SessionForm({ onSaved, initial }: Props) {
           <span className="label">Puissance moy.</span>
           <span className="field__in">
             <input
-              {...numeric('avgPowerW')}
+              {...numeric('avgPowerW', {
+                champ: puissanceRef,
+                suivant: fcRef,
+                // Trois chiffres suffisent : la borne du schéma est 999 W, et
+                // aucune moyenne humaine sur une séance ne les dépasse. Une
+                // puissance à deux chiffres demande encore un tap — le cas rare
+                // ne coûte rien de plus qu'avant, le cas fréquent gagne un geste.
+                avanceA: 3,
+              })}
               className="field__num"
               type="text"
               inputMode="numeric"
@@ -182,7 +231,7 @@ export default function SessionForm({ onSaved, initial }: Props) {
           <span className="label">FC moyenne</span>
           <span className="field__in">
             <input
-              {...numeric('avgHrBpm')}
+              {...numeric('avgHrBpm', { champ: fcRef })}
               className="field__num"
               type="text"
               inputMode="numeric"

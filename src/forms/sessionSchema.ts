@@ -22,7 +22,7 @@ export const sessionSchema = z.object({
     .number()
     .int('Nombre entier de watts')
     .min(0, 'Puissance négative impossible')
-    .max(1000, 'Puissance invraisemblable')
+    .max(999, 'Puissance invraisemblable')
     .optional(),
 
   avgHrBpm: z
