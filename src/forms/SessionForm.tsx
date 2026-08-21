@@ -16,6 +16,20 @@ const CONTEXTS = [
 const DUREE_PAR_DEFAUT = 45
 const PAS = 5
 
+type Numerique = 'durationMin' | 'avgPowerW' | 'avgHrBpm'
+
+/**
+ * Le champ, pris isolément, passe-t-il ses bornes ?
+ *
+ * Ne sert qu'à **effacer** une erreur pendant la frappe. On ne se sert jamais
+ * du faux pour en allumer une : un nombre inachevé — « 12 » en route vers
+ * « 125 » — est hors bornes sans être une faute.
+ */
+function borneOk(name: Numerique, brut: string) {
+  const valeur = brut === '' ? undefined : Number(brut)
+  return sessionSchema.shape[name].safeParse(valeur).success
+}
+
 /** Retour haptique. Absent sur bureau, silencieux si l'utilisateur l'a coupé. */
 function tick() {
   navigator.vibrate?.(8)
@@ -42,14 +56,26 @@ export default function SessionForm({ onSaved, initial }: Props) {
     handleSubmit,
     setValue,
     getValues,
+    clearErrors,
     watch,
     formState: { errors, isSubmitting },
   } = useForm<SessionInput>({
     resolver: zodResolver(sessionSchema),
-    // Règle 4 — « récompenser tôt, punir tard » : `onTouched` valide à la première
-    // sortie du champ, puis à chaque frappe. L'erreur disparaît donc sur la touche
-    // qui la corrige, sans attendre un nouveau blur.
-    mode: 'onTouched',
+    // Règle 4 — « récompenser tôt, punir tard ». Apparition et disparition
+    // n'obéissent pas au même événement, et c'est tout l'objet de la règle :
+    // une erreur ne s'allume qu'à la sortie du champ, elle s'éteint à la frappe
+    // qui la corrige (voir `clearErrors` plus bas).
+    //
+    // `onTouched` avait l'air de faire les deux ; il fait autre chose. Il retient
+    // que le champ a déjà été quitté une fois, et valide ensuite à *chaque*
+    // frappe — donc il affiche « FC trop basse » sur le « 12 » de « 125 », dès la
+    // deuxième visite dans le champ. C'est la sanction pendant la frappe que la
+    // règle interdit, doublée d'un comportement qui dépend de l'historique.
+    //
+    // `reValidateMode` est explicite parce que son défaut (`onChange`) rétablit
+    // exactement ce défaut dès la première tentative d'enregistrement.
+    mode: 'onBlur',
+    reValidateMode: 'onBlur',
     defaultValues: initial ?? { durationMin: DUREE_PAR_DEFAUT, context: [] },
   })
 
@@ -60,7 +86,7 @@ export default function SessionForm({ onSaved, initial }: Props) {
   const fcRef = useRef<HTMLInputElement | null>(null)
 
   /**
-   * Champ numérique. Quatre comportements, tous là pour économiser un geste
+   * Champ numérique. Cinq comportements, tous là pour économiser un geste
    * ou éviter une correction :
    *  - `setValueAs` traduit la chaîne du DOM en nombre, et le vide en `undefined`
    *    (un champ optionnel laissé vide ne doit pas devenir `NaN`) ;
@@ -69,12 +95,14 @@ export default function SessionForm({ onSaved, initial }: Props) {
    *  - la touche « suivant » du clavier passe au champ suivant. Sans cela elle
    *    soumettrait le formulaire : `enterKeyHint` ne change que le dessin de la
    *    touche, jamais son comportement ;
+   *  - une valeur redevenue correcte efface l'erreur affichée, sans attendre
+   *    un nouveau blur ;
    *  - `avanceA` fait basculer au champ suivant dès que le nombre de chiffres
    *    attendu est atteint. Réservé aux champs dont la longueur maximale est
    *    certaine — voir le commentaire de l'appel.
    */
   function numeric(
-    name: 'durationMin' | 'avgPowerW' | 'avgHrBpm',
+    name: Numerique,
     opts: {
       champ: React.RefObject<HTMLInputElement | null>
       suivant?: React.RefObject<HTMLInputElement | null>
@@ -93,6 +121,9 @@ export default function SessionForm({ onSaved, initial }: Props) {
       onChange(e: React.ChangeEvent<HTMLInputElement>) {
         e.target.value = e.target.value.replace(/\D/g, '')
         const r = field.onChange(e)
+        // Le seul effet de la frappe sur les erreurs : en éteindre une. Jamais
+        // en allumer une — c'est le `blur` qui en a le droit, lui seul.
+        if (borneOk(name, e.target.value)) clearErrors(name)
         if (opts.avanceA && e.target.value.length >= opts.avanceA) {
           opts.suivant?.current?.focus()
         }

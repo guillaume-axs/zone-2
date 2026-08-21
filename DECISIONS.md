@@ -526,6 +526,24 @@ afficher « FC trop basse » pendant que l'utilisateur tape le premier chiffre d
 **Exception, et c'est le cœur de la règle :** un champ **déjà en erreur** repasse en validation à la
 frappe, pour que l'erreur disparaisse dès qu'elle est corrigée. L'erreur arrive tard, sa levée arrive tôt.
 
+**Précision du 2026-08-21, après un défaut trouvé sur l'appareil.** « Repasser en validation à la frappe »
+n'autorise qu'à **éteindre** une erreur, jamais à en allumer une. Les deux sens sont deux mécanismes
+distincts, et les confondre suffit à retourner la règle contre elle-même :
+
+| Événement | Peut allumer | Peut éteindre |
+| --- | --- | --- |
+| Sortie du champ (`blur`) | oui | oui |
+| Frappe | **non** | oui |
+| Tentative d'enregistrement | oui | oui |
+
+Le piège concret, pour ne pas le refaire : le mode `onTouched` de React Hook Form *paraît* implémenter la
+règle, mais il retient que le champ a déjà été quitté une fois et valide ensuite à **chaque** frappe.
+Résultat, dès la deuxième visite dans le champ, « FC trop basse » s'affiche sur le `12` de `125` — la
+sanction pendant la frappe, précisément ce que la règle interdit, avec en prime un comportement qui
+dépend de l'historique de l'écran. La combinaison correcte est `mode: 'onBlur'` **et**
+`reValidateMode: 'onBlur'` — le défaut du second rétablit le défaut dès la première tentative
+d'enregistrement — l'extinction étant faite à la main, en vérifiant la seule borne du champ modifié.
+
 Mesures de Luke Wroblewski, validation en ligne contre validation à la soumission : **−22 % d'erreurs,
 −42 % de temps de saisie**, satisfaction en hausse.
 
