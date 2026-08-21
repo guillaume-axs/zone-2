@@ -44,6 +44,15 @@ describe('sessionSchema', () => {
     expect(sessionSchema.safeParse({ durationMin: 45, avgPowerW: 0 }).success).toBe(true)
   })
 
+  // La borne haute tient en trois chiffres : c'est ce qui autorise la bascule
+  // automatique vers le champ suivant à la troisième frappe. Aucune moyenne
+  // humaine sur une séance n'approche 999 W — le record du monde sur une heure
+  // est autour de 440 W.
+  it('plafonne la puissance à trois chiffres', () => {
+    expect(sessionSchema.safeParse({ durationMin: 45, avgPowerW: 999 }).success).toBe(true)
+    expect(sessionSchema.safeParse({ durationMin: 45, avgPowerW: 1000 }).success).toBe(false)
+  })
+
   it('refuse un tag de contexte inconnu', () => {
     const r = sessionSchema.safeParse({ durationMin: 45, context: ['pluie'] })
     expect(r.success).toBe(false)

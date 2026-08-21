@@ -578,6 +578,35 @@ actionnable. Une information non actionnable est du bruit, quelle que soit sa ju
 
 L'annulation s'appuie sur le `deletedAt` du modèle *(sujet 4)* : rien n'est effacé, même annulé.
 
+### 8. L'enchaînement des champs se pilote au clavier, l'automatisme se mérite
+
+*(arbitré le 2026-08-21, après essai sur l'appareil)*
+
+**La touche d'action du clavier avance d'un champ.** `enterKeyHint` ne change que le *dessin* de la touche
+— « suivant », « OK » — jamais son comportement : dans un formulaire à bouton unique, Entrée soumet. Il faut
+donc intercepter la touche et déplacer le focus soi-même, sans quoi la touche « suivant » enregistre la
+séance. C'est le chemin d'avancement principal : il est explicite, il est déjà sous le pouce, il ne devine
+rien.
+
+**L'avancement automatique n'est permis que si la longueur maximale du champ est certaine.** Le test est
+arithmétique, pas esthétique :
+
+| Seuil de bascule | Puissance à 3 chiffres (145 W) | Puissance à 2 chiffres (95 W) |
+|---|---|---|
+| 2 chiffres | ✗ le troisième chiffre part dans le champ suivant | ✓ |
+| **3 chiffres** | ✓ un geste économisé | ✓ un tap, comme avant — aucune régression |
+
+La bascule à trois chiffres est donc retenue **pour la puissance seule**, et la borne du schéma est descendue
+de 1000 à 999 W pour que le modèle décrive ce que la saisie permet réellement. Le cas fréquent gagne, le cas
+rare ne perd rien : c'est cette asymétrie qui justifie l'automatisme, pas le gain moyen.
+
+**Là où on ne l'applique pas :** la durée (souvent deux chiffres, et une bascule depuis le champ principal
+surprend), et la FC (dernier champ — il n'y a rien après, et refermer le clavier sous les doigts est plus
+intrusif qu'utile).
+
+**Ce qui reste interdit :** l'avancement automatique sur un champ de longueur variable. Le geste économisé
+serait repayé en corrections, et une correction coûte plus cher qu'un tap.
+
 ---
 
 ## Qualité « portfolio » — les 4 axes validés
