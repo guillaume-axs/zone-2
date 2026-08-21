@@ -1,0 +1,212 @@
+/* Saisie d'une séance. Reprend la charte du sujet 7 : filets fins, aucun coin
+   arrondi, la couleur ne sert qu'à porter une information. */
+
+.form {
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding-right: calc(22px + env(safe-area-inset-right));
+  padding-left: calc(22px + env(safe-area-inset-left));
+}
+
+.form__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-top: calc(26px + env(safe-area-inset-top));
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--rule);
+}
+
+/* ---- durée : le champ principal, traité comme la donnée de l'écran ---- */
+
+.form__hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  padding: 44px 0 40px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.stepper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 26px;
+}
+
+/* 52 px : au-delà du minimum de 48 dp, parce que ce bouton est pressé plusieurs
+   fois de suite et qu'un raté coûte un geste entier (règle 6). */
+.stepper__btn {
+  flex: 0 0 52px;
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--rule);
+  color: var(--fg-2);
+  font-size: 22px;
+  transition: border-color 0.12s, color 0.12s;
+}
+
+.stepper__btn:active {
+  border-color: var(--fg-4);
+  color: var(--fg);
+}
+
+.stepper__value {
+  width: 150px;
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 82px;
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+  color: var(--fg-hero);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Le champ actif vire à la braise : c'est de l'information (« tu écris ici »),
+   pas de la décoration. */
+.stepper__value:focus {
+  outline: none;
+  color: var(--accent);
+}
+
+.hero-unit {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+}
+
+/* ---- champs optionnels : en retrait, sans le mot « optionnel » (règle 3) ---- */
+
+.form__rest {
+  display: flex;
+  flex-direction: column;
+  padding-top: 6px;
+}
+
+.field {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 19px 0;
+  border-bottom: 1px solid var(--rule-2);
+}
+
+.field__in {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.field__num {
+  width: 72px;
+  padding: 2px 4px;
+  border: 0;
+  border-bottom: 1px solid var(--rule);
+  background: none;
+  text-align: right;
+  font-size: 19px;
+  font-weight: 500;
+  color: var(--fg);
+  font-variant-numeric: tabular-nums;
+}
+
+.field__num::placeholder {
+  color: var(--fg-5);
+  font-weight: 400;
+}
+
+.field__num:focus {
+  outline: none;
+  border-bottom-color: var(--fg-3);
+}
+
+.field--bad .field__num {
+  border-bottom-color: var(--accent);
+  color: var(--accent);
+}
+
+.unit {
+  width: 34px;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--fg-4);
+}
+
+/* L'erreur prend toute la largeur pour passer sous le champ, jamais à côté. */
+.field__err {
+  width: 100%;
+  padding-top: 8px;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 22px;
+}
+
+.tag {
+  min-height: 44px;
+  padding: 11px 14px;
+  border: 1px solid var(--rule);
+  font-size: 13px;
+  color: var(--fg-3);
+  transition: color 0.12s, border-color 0.12s;
+}
+
+.tag[aria-pressed='true'] {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+/* ---- action ---- */
+
+/* Le clavier ne doit jamais recouvrir l'action : la barre reste collée en bas
+   et se relève de la hauteur du clavier quand il s'ouvre. `keyboard-inset-height`
+   vaut 0 partout où le clavier ne recouvre pas la vue — la règle est donc sûre.
+   À vérifier sur l'APK (DECISIONS.md, règle 5). */
+.form__bottom {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  margin-top: auto;
+  background: var(--bg);
+  padding-top: 22px;
+  padding-bottom: calc(
+    26px + env(keyboard-inset-height, 0px) + env(safe-area-inset-bottom, 0px)
+  );
+}
+
+.save {
+  width: 100%;
+  min-height: 56px;
+  background: var(--fg-hero);
+  color: var(--bg);
+  font-size: 15px;
+  font-weight: 600;
+  transition: background 0.12s;
+}
+
+.save:disabled {
+  background: var(--fg-4);
+  cursor: default;
+}

@@ -80,3 +80,31 @@ button {
   text-transform: uppercase;
   color: var(--fg-4);
 }
+
+/*
+ * Grain (charte, sujet 7). Une trame de bruit très légère par-dessus toute
+ * l'application : elle enlève au fond noir son aspect numérique plat.
+ * `pointer-events: none` la rend totalement transparente aux doigts.
+ */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9;
+  pointer-events: none;
+  opacity: 0.5;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
+}
+
+/* Le focus visible n'est jamais supprimé : il est la seule aide au clavier. */
+:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}
