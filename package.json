@@ -18,7 +18,6 @@
     "dexie": "^4.4.4",
     "dexie-react-hooks": "^4.4.0",
     "react": "^19.2.8",
-    "react-aria-components": "^1.20.0",
     "react-dom": "^19.2.8",
     "react-hook-form": "^7.85.0",
     "zod": "^4.4.3"

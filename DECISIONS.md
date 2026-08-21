@@ -179,6 +179,24 @@ plus ergonomique pour un formulaire sur mobile, et cela supprime le composant le
 **Critère de validation, vérifiable à l'œil sur le téléphone :** appuyer sur un bouton ; il ne doit pas rester
 allumé une fois le doigt retiré.
 
+### Révision du 2026-08-21 — la dépendance est retirée, le critère reste
+
+`react-aria-components` a été **désinstallée**. Son unique usage était le bouton de l'écran de preuve de vie
+de l'itération 1, écran supprimé avec l'arrivée de la saisie. L'écran de saisie n'emploie que des contrôles
+natifs — `<button>`, `<input>` — qui n'ont besoin d'aucune aide pour être accessibles et tactiles.
+
+**Le critère de validation, lui, ne bouge pas** : un bouton ne doit jamais rester allumé après le retrait du
+doigt. Ce qui l'assure désormais est une règle CSS, inscrite en tête de `src/styles/base.css` :
+
+> Aucun `:hover` en dehors de `@media (hover: hover)`. Le retour au toucher passe par `:active`.
+
+C'est une garantie plus solide que la bibliothèque ne l'offrait, parce qu'elle est structurelle : le défaut
+vient d'une règle `:hover` appliquée à un doigt, et cette média-requête rend le cas impossible quel que soit
+le composant. La bibliothèque, elle, ne protégeait que les éléments qu'on lui confiait.
+
+**Quand la réinstaller :** le jour où un écran a besoin d'un composant que HTML ne fournit pas — onglets,
+liste déroulante personnalisée, boîte de dialogue. L'analyse ci-dessus reste valable telle quelle.
+
 ---
 
 ## Sujet 4 — Métier et modèle de données ✅

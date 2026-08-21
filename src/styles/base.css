@@ -72,6 +72,32 @@ button {
   touch-action: manipulation;
 }
 
+/*
+ * RÈGLE ABSOLUE — aucun `:hover` en dehors de `@media (hover: hover)`.
+ *
+ * Sur Android, la WebView applique `:hover` au moment du tap et ne le retire
+ * qu'au tap suivant ailleurs : le bouton reste allumé après que le doigt est
+ * parti. C'est *le* défaut tactile qui trahit une application web mal portée.
+ *
+ * La parade n'est pas de renoncer au survol, c'est de le réserver aux
+ * périphériques qui en ont un. `hover: hover` est vrai pour une souris,
+ * faux pour un doigt — le tactile ne voit donc jamais ces règles.
+ *
+ *     @media (hover: hover) {
+ *       .mon-bouton:hover { ... }
+ *     }
+ *
+ * Le retour au toucher, lui, passe par `:active`, qui s'éteint au relâchement.
+ * Il n'est pas facultatif : `-webkit-tap-highlight-color: transparent` ci-dessus
+ * supprime le halo natif, donc un bouton sans `:active` ne répond visuellement
+ * à rien.
+ */
+
+/* Retour tactile par défaut, hérité par tout bouton qui n'en définit pas. */
+button:active {
+  opacity: 0.72;
+}
+
 /* Étiquette : petites capitales espacées, en monospace */
 .label {
   font-family: var(--font-mono);
