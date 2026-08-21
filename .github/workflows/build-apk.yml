@@ -61,6 +61,10 @@ jobs:
       # lockfile, sans jamais le mettre à jour au passage.
       - run: npm ci
 
+      # Avant le build : un calcul faux ne se voit jamais à l'écran,
+      # contrairement à un bouton mal placé.
+      - run: npm test
+
       - run: npm run build
 
       # Recopie `dist/` dans les ressources Android. Ces fichiers sont ignorés

@@ -1,93 +1,76 @@
-.screen {
-  /* Hauteur exacte de la fenêtre visible. `dvh` suit la barre d'adresse
-     quand elle se rétracte, contrairement à `vh`. */
+/* Écran d'après-enregistrement.
+   Rudimentaire à dessein : il rend la séance visible et annulable (règle 7).
+   L'écran d'accueil, avec son étude UX, le remplacera. */
+
+.after {
   height: 100dvh;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-
-  /* Les marges de sécurité s'ajoutent au rembourrage visuel, sans jamais
-     déborder : `box-sizing: border-box` les inclut dans la hauteur. */
-  padding-top: calc(32px + env(safe-area-inset-top));
-  padding-right: calc(24px + env(safe-area-inset-right));
-  padding-bottom: calc(40px + env(safe-area-inset-bottom));
-  padding-left: calc(24px + env(safe-area-inset-left));
+  overflow-y: auto;
+  padding-top: calc(26px + env(safe-area-inset-top));
+  padding-right: calc(22px + env(safe-area-inset-right));
+  padding-bottom: calc(26px + env(safe-area-inset-bottom));
+  padding-left: calc(22px + env(safe-area-inset-left));
 }
 
-.screen__head {
-  border-bottom: 1px solid var(--rule);
-  padding-bottom: 14px;
-}
-
-/* Le chiffre, traité comme la donnée principale de l'écran */
-.stat {
+/* Bordure braise : la seule chose de l'écran qui demande une décision. */
+.after__undo {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  border: 1px solid var(--accent);
+  padding: 14px 16px;
+  margin-bottom: 6px;
 }
 
-.stat__value {
-  font-family: var(--font-display);
-  font-size: 76px;
-  line-height: 0.94;
-  letter-spacing: -0.02em;
-  color: var(--fg-hero);
+.after__undo .label {
+  color: var(--fg-2);
+}
+
+.after__undo-btn {
+  min-height: 44px;
+  padding: 0 4px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.hist {
+  list-style: none;
+}
+
+.hist__item {
   display: flex;
   align-items: baseline;
-  gap: 12px;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 17px 0;
+  border-bottom: 1px solid var(--rule-2);
 }
 
-.stat__unit {
-  font-family: var(--font-ui);
-  font-size: 15px;
-  font-weight: 400;
-  letter-spacing: 0;
-  color: var(--fg-3);
+.hist__value {
+  font-size: 14.5px;
+  color: var(--fg-2);
+  font-variant-numeric: tabular-nums;
 }
 
-/*
- * Le bouton s'appuie sur les attributs de données de React Aria plutôt que sur
- * les pseudo-classes CSS. C'est tout l'intérêt de la bibliothèque : `:hover` reste
- * collé après un appui sur mobile, `data-hovered` non — il n'est posé que pour un
- * vrai survol, jamais pour un doigt.
- */
-.btn {
-  font-family: var(--font-ui);
-  font-size: 15px;
-  font-weight: 500;
-  color: var(--bg);
-  background: var(--accent);
-  border-radius: 10px;
-  /* 52 px : au-dessus du minimum de 48 dp recommandé pour une cible tactile */
-  min-height: 52px;
-  padding: 0 22px;
+/* La séance qu'on vient d'écrire : plus claire que les autres, pour qu'on la
+   relise sans la chercher. */
+.hist__item--fresh .hist__value {
+  color: var(--fg-hero);
+}
+
+.hist__item--fresh .label {
+  color: var(--accent);
+}
+
+.after__back {
   width: 100%;
-  transition: transform 120ms ease, opacity 120ms ease;
-}
-
-.btn[data-hovered] {
-  opacity: 0.92;
-}
-
-.btn[data-pressed] {
-  transform: scale(0.975);
-  opacity: 0.85;
-}
-
-.btn[data-focus-visible] {
-  outline: 2px solid var(--fg-hero);
-  outline-offset: 3px;
-}
-
-.screen__foot {
-  border-top: 1px solid var(--rule);
-  padding-top: 14px;
-}
-
-.screen__foot .label {
-  /* Consigne de test : lisible, mais volontairement en retrait */
-  line-height: 1.7;
-  text-transform: none;
-  letter-spacing: 0.04em;
-  font-size: 11px;
+  min-height: 52px;
+  margin-top: 26px;
+  border: 1px solid var(--rule);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--fg-3);
 }

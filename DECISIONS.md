@@ -29,20 +29,22 @@ parce que le risque n°1 déclaré est le décrochage une fois la nouveauté pas
 - Comptes tiers, fonctions sociales, Strava/Garmin
 - Toute la capture live BLE → **étape 2**
 
-**Champs du formulaire** — un seul obligatoire :
+**Champs du formulaire** *(révisé le 2026-08-14 — voir sujet 9)* — un seul obligatoire :
 
 | Champ | Statut |
 |---|---|
-| Date & heure | pré-rempli « maintenant », modifiable |
 | Durée (min) | **obligatoire** |
 | Puissance moyenne (W) | optionnel — lue sur la console du vélo |
 | FC moyenne (bpm) | optionnel |
-| Distance (km) | optionnel |
-| RPE 1–10 | optionnel |
-| Contexte (3 tags) | optionnel — salle chaude / fatigué / jambes lourdes |
-| Note | optionnel |
+| Contexte (4 tags) | optionnel — salle chaude / fatigué / à jeun / malade |
 
 Une séance sans FC ni watts s'enregistre quand même : elle compte dans le volume, elle n'apparaît pas dans la courbe d'EF.
+
+**Quatre champs retirés du formulaire, conservés dans le modèle** — date & heure, distance, RPE, note.
+Ils ne sont pas indexés dans Dexie : les réintroduire ne coûtera aucune migration. La date et l'heure
+sont désormais horodatées à l'enregistrement, sans champ de saisie ; la correction après coup relève
+de l'écran d'édition de l'historique. La note a été coupée parce qu'un champ libre qu'on ne remplit
+jamais coûte plus en friction qu'il ne rapporte en information.
 
 **Décision produit clé :** le dashboard ne dit rien avant ~8-10 séances. Le MVP doit donc être gratifiant
 **dès la première saisie** → le bloc stats du mois est aussi important que les courbes.
@@ -176,6 +178,24 @@ plus ergonomique pour un formulaire sur mobile, et cela supprime le composant le
 
 **Critère de validation, vérifiable à l'œil sur le téléphone :** appuyer sur un bouton ; il ne doit pas rester
 allumé une fois le doigt retiré.
+
+### Révision du 2026-08-21 — la dépendance est retirée, le critère reste
+
+`react-aria-components` a été **désinstallée**. Son unique usage était le bouton de l'écran de preuve de vie
+de l'itération 1, écran supprimé avec l'arrivée de la saisie. L'écran de saisie n'emploie que des contrôles
+natifs — `<button>`, `<input>` — qui n'ont besoin d'aucune aide pour être accessibles et tactiles.
+
+**Le critère de validation, lui, ne bouge pas** : un bouton ne doit jamais rester allumé après le retrait du
+doigt. Ce qui l'assure désormais est une règle CSS, inscrite en tête de `src/styles/base.css` :
+
+> Aucun `:hover` en dehors de `@media (hover: hover)`. Le retour au toucher passe par `:active`.
+
+C'est une garantie plus solide que la bibliothèque ne l'offrait, parce qu'elle est structurelle : le défaut
+vient d'une règle `:hover` appliquée à un doigt, et cette média-requête rend le cas impossible quel que soit
+le composant. La bibliothèque, elle, ne protégeait que les éléments qu'on lui confiait.
+
+**Quand la réinstaller :** le jour où un écran a besoin d'un composant que HTML ne fournit pas — onglets,
+liste déroulante personnalisée, boîte de dialogue. L'analyse ci-dessus reste valable telle quelle.
 
 ---
 
@@ -405,6 +425,158 @@ L'APK est publié dans une release à étiquette fixe `latest`, donc à **adress
 utilisateurs authentifiés, il est inutilisable depuis un téléphone, c'est-à-dire au seul endroit où l'on
 souhaite installer l'application. La clé de signature reste celle de debug : une future version signée pour
 publication exigera une désinstallation préalable.
+
+---
+
+## Sujet 9 — Cas d'usage et ordonnancement ✅ *(décidé le 2026-08-14)*
+
+Les huit sujets précédents décrivent **ce que** l'application fait. Aucun ne disait **dans quelles
+situations** on s'en sert. Le trou est apparu en réduisant le formulaire de saisie : impossible de
+choisir les champs sans savoir qui les remplit, et quand.
+
+### Deux modes, pas trois
+
+| Mode | Situation | Saisi à la main |
+|---|---|---|
+| **Live** — la raison d'être | Ceinture en place, application lancée au début de la séance | La **puissance** seule, en fin de séance |
+| **Manuel** — le filet | Ceinture oubliée, téléphone déchargé, plantage, autre salle | **Tout**, après coup |
+
+L'utilisateur qui lit sa fréquence cardiaque sur une montre n'est pas un troisième mode : c'est le mode
+manuel. Il renonce au retour en direct — savoir s'il est en zone 2 pendant l'effort — mais l'application
+lui sert quand même d'historique. Aucun développement supplémentaire.
+
+**Conséquence sur le formulaire de saisie manuelle : il n'est pas du travail jetable.** C'est le mode
+manuel définitif. Le mode live viendra simplement pré-remplir deux de ses champs, la durée et la FC.
+
+**Écarté explicitement :** l'import de fichiers `.fit` et les intégrations Garmin, Polar Flow ou Strava.
+Chantier entier pour un bénéfice nul dans l'usage visé, déjà refusé au sujet 1.
+
+### Séances factices pendant l'attente de la ceinture
+
+Aucune source de fréquence cardiaque n'existe aujourd'hui : ni ceinture, ni montre, ni poignées sur le
+vélo. Plutôt que d'attendre la livraison sans rien produire, on saisit des séances aux valeurs inventées
+mais plausibles. L'efficience se calcule, les graphiques ont de quoi s'afficher et se valider.
+
+**Purge : par réinstallation de l'APK, pas par du code.** Le jour où la ceinture arrive, désinstaller puis
+réinstaller vide les données locales et repart sur une base propre. Pas de champ « séance de test », pas
+de mode démo : ce serait de la complexité permanente pour un problème qui dure trois semaines. Le risque
+réel n'est pas technique — c'est qu'une intention humaine de « ne pas en tenir compte » ne suffit pas :
+l'application, elle, moyennerait le vrai et le faux sans faire la différence.
+
+### Ordre des itérations
+
+**2. Formulaire de saisie · 3. Graphiques · 4. Capture BLE**
+
+Le BLE est le risque qui peut tuer le projet, et le programmer en dernier est contestable. Il l'est moins
+ici pour une raison matérielle : **rien du BLE n'est testable sans ceinture** — pas de connexion GATT à
+tenir, pas de reconnexion à éprouver, pas de service à faire survivre à One UI. Le chemin critique du
+projet est le délai de livraison, pas le code. Les séances factices permettent d'avancer sur tout le reste
+pendant ce temps.
+
+---
+
+## Sujet 10 — Règles UX de saisie ✅ *(décidé le 2026-08-14)*
+
+**Ces règles valent pour tous les écrans de l'application, pas seulement pour la saisie d'une séance.**
+Elles ont été établies par une revue des recommandations publiées (Nielsen Norman Group, Baymard
+Institute, Luke Wroblewski) et des pratiques des applications de log d'entraînement de référence.
+Un écran qui s'en écarte doit dire pourquoi.
+
+### 1. Clavier numérique sans `<input type="number">`
+
+Tout champ chiffré est un `type="text"` portant `inputmode="numeric"`.
+
+Le type natif `number` a des flèches d'incrément trop petites pour le pouce et accepte des saisies
+qu'il marque « invalides » selon sa propre logique, pas la nôtre. `inputmode` ne change pas le champ,
+il change le clavier que le système remonte — c'est tout ce qu'on veut.
+
+### 2. Le stepper se mérite
+
+Un stepper (– / +) n'est justifié que si le champ a **une valeur habituelle** autour de laquelle
+l'utilisateur fait de petits ajustements *(NN/G)*. Il échange de la précision contre de la vitesse :
+le marché n'est bon que si l'écart au défaut reste petit.
+
+| Champ | Valeur habituelle | Forme retenue |
+|---|---|---|
+| Durée | oui, ~45 min par pas de 5 | **stepper hybride** — valeur pré-remplie et tapable au clavier |
+| Puissance | non | champ au clavier |
+| FC | non | champ au clavier |
+
+Sur mobile, les boutons – et + se placent **horizontalement** de part et d'autre de la valeur
+(verticalement, le pouce se trompe de cible), avec une zone tactile d'au moins **48 dp**.
+
+### 3. Hiérarchie visuelle plutôt que mention « optionnel »
+
+**Écart assumé par rapport à la règle publiée.** Baymard et NN/G recommandent de marquer explicitement
+les champs obligatoires *et* optionnels. Cette règle vient des tunnels de commande, où l'optionnel est
+l'exception : marquer 3 champs sur 15 informe. Nos écrans sont inverses — 1 champ obligatoire, 3
+optionnels — et le mot répété trois fois sur quatre lignes serait du bruit.
+
+La forme porte donc le message : le champ obligatoire occupe le haut, seul et en grand ; les optionnels
+sont visuellement en retrait dessous, séparés par un filet.
+
+En revanche, la conclusion de fond de Baymard est retenue sans réserve : **le levier n'est pas le
+marquage, c'est le nombre de champs.** Tout ajout de champ se justifie contre cette règle.
+
+### 4. Valider à la sortie du champ — « reward early, punish late »
+
+La validation se déclenche au `blur`, jamais pendant la frappe. Valider à chaque caractère revient à
+afficher « FC trop basse » pendant que l'utilisateur tape le premier chiffre de 130.
+
+**Exception, et c'est le cœur de la règle :** un champ **déjà en erreur** repasse en validation à la
+frappe, pour que l'erreur disparaisse dès qu'elle est corrigée. L'erreur arrive tard, sa levée arrive tôt.
+
+Mesures de Luke Wroblewski, validation en ligne contre validation à la soumission : **−22 % d'erreurs,
+−42 % de temps de saisie**, satisfaction en hausse.
+
+### 5. Zone du pouce
+
+L'action principale est en bas de l'écran, pleine largeur. Une main tenant un S22 atteint confortablement
+le tiers inférieur ; le haut demande de repositionner l'appareil. L'information importante se **lit** en
+haut, l'action s'**atteint** en bas.
+
+**Corollaire clavier :** cette zone est la première que le clavier virtuel recouvre. La barre d'action
+est donc `position: sticky; bottom: 0` et se relève de `env(keyboard-inset-height)`. La WebView
+Capacitor se redimensionne avec le clavier (`adjustResize`), ce qui rend le procédé valide en natif —
+**à vérifier sur l'APK**, une maquette en iframe ne peut pas le démontrer. Repli acceptable si l'écran
+natif se comporte autrement : fermer le clavier avant d'enregistrer, soit un geste de plus, que seule
+la séance complète paie — la séance minimale n'ouvre jamais le clavier *(règle 6)*.
+
+### 6. Critère d'acceptance chiffré : le nombre de gestes
+
+L'étalon n'est pas l'esthétique, c'est le nombre d'interactions. Hevy, référence du log de séance,
+enregistre une série en deux taps, avec un principe directeur explicite : l'application doit être assez
+rapide pour être remplie entre deux séries.
+
+| Cas | Budget |
+|---|---|
+| Séance minimale (durée seule) | **≤ 3 gestes** |
+| Séance complète (durée + watts + FC) | **≤ 10 gestes** |
+
+Un écran qui dépasse son budget est refusé, quelle que soit son allure.
+
+### 7. L'information est présentée au moment où elle est actionnable
+
+Le motif d'abord, la règle ensuite.
+
+**Motif :** l'erreur coûteuse n'est pas la saisie invalide — les bornes du schéma l'attrapent — c'est
+la saisie **plausible mais fausse** (45 W au lieu de 145). Aucune validation ne peut la détecter. Seul
+l'utilisateur le peut, et seulement s'il voit ce qu'il vient d'écrire, à un instant où il peut encore
+le corriger.
+
+**Règle :** l'écriture renvoie sur l'écran où la donnée créée est **visible**, avec une annulation à
+portée de pouce. Après l'enregistrement d'une séance : retour à l'accueil, la séance en tête de
+l'historique, bouton *Annuler*. C'est le motif du choix A contre un retour sur formulaire vide, qui
+masquerait l'erreur au moment précis où elle est encore fraîche.
+
+**Corollaire — on n'affiche pas ce sur quoi l'utilisateur ne peut pas agir.** Une première version de
+cette règle imposait aussi d'annoncer *avant* l'action toute valeur décidée par l'application, d'où une
+ligne `SERA HORODATÉE · AUJOURD'HUI 18:32` au-dessus du bouton d'enregistrement. Abandonnée : il n'y a
+pas de champ date *(sujet 9)*, donc cette ligne signale un problème qu'elle ne donne aucun moyen de
+corriger — et la date est de toute façon lisible sur l'écran d'après, là où *Annuler* la rend
+actionnable. Une information non actionnable est du bruit, quelle que soit sa justesse.
+
+L'annulation s'appuie sur le `deletedAt` du modèle *(sujet 4)* : rien n'est effacé, même annulé.
 
 ---
 
