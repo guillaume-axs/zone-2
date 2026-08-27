@@ -74,3 +74,17 @@
   font-weight: 600;
   color: var(--fg-3);
 }
+
+/* Accès au PoC de survie. Temporaire — partira avec le PoC. */
+.poc-acces {
+  position: fixed;
+  top: calc(8px + env(safe-area-inset-top));
+  right: calc(10px + env(safe-area-inset-right));
+  z-index: 10;
+  min-width: 44px;
+  min-height: 44px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--fg-5);
+}

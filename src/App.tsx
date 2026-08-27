@@ -5,6 +5,7 @@ import { softDeleteSession } from './db/sessions'
 import type { Session } from './db/schema'
 import SessionForm from './forms/SessionForm'
 import type { SessionInput } from './forms/sessionSchema'
+import EcranSurvie from './poc/Survie'
 import './App.css'
 
 const JOURS = ['dim.', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.']
@@ -45,6 +46,8 @@ export default function App() {
   )
   /** Saisie rendue à l'utilisateur après une annulation : il corrige, il ne retape pas. */
   const [brouillon, setBrouillon] = useState<SessionInput | undefined>()
+  /** Écran de mesure du PoC de survie. Temporaire — il partira avec le PoC. */
+  const [poc, setPoc] = useState(false)
 
   const sessions = useLiveQuery(
     () =>
@@ -56,12 +59,17 @@ export default function App() {
     [],
   )
 
+  if (poc) return <EcranSurvie onClose={() => setPoc(false)} />
+
   if (!saved) {
     return (
-      <SessionForm
-        initial={brouillon}
-        onSaved={(id, input) => setSaved({ id, input })}
-      />
+      <>
+        <SessionForm
+          initial={brouillon}
+          onSaved={(id, input) => setSaved({ id, input })}
+        />
+        <AccesPoc onOpen={() => setPoc(true)} />
+      </>
     )
   }
 
@@ -99,6 +107,20 @@ export default function App() {
       >
         Nouvelle séance
       </button>
+
+      <AccesPoc onOpen={() => setPoc(true)} />
     </main>
+  )
+}
+
+/**
+ * Accès au PoC. Assez visible pour être trouvé sans mode d'emploi, assez
+ * discret pour ne pas peser sur l'écran ; il disparaîtra avec le PoC.
+ */
+function AccesPoc({ onOpen }: { onOpen: () => void }) {
+  return (
+    <button type="button" className="poc-acces" onClick={onOpen} aria-label="Diagnostic de survie">
+      poc
+    </button>
   )
 }

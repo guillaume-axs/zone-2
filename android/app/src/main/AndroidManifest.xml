@@ -24,6 +24,18 @@
 
         </activity>
 
+        <!--
+            Type `connectedDevice` : c'est l'unique catégorie legale pour du BLE
+            depuis Android 14. Elle est declaree des maintenant, alors que
+            l'etage 1 du PoC ne touche pas au Bluetooth, parce que c'est
+            justement cette declaration qu'on teste — un service d'un autre type
+            se comporterait autrement face a One UI.
+        -->
+        <service
+            android:name=".SurvieService"
+            android:exported="false"
+            android:foregroundServiceType="connectedDevice" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
@@ -38,4 +50,21 @@
     <!-- Permissions -->
 
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+
+    <!--
+        Le type `connectedDevice` exige que l'application detienne au moins une
+        permission de la liste prevue par Android. `BLUETOOTH_CONNECT` sera la
+        bonne a l'etage 2 ; mais elle se demande a l'execution, et l'etage 1
+        echouerait alors pour une raison etrangere a ce qu'il mesure.
+        `CHANGE_NETWORK_STATE` figure dans la meme liste et est accordee
+        automatiquement : elle satisfait le prerequis sans rien demander.
+    -->
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
 </manifest>
