@@ -116,7 +116,7 @@ Dans les deux cas il faut écrire le Kotlin — donc **on reste sur Capacitor** 
 **Samsung, Xiaomi, OnePlus et Huawei tuent les services en arrière-plan** de façon agressive, même
 correctement déclarés, même avec exemption batterie. **Aucune pile ne résout ça** — pas même du Kotlin natif pur.
 → Filet de sécurité **matériel** : privilégier une **ceinture à mémoire interne** (type Polar H10) qui
-enregistre de son côté. *À vérifier avant achat : la relecture de cette mémoire par une app tierce.*
+enregistre de son côté. *Relecture par une app tierce : vérifiée le 2026-08-27, voir plus bas.*
 
 **Appareil cible confirmé : Samsung Galaxy S22.** C'est le cas défavorable. One UI empile trois mécanismes
 par-dessus Android : optimisation batterie, mise en veille des applications peu utilisées, et « Soins de
@@ -130,6 +130,37 @@ l'appareil » qui réactive ses optimisations de lui-même. Référencé sur don
 - Permissions `BLUETOOTH_SCAN`, `BLUETOOTH_CONNECT` (Android 12+), `POST_NOTIFICATIONS` (13+)
 - `foregroundServiceType="connectedDevice"` **obligatoire** sur Android 14+, sinon `MissingForegroundServiceTypeException`
 - La notification permanente n'est pas contournable — c'est le prix d'entrée de la catégorie
+
+### Vérifications du 2026-08-27, avant l'étape 2
+
+**Capteur retenu : Polar H10, ceinture Pro.** Service standard `0x180D`, intervalles RR à 1 Hz, deux
+connexions BLE simultanées, pile CR2025 d'environ 400 h. Ce n'est pas la précision qui l'a désigné —
+elle a convergé entre ceintures ECG — mais **sa mémoire interne**, qui est la réponse matérielle à la
+limite ci-dessus.
+
+La question laissée ouverte avant achat est **levée** : le *Polar BLE SDK* est public, maintenu, Android
+et iOS, distribué via JitPack, et expose `FEATURE_POLAR_H10_EXERCISE_RECORDING` — la mémoire est donc
+relisible par notre application. Sa licence propriétaire autorise l'usage privé et commercial à condition
+de conserver la mention de copyright. **Aucun wrapper Capacitor n'existe** : ce pont est du travail à
+écrire, à budgéter à l'étape 2.
+
+**L'appareil cible a changé de version.** Le S22 tourne désormais sous **Android 16 / One UI 8**, sa
+dernière montée de version majeure, et le projet vise `targetSdk 36`. La limite assumée se mesure donc
+dans la configuration la moins indulgente qui existera pour cet appareil.
+
+**La limite assumée cesse d'être une hypothèse : elle est mesurée.** Le PoC de survie (PR #5) fait battre
+un service `connectedDevice` toutes les secondes et journalise chaque battement sur disque. Critère
+d'acceptation : **quatre heures, aucun silence de plus de 5 s, service vivant à la fin.**
+
+| Verdict | Conséquence |
+|---|---|
+| Aucune interruption | L'étape 2 part sur cette architecture, la mémoire de la ceinture reste un filet |
+| Interrompu | La mémoire interne devient le mode nominal, la connexion vivante n'étant plus qu'un confort |
+
+**Écart assumé à l'architecture ci-dessus : le service est écrit en Java, pas en Kotlin.** Le projet n'a
+aucun greffon Gradle Kotlin, et l'ajouter toucherait les fichiers de construction qui produisent l'APK
+de la CI — un risque sans contrepartie pour un PoC. Le SDK Polar s'utilise depuis Java. Réversible à
+tout moment.
 
 ---
 
