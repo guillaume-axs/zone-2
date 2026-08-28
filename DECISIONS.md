@@ -157,10 +157,16 @@ d'acceptation : **quatre heures, aucun silence de plus de 5 s, service vivant à
 | Aucune interruption | L'étape 2 part sur cette architecture, la mémoire de la ceinture reste un filet |
 | Interrompu | La mémoire interne devient le mode nominal, la connexion vivante n'étant plus qu'un confort |
 
-**Écart assumé à l'architecture ci-dessus : le service est écrit en Java, pas en Kotlin.** Le projet n'a
-aucun greffon Gradle Kotlin, et l'ajouter toucherait les fichiers de construction qui produisent l'APK
-de la CI — un risque sans contrepartie pour un PoC. Le SDK Polar s'utilise depuis Java. Réversible à
-tout moment.
+**Le code natif est en Kotlin, comme prévu ici.** Le PoC a d'abord été écrit en Java par simple
+mimétisme avec les fichiers générés par Capacitor — un écart à cette décision, corrigé le 2026-08-27 :
+le support Kotlin est configuré et les trois fichiers natifs sont convertis. Ce n'était pas une
+préférence de style. **Le SDK Polar impose `kotlinx-coroutines-core` et `kotlinx-coroutines-rx3`**, il
+est écrit en Kotlin, et ses fonctions `suspend` ne sont pas appelables depuis Java sans passer par
+`runBlocking` — qui bloque le thread — ou par un adaptateur RxJava3. Écrire l'étape 2 en Java aurait
+signifié programmer contre une traduction de l'API sur le code le plus critique du projet.
+
+**Règle qui en découle : plus une ligne de Java dans `android/`.** Java n'a jamais été un choix ici,
+seulement le défaut des fichiers générés.
 
 ---
 
