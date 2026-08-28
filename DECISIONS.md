@@ -88,8 +88,9 @@ verrouiller son écran — **sans aucune perte de mesure ni déconnexion**.
 Service de premier plan Android (Kotlin)   ← notification permanente obligatoire
    ├─ tient la connexion GATT
    ├─ reçoit chaque battement
-   └─ l'écrit directement en base
+   └─ l'écrit dans un journal natif, ligne par ligne  ← voir sujet 11
        └─ le JavaScript ne tourne PAS pendant la séance
+       └─ il importe le journal en base à la fin, quand il se réveille
 + écran d'accueil guidant la désactivation de l'optimisation batterie, une seule fois
 ```
 
@@ -663,6 +664,82 @@ intrusif qu'utile).
 serait repayé en corrections, et une correction coûte plus cher qu'un tap.
 
 ---
+
+## Sujet 11 — Chemin des données live ✅ *(décidé le 2026-08-28)*
+
+**Question :** pendant une séance avec la ceinture, les battements arrivent dans le service Kotlin.
+Où atterrissent-ils, et comment l'écran affiche-t-il la fréquence cardiaque en direct ?
+
+### Deux chemins distincts, jamais confondus
+
+```
+capteur → SDK Polar → service Kotlin
+                          │
+        ┌─────────────────┴─────────────────┐
+        │                                   │
+   AFFICHAGE                           CONSERVATION
+   événement → React                   journal append-only
+   quelques ms                         ne dépend jamais du JS
+   écran allumé seulement              tourne écran verrouillé
+        │                                   │
+   écran live                          à la fin : import dans Dexie
+```
+
+**La base n'est jamais dans le chemin de l'affichage.** Écrire pour ensuite relire afin d'afficher
+ajouterait un aller-retour disque à chaque battement, sans rien apporter. Le service pousse la valeur
+vers React directement. La réactivité de l'écran live est donc **indépendante du choix de stockage**.
+
+### Décision — le service écrit un journal, le JavaScript l'importe à la fin
+
+Pendant la séance, l'écriture est **100 % native**. Ce n'est pas un choix : la WebView est gelée environ
+5 min après le verrouillage de l'écran (sujet 2 bis), donc tout chemin d'écriture passant par le JS
+perdrait la séance entière.
+
+À la fin, le JavaScript importe le journal dans Dexie. Ce n'est pas un flux de 14 400 écritures qui
+traverse le pont, c'est **une opération unique sur un fichier déjà complet et déjà sauvé**.
+
+Pourquoi ce découpage :
+
+- **Dexie reste la source de vérité unique** de l'application. La synchronisation Supabase future part
+  d'un seul endroit, et tous les écrans lisent au même endroit.
+- **Append-only** : une ligne déjà écrite ne peut pas être corrompue par ce qui suit. C'est ce que font
+  les enregistreurs, et pour cette raison précise.
+- **Vidage à chaque ligne** — un tampon non vidé emporte dans la tombe les dernières secondes.
+- **Le mécanisme est déjà prouvé** : c'est exactement ce que fait `survie.log` dans le PoC de survie.
+
+### Le seul point fragile — l'import doit être rejouable
+
+Le transfert fichier → base est le seul moment où la donnée existe à deux endroits. Trois règles :
+
+- le fichier n'est supprimé **qu'après** confirmation de l'écriture en base ;
+- rejouer l'import deux fois ne crée pas de doublon (identifiant de séance déterministe) ;
+- tant que le fichier existe, rien n'est perdu — même si l'application n'est rouverte que trois jours plus tard.
+
+C'est plus sûr que d'écrire en base au fil de l'eau, où un arrêt brutal au mauvais moment laisse une
+transaction ouverte.
+
+### Options écartées
+
+**B — une base SQLite partagée entre le natif et le JavaScript.** Écartée sur un fait technique :
+SQLite n'accepte qu'une connexion, et deux connexions qui écrivent en concurrence ont une très forte
+probabilité de corrompre la base. Contradiction frontale avec la règle « la donnée ne doit jamais être
+perdue ». S'y ajoute le coût de migration de toute la couche Dexie existante.
+
+**C — tout en natif (Room), le JavaScript ne faisant que lire via le pont.** Écartée : jette une couche
+de données qui fonctionne, et fait passer chaque écran par le pont sans raison. La séance en cours est
+le seul flux qui a besoin du natif ; le reste de l'application n'en a aucun besoin.
+
+### Deux conséquences à instruire à l'étape 2
+
+**Le modèle de données.** La série de battements (~14 400 points pour 4 h) n'existe pas dans le modèle du
+sujet 4. Table séparée indexée par l'`id` de séance, ou champ de `Session` : non tranché ici.
+
+**L'alerte de sortie de zone.** « Contrôler la FC en live » inclut l'alerte quand on sort de la zone 2.
+Si elle doit fonctionner **téléphone en poche, écran verrouillé**, elle relève du service natif — le JS
+ne tourne pas. Cela ne change rien au stockage, mais ajoute une responsabilité au service.
+
+---
+
 
 ## Qualité « portfolio » — les 4 axes validés
 
