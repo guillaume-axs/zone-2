@@ -116,6 +116,7 @@ Dans les deux cas il faut écrire le Kotlin — donc **on reste sur Capacitor** 
 
 **Samsung, Xiaomi, OnePlus et Huawei tuent les services en arrière-plan** de façon agressive, même
 correctement déclarés, même avec exemption batterie. **Aucune pile ne résout ça** — pas même du Kotlin natif pur.
+→ **Mesuré le 2026-08-28 : pas sur ce S22, dans ces conditions. Voir plus bas.**
 → Filet de sécurité **matériel** : privilégier une **ceinture à mémoire interne** (type Polar H10) qui
 enregistre de son côté. *Relecture par une app tierce : vérifiée le 2026-08-27, voir plus bas.*
 
@@ -125,6 +126,39 @@ l'appareil » qui réactive ses optimisations de lui-même. Référencé sur don
 → **L'écran d'accueil guidant la désactivation devient obligatoire**, et devra couvrir les trois réglages.
 → **La ceinture à mémoire interne n'est plus un confort mais la seule garantie réelle.**
 *À revérifier concrètement à l'étape 2 — les comportements One UI changent à chaque version.*
+
+### Mesuré le 2026-08-28 — le service survit sur le S22
+
+Deux tests réels menés avec le PoC de survie, sur le S22 sous Android 16 / One UI 8.
+
+| | Test 1 | Test 2 |
+|---|---|---|
+| Durée | 5 h 27 | 4 h 03 |
+| Taux de réception | 99,57 % | 99,52 % |
+| Plus long silence | 1,4 s | 5,0 s |
+| Silences > 5 s | 0 | 1 |
+| **Relances Android** | **0** | **0** |
+
+**Conditions.** Exemption d'optimisation batterie accordée, plus les trois réglages One UI désactivés à
+la main : mise en veille des applis peu utilisées, veille profonde, optimisation automatique de Soins de
+l'appareil. Écran verrouillé, usage normal du téléphone entre-temps. C'est donc le **meilleur cas** —
+pas ce que vit un utilisateur qui n'aurait fait aucun réglage.
+
+**Résultat : zéro relance sur 9 h 30 cumulées.** Le service n'a jamais été tué. Sur cet appareil, dans
+ces conditions, la limite OEM redoutée ne s'est pas manifestée.
+
+**Les « battements perdus » sont un artefact du simulateur, pas une perte de données.** Le taux est
+quasi identique sur les deux tests (0,43 % et 0,48 %), ce qui trahit un mécanisme systématique plutôt
+qu'un aléa. En résolvant à l'envers, la dérive par cycle vaut 4,4 ms et 4,8 ms : c'est le
+`postDelayed(1000)` qui reprogramme le tick *après* l'exécution du corps, donc chaque cycle dure environ
+1004 ms et le retard s'accumule. Le défaut disparaît à l'étape 2, où c'est le capteur qui cadence et
+non nous — on comptera des paquets reçus, plus nos propres réveils.
+
+**Ce que ce test ne prouve pas.** Il valide la survie du *processus*, pas celle de la *connexion*. Une
+déconnexion GATT est une classe de panne que le simulateur ne peut pas produire : le service peut rester
+parfaitement vivant pendant que le lien Bluetooth tombe.
+→ **La ceinture à mémoire interne reste un filet obligatoire.** Son statut ne pourra être révisé
+qu'après le PoC étape 2, avec un vrai H10 en face.
 
 ### Contraintes Android à respecter
 
