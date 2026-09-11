@@ -35,20 +35,24 @@ const ONGLETS = [
  */
 export default function Onglets() {
   const { pathname } = useLocation()
+  // Le détail de l'efficience est une page de l'Accueil : même onglet actif, pas de bouton flottant.
+  const detail = pathname === '/efficience'
   // Tant qu'aucune séance n'existe, le bouton pulse pour appeler la première saisie.
   const vide = useLiveQuery(() => db.sessions.filter((s) => !s.deletedAt).count()) === 0
 
   return (
     <div className="onglets">
-      <main className="onglets__page">
+      <main className={detail ? 'onglets__page onglets__page--sans-fab' : 'onglets__page'}>
         <Outlet />
       </main>
 
+      {!detail && (
       <Link href="/seance/nouvelle" className={vide ? 'fab fab--pulse' : 'fab'} aria-label="Nouvelle séance">
         <svg width="21" height="21" viewBox="0 0 21 21" fill="none" aria-hidden="true">
           <path d="M10.5 3.6v13.8M3.6 10.5h13.8" stroke="var(--bg)" strokeWidth="1.7" strokeLinecap="round" />
         </svg>
       </Link>
+      )}
 
       <nav className="nav">
         {ONGLETS.map((o) => (
@@ -56,7 +60,7 @@ export default function Onglets() {
             key={o.href}
             href={o.href}
             className="nav__item"
-            aria-current={pathname === o.href ? 'page' : undefined}
+            aria-current={pathname === o.href || (detail && o.href === '/') ? 'page' : undefined}
           >
             <svg width="21" height="21" viewBox="0 0 22 22" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">
               {o.icone}
