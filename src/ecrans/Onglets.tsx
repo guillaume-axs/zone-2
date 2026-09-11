@@ -1,5 +1,7 @@
+import { useLiveQuery } from 'dexie-react-hooks'
 import { Link } from 'react-aria-components'
 import { Outlet, useLocation } from 'react-router'
+import { db } from '../db/db'
 import './Onglets.css'
 
 const ONGLETS = [
@@ -33,6 +35,8 @@ const ONGLETS = [
  */
 export default function Onglets() {
   const { pathname } = useLocation()
+  // Tant qu'aucune séance n'existe, le bouton pulse pour appeler la première saisie.
+  const vide = useLiveQuery(() => db.sessions.filter((s) => !s.deletedAt).count()) === 0
 
   return (
     <div className="onglets">
@@ -40,7 +44,7 @@ export default function Onglets() {
         <Outlet />
       </main>
 
-      <Link href="/seance/nouvelle" className="fab" aria-label="Nouvelle séance">
+      <Link href="/seance/nouvelle" className={vide ? 'fab fab--pulse' : 'fab'} aria-label="Nouvelle séance">
         <svg width="21" height="21" viewBox="0 0 21 21" fill="none" aria-hidden="true">
           <path d="M10.5 3.6v13.8M3.6 10.5h13.8" stroke="var(--bg)" strokeWidth="1.7" strokeLinecap="round" />
         </svg>
