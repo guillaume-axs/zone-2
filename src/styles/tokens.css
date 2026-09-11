@@ -17,6 +17,14 @@
   --rule: #232320;
   --rule-2: #1a1a18;
 
+  /* Surfaces surélevées : bulle d'aide, segment actif du sélecteur */
+  --surface: #1c1c1f;
+  --surface-border: #2e2e2a;
+  --surface-pressed: #121214;
+
+  /* Barre inactive d'un graphique */
+  --bar: #35332e;
+
   /* Accent — usage parcimonieux : une seule donnée mise en avant par écran */
   --accent: #e8663d;
 

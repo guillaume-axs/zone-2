@@ -36,7 +36,7 @@ Un écart à une décision écrite est un arbitrage — il se soumet **avant**, 
 
 ```
 src/db/        Dexie — source de vérité locale (schema.ts, db.ts, sessions.ts)
-src/metrics/   calculs purs et testés (efficience)
+src/metrics/   calculs purs et testés (efficience, bilan par fenêtre)
 src/forms/     saisie de séance + validation
 src/ecrans/    écrans et gabarit des onglets — un fichier par route (App.tsx tient les routes)
 src/poc/       écran de diagnostic du PoC de survie — temporaire, partira avec le PoC

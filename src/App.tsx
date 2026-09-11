@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { App as Android } from '@capacitor/app'
 import { RouterProvider } from 'react-aria-components'
 import { Route, Routes, useHref, useNavigate } from 'react-router'
+import Accueil from './ecrans/Accueil'
 import Historique from './ecrans/Historique'
 import NouvelleSeance from './ecrans/NouvelleSeance'
 import Onglets from './ecrans/Onglets'
@@ -29,8 +30,7 @@ export default function App() {
     <RouterProvider navigate={navigate} useHref={useHref}>
       <Routes>
         <Route element={<Onglets />}>
-          {/* L'Accueil arrive avec les métriques (livraison suivante). */}
-          <Route index element={null} />
+          <Route index element={<Accueil />} />
           <Route path="historique" element={<Historique />} />
           <Route path="reglages" element={<EcranSurvie />} />
         </Route>

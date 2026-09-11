@@ -28,6 +28,14 @@
 @font-face {
   font-family: 'Space Grotesk';
   font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url('/fonts/SpaceGrotesk-300.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
   font-weight: 400;
   font-display: swap;
   src: url('/fonts/SpaceGrotesk-400.woff2') format('woff2');
