@@ -1,58 +1,24 @@
-import { useState } from 'react'
-import { softDeleteSession } from '../db/sessions'
+import { useLocation, useNavigate } from 'react-router'
 import SessionForm from '../forms/SessionForm'
 import type { SessionInput } from '../forms/sessionSchema'
-import { ListeSeances } from './Historique'
-import './NouvelleSeance.css'
+import { DUREE_TOAST_MS, enregistrements } from './toast'
 
 /**
- * Saisie d'une séance, puis relecture de ce qu'on vient d'écrire.
- *
- * L'écran d'après-enregistrement est **volontairement rudimentaire**. Il remplit
- * son rôle (rendre visible et annulable ce qu'on vient d'écrire, règle 7) mais
- * n'est pas l'écran d'accueil : celui-ci aura sa propre étude UX.
+ * Saisie d'une séance. Une fois écrite, on revient à l'Accueil : un toast
+ * l'annonce et permet de l'annuler (règle 7). Après une annulation, la saisie
+ * revient ici par l'état de navigation : on corrige, on ne retape pas.
  */
 export default function NouvelleSeance() {
-  const [saved, setSaved] = useState<{ id: string; input: SessionInput } | null>(
-    null,
-  )
-  /** Saisie rendue à l'utilisateur après une annulation : il corrige, il ne retape pas. */
-  const [brouillon, setBrouillon] = useState<SessionInput | undefined>()
-
-  if (!saved) {
-    return (
-      <SessionForm
-        initial={brouillon}
-        onSaved={(id, input) => setSaved({ id, input })}
-      />
-    )
-  }
-
-  async function annuler() {
-    if (!saved) return
-    await softDeleteSession(saved.id)
-    setBrouillon(saved.input)
-    setSaved(null)
-  }
+  const navigate = useNavigate()
+  const brouillon = useLocation().state?.brouillon as SessionInput | undefined
 
   return (
-    <main className="after">
-      <div className="after__undo">
-        <span className="label">Séance enregistrée</span>
-        <button type="button" className="after__undo-btn" onClick={annuler}>
-          Annuler
-        </button>
-      </div>
-
-      <ListeSeances fraiche={saved.id} />
-
-      <button type="button" className="after__back" onClick={() => {
-          setBrouillon(undefined)
-          setSaved(null)
-        }}
-      >
-        Nouvelle séance
-      </button>
-    </main>
+    <SessionForm
+      initial={brouillon}
+      onSaved={(id, input) => {
+        enregistrements.add({ id, input }, { timeout: DUREE_TOAST_MS })
+        navigate('/')
+      }}
+    />
   )
 }

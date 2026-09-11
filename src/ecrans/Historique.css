@@ -17,11 +17,3 @@
   color: var(--fg-2);
   font-variant-numeric: tabular-nums;
 }
-
-.hist__item--fresh .hist__value {
-  color: var(--fg-hero);
-}
-
-.hist__item--fresh .label {
-  color: var(--accent);
-}

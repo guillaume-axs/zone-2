@@ -103,3 +103,39 @@
     animation: none;
   }
 }
+
+/* Toast « Séance enregistrée » : posé au-dessus du bouton flottant, qui ne
+   bouge pas (Material 3 le fait remonter ; ici la marge suffit). */
+.toasts {
+  position: fixed;
+  left: calc(22px + env(safe-area-inset-left));
+  right: calc(22px + env(safe-area-inset-right));
+  bottom: calc(146px + env(safe-area-inset-bottom));
+  outline: none;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  min-height: 52px;
+  padding-left: 16px;
+  border: 1px solid var(--surface-border);
+  background: var(--surface);
+  color: var(--fg-2);
+  font-size: 14px;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.55);
+}
+
+.toast__annuler {
+  min-height: 52px;
+  padding: 0 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.toast__annuler[data-pressed] {
+  opacity: 0.72;
+}

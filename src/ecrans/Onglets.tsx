@@ -1,7 +1,16 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { Link } from 'react-aria-components'
-import { Outlet, useLocation } from 'react-router'
+import {
+  Button,
+  Link,
+  Text,
+  UNSTABLE_Toast as Toast,
+  UNSTABLE_ToastContent as ToastContent,
+  UNSTABLE_ToastRegion as ToastRegion,
+} from 'react-aria-components'
+import { Outlet, useLocation, useNavigate } from 'react-router'
 import { db } from '../db/db'
+import { softDeleteSession } from '../db/sessions'
+import { type Enregistrement, enregistrements } from './toast'
 import './Onglets.css'
 
 const ONGLETS = [
@@ -30,15 +39,24 @@ const ONGLETS = [
 
 /**
  * Gabarit des destinations de premier niveau (sujet 3) : la page, la barre
- * d'onglets et le bouton flottant vers la saisie. Le formulaire, lui, occupe
- * tout l'écran et ne passe pas par ici.
+ * d'onglets, le bouton flottant vers la saisie et le toast qui annonce une
+ * séance enregistrée. Le formulaire, lui, occupe tout l'écran et ne passe pas
+ * par ici.
  */
 export default function Onglets() {
   const { pathname } = useLocation()
+  const navigate = useNavigate()
   // Le détail de l'efficience est une page de l'Accueil : même onglet actif, pas de bouton flottant.
   const detail = pathname === '/efficience'
   // Tant qu'aucune séance n'existe, le bouton pulse pour appeler la première saisie.
   const vide = useLiveQuery(() => db.sessions.filter((s) => !s.deletedAt).count()) === 0
+
+  /** Suppression logique, puis retour au formulaire pré-rempli : on corrige, on ne retape pas. */
+  async function annuler(cle: string, { id, input }: Enregistrement) {
+    await softDeleteSession(id)
+    enregistrements.close(cle)
+    navigate('/seance/nouvelle', { state: { brouillon: input } })
+  }
 
   return (
     <div className="onglets">
@@ -53,6 +71,19 @@ export default function Onglets() {
         </svg>
       </Link>
       )}
+
+      <ToastRegion queue={enregistrements} className="toasts">
+        {({ toast }) => (
+          <Toast toast={toast} className="toast">
+            <ToastContent>
+              <Text slot="title">Séance enregistrée</Text>
+            </ToastContent>
+            <Button className="toast__annuler" onPress={() => annuler(toast.key, toast.content)}>
+              Annuler
+            </Button>
+          </Toast>
+        )}
+      </ToastRegion>
 
       <nav className="nav">
         {ONGLETS.map((o) => (
