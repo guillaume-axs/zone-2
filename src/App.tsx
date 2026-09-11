@@ -3,6 +3,7 @@ import { App as Android } from '@capacitor/app'
 import { RouterProvider } from 'react-aria-components'
 import { Route, Routes, useHref, useNavigate } from 'react-router'
 import Accueil from './ecrans/Accueil'
+import Efficience from './ecrans/Efficience'
 import Historique from './ecrans/Historique'
 import NouvelleSeance from './ecrans/NouvelleSeance'
 import Onglets from './ecrans/Onglets'
@@ -31,6 +32,7 @@ export default function App() {
       <Routes>
         <Route element={<Onglets />}>
           <Route index element={<Accueil />} />
+          <Route path="efficience" element={<Efficience />} />
           <Route path="historique" element={<Historique />} />
           <Route path="reglages" element={<EcranSurvie />} />
         </Route>

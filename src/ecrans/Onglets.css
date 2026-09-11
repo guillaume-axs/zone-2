@@ -18,6 +18,10 @@
   padding-left: calc(22px + env(safe-area-inset-left));
 }
 
+.onglets__page--sans-fab {
+  padding-bottom: 16px;
+}
+
 .nav {
   display: flex;
   height: calc(62px + env(safe-area-inset-bottom));

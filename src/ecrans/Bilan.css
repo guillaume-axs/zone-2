@@ -1,0 +1,191 @@
+/* Pièces communes à l'Accueil et au Détail (maquette validée, artefact v11). */
+
+/* ---------- Sélecteur de période : segmenté, 48 px ---------- */
+
+.window {
+  display: flex;
+  height: 48px;
+  border: 1px solid var(--rule);
+  margin-bottom: 26px;
+  flex: none;
+}
+
+.seg {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+  border-left: 1px solid var(--rule);
+}
+
+.seg:first-child {
+  border-left: 0;
+}
+
+.seg[data-selected] {
+  background: var(--surface);
+  color: var(--fg-hero);
+}
+
+.seg[data-pressed] {
+  background: var(--surface-pressed);
+}
+
+.window[data-disabled] {
+  pointer-events: none;
+}
+
+/* ---------- Héros ---------- */
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--fg-2);
+}
+
+.gloss {
+  font-size: 12.5px;
+  color: var(--fg-3);
+  margin-top: 5px;
+}
+
+.value {
+  font-family: var(--font-ui);
+  font-weight: 300;
+  font-size: 80px;
+  line-height: 0.94;
+  color: var(--fg-hero);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  margin-top: 16px;
+}
+
+/* Tendance : accent = amélioration, gris = dégradation ou stable */
+.trend {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--fg-3);
+  margin-top: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.trend.better {
+  color: var(--accent);
+}
+
+/* ---------- Sommaire ---------- */
+
+.rows {
+  margin-top: 30px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 0;
+  border-top: 1px solid var(--rule);
+}
+
+.row .lab {
+  font-size: 14px;
+  color: var(--fg-2);
+}
+
+.fill {
+  flex: 1;
+}
+
+.row .val {
+  font-family: var(--font-mono);
+  font-size: 17px;
+  color: var(--fg);
+  font-variant-numeric: tabular-nums;
+}
+
+.row .val em {
+  font-style: normal;
+  font-size: 12px;
+  color: var(--fg-3);
+  margin-left: 3px;
+}
+
+.row.off .lab {
+  color: var(--fg-3);
+}
+
+.row.off .val {
+  color: var(--fg-3);
+  font-size: 12px;
+}
+
+/* ---------- Bouton d'aide : cible 40 px, glyphe 16 px ---------- */
+
+.help {
+  width: 40px;
+  height: 40px;
+  margin: -13px -12px;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.help i {
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--fg-4);
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-style: normal;
+  font-size: 9.5px;
+  color: var(--fg-3);
+  line-height: 1;
+}
+
+.help[data-pressed] {
+  opacity: 1;
+}
+
+.help[data-pressed] i,
+.help[aria-expanded='true'] i {
+  border-color: var(--fg-2);
+  color: var(--fg-hero);
+}
+
+.pop {
+  max-width: calc(100vw - 44px);
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  padding: 14px 15px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--fg-2);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.6);
+}
+
+.pop .react-aria-Dialog {
+  outline: none;
+}
+
+.pop__arrow svg {
+  display: block;
+  fill: var(--surface);
+  stroke: var(--surface-border);
+  stroke-width: 1px;
+}
+
+.pop__arrow[data-placement='bottom'] svg {
+  transform: rotate(180deg);
+}
+
