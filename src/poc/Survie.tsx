@@ -46,7 +46,7 @@ function duree(ms: number) {
   return h > 0 ? `${h} h ${String(m).padStart(2, '0')}` : `${m} min`
 }
 
-export default function EcranSurvie({ onClose }: { onClose: () => void }) {
+export default function EcranSurvie() {
   const [etat, setEtat] = useState<Etat | null>(null)
   const [erreur, setErreur] = useState<string | null>(null)
 
@@ -74,13 +74,8 @@ export default function EcranSurvie({ onClose }: { onClose: () => void }) {
   const reussi = juge && etat.trous === 0 && etat.redemarrages === 0
 
   return (
-    <main className="poc">
-      <header className="poc__head">
-        <span className="label">PoC — survie en arrière-plan</span>
-        <button type="button" className="poc__close" onClick={onClose}>
-          Fermer
-        </button>
-      </header>
+    <div className="poc">
+      <span className="label">PoC — survie en arrière-plan</span>
 
       {erreur && <p className="poc__err">{erreur}</p>}
 
@@ -137,7 +132,7 @@ export default function EcranSurvie({ onClose }: { onClose: () => void }) {
           </p>
         </>
       )}
-    </main>
+    </div>
   )
 }
 
