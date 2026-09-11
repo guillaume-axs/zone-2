@@ -25,12 +25,8 @@ function resume(s: Session) {
     .join(' · ')
 }
 
-/**
- * Liste des séances, de la plus récente à la plus ancienne. `fraiche` désigne
- * celle qu'on vient d'écrire : elle s'affiche plus claire, pour qu'on la relise
- * sans la chercher.
- */
-export function ListeSeances({ fraiche }: { fraiche?: string }) {
+/** Liste des séances, de la plus récente à la plus ancienne. */
+function ListeSeances() {
   const sessions = useLiveQuery(
     () =>
       db.sessions
@@ -44,8 +40,8 @@ export function ListeSeances({ fraiche }: { fraiche?: string }) {
   return (
     <ul className="hist">
       {sessions?.map((s) => (
-        <li key={s.id} className={s.id === fraiche ? 'hist__item hist__item--fresh' : 'hist__item'}>
-          <span className="label">{s.id === fraiche ? "À l'instant" : jour(s.startedAt)}</span>
+        <li key={s.id} className="hist__item">
+          <span className="label">{jour(s.startedAt)}</span>
           <span className="hist__value">{resume(s)}</span>
         </li>
       ))}
