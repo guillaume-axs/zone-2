@@ -6,7 +6,7 @@
 ## Contexte
 
 App perso de suivi d'entraînement cycliste en zone 2 sur vélo stationnaire (salle de sport).
-Objectifs : perte de gras + préparation triathlon longue distance.
+Objectif : construire la base aérobie pour l'endurance longue distance.
 Usage **100% mobile Android**, y compris pendant la séance. Profil : data engineer, mode Product Owner.
 
 **Deux raisons d'être** (validées) : l'étape 2 (FC en direct) est le vrai but ; et zéro friction de saisie,

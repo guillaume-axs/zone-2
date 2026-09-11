@@ -21,7 +21,6 @@
   gap: 14px;
   border: 1px solid var(--accent);
   padding: 14px 16px;
-  margin-bottom: 6px;
 }
 
 .after__undo .label {
@@ -36,35 +35,6 @@
   color: var(--accent);
 }
 
-.hist {
-  list-style: none;
-}
-
-.hist__item {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 14px;
-  padding: 17px 0;
-  border-bottom: 1px solid var(--rule-2);
-}
-
-.hist__value {
-  font-size: 14.5px;
-  color: var(--fg-2);
-  font-variant-numeric: tabular-nums;
-}
-
-/* La séance qu'on vient d'écrire : plus claire que les autres, pour qu'on la
-   relise sans la chercher. */
-.hist__item--fresh .hist__value {
-  color: var(--fg-hero);
-}
-
-.hist__item--fresh .label {
-  color: var(--accent);
-}
-
 .after__back {
   width: 100%;
   min-height: 52px;
@@ -73,18 +43,4 @@
   font-size: 14px;
   font-weight: 600;
   color: var(--fg-3);
-}
-
-/* Accès au PoC de survie. Temporaire — partira avec le PoC. */
-.poc-acces {
-  position: fixed;
-  top: calc(8px + env(safe-area-inset-top));
-  right: calc(10px + env(safe-area-inset-right));
-  z-index: 10;
-  min-width: 44px;
-  min-height: 44px;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  color: var(--fg-5);
 }

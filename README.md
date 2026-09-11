@@ -1,7 +1,7 @@
 # Zone 2
 
 Application Android de suivi d'entraînement cycliste en **zone 2**, conçue pour un usage sur vélo
-stationnaire. Objectifs de l'athlète : perte de masse grasse et préparation de triathlon longue distance.
+stationnaire et la construction de base aérobie en endurance longue distance.
 
 > **État : en construction.** Itération 1 — mise en place de la chaîne de livraison.
 > Rien n'est encore utilisable au quotidien.

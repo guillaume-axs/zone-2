@@ -2,26 +2,9 @@
    pas destiné à l'utilisateur, et il partira avec le PoC. */
 
 .poc {
-  height: 100dvh;
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 18px;
-  padding: calc(26px + env(safe-area-inset-top)) 22px
-    calc(26px + env(safe-area-inset-bottom));
-}
-
-.poc__head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-}
-
-.poc__close {
-  min-height: 44px;
-  font-size: 14px;
-  color: var(--fg-3);
 }
 
 .poc__err {
