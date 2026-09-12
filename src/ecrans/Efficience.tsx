@@ -37,7 +37,11 @@ export default function Efficience() {
     <div className="detail">
       <div className="back">
         <Link href={`/?f=${fenetre}`} className="back__arrow" aria-label="Retour à l’accueil">
-          ←
+          {/* Tracé plutôt que le caractère « ← » : le glyphe n'était pas centré
+              sur le label, ses métriques dépendant de la police. */}
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <path d="M16 10H4M9 5l-5 5 5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
         </Link>
         <span className="back__title">Efficience</span>
         <Aide>

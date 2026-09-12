@@ -22,6 +22,10 @@
   --surface-border: #2e2e2a;
   --surface-pressed: #121214;
 
+  /* Surface flottante : le toast, posé par-dessus l'écran — plus claire que
+     --surface pour se détacher nettement du fond */
+  --surface-2: #2a2a2e;
+
   /* Barre inactive d'un graphique */
   --bar: #35332e;
 

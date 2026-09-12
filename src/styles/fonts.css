@@ -1,11 +1,15 @@
 /* Polices embarquées — aucune requête réseau, l'application fonctionne hors ligne.
-   Sous-ensemble latin uniquement. Régénérées manuellement si la charte change. */
+   Sous-ensemble latin uniquement. Régénérées manuellement si la charte change.
+
+   `font-display: block`, pas `swap` : les fichiers sont locaux et chargent en
+   quelques millisecondes. Avec `swap`, le WebView peignait d'abord le texte en
+   police système puis le recomposait — le « saut » visible au lancement. */
 
 @font-face {
   font-family: 'IBM Plex Mono';
   font-style: normal;
   font-weight: 400;
-  font-display: swap;
+  font-display: block;
   src: url('/fonts/IBMPlexMono-400.woff2') format('woff2');
 }
 
@@ -13,7 +17,7 @@
   font-family: 'IBM Plex Mono';
   font-style: normal;
   font-weight: 500;
-  font-display: swap;
+  font-display: block;
   src: url('/fonts/IBMPlexMono-500.woff2') format('woff2');
 }
 
@@ -21,7 +25,7 @@
   font-family: 'Instrument Serif';
   font-style: normal;
   font-weight: 400;
-  font-display: swap;
+  font-display: block;
   src: url('/fonts/InstrumentSerif-400.woff2') format('woff2');
 }
 
@@ -29,7 +33,7 @@
   font-family: 'Space Grotesk';
   font-style: normal;
   font-weight: 300;
-  font-display: swap;
+  font-display: block;
   src: url('/fonts/SpaceGrotesk-300.woff2') format('woff2');
 }
 
@@ -37,7 +41,7 @@
   font-family: 'Space Grotesk';
   font-style: normal;
   font-weight: 400;
-  font-display: swap;
+  font-display: block;
   src: url('/fonts/SpaceGrotesk-400.woff2') format('woff2');
 }
 
@@ -45,7 +49,7 @@
   font-family: 'Space Grotesk';
   font-style: normal;
   font-weight: 500;
-  font-display: swap;
+  font-display: block;
   src: url('/fonts/SpaceGrotesk-500.woff2') format('woff2');
 }
 
@@ -53,7 +57,7 @@
   font-family: 'Space Grotesk';
   font-style: normal;
   font-weight: 600;
-  font-display: swap;
+  font-display: block;
   src: url('/fonts/SpaceGrotesk-600.woff2') format('woff2');
 }
 
@@ -61,6 +65,6 @@
   font-family: 'Space Grotesk';
   font-style: normal;
   font-weight: 700;
-  font-display: swap;
+  font-display: block;
   src: url('/fonts/SpaceGrotesk-700.woff2') format('woff2');
 }

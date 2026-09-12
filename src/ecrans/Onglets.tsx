@@ -74,12 +74,20 @@ export default function Onglets() {
 
       <ToastRegion queue={enregistrements} className="toasts">
         {({ toast }) => (
-          <Toast toast={toast} className="toast">
+          <Toast toast={toast} className="toast" style={{ viewTransitionName: toast.key }}>
+            <svg className="toast__coche" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M4 10.5l4 4 8-9" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
             <ToastContent>
               <Text slot="title">Séance enregistrée</Text>
             </ToastContent>
             <Button className="toast__annuler" onPress={() => annuler(toast.key, toast.content)}>
               Annuler
+            </Button>
+            <Button slot="close" className="toast__fermer" aria-label="Fermer">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              </svg>
             </Button>
           </Toast>
         )}

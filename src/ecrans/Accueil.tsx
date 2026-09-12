@@ -191,7 +191,7 @@ function PremierLancement() {
           </div>
         ))}
       </div>
-      <span className="fill" />
+      {/* Hors du flux : ancré au bouton « + », qui est lui-même fixe. */}
       <div className="point">
         <span>↓</span>
         <span>Enregistre ta première séance</span>
