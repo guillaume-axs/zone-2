@@ -1,4 +1,5 @@
 import { useRef } from 'react'
+import { Link } from 'react-aria-components'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { sessionSchema, type SessionInput } from './sessionSchema'
@@ -176,6 +177,13 @@ export default function SessionForm({ onSaved, initial }: Props) {
   return (
     <form className="form" onSubmit={handleSubmit(onSubmit)} noValidate>
       <header className="form__head">
+        {/* Sortie sans enregistrer — convention Material du plein écran : la croix
+            à gauche du titre. Le bouton retour d'Android fait la même chose. */}
+        <Link href="/" className="form__fermer" aria-label="Fermer sans enregistrer">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+          </svg>
+        </Link>
         <svg width="30" height="11" viewBox="0 0 30 11" aria-hidden="true">
           <path
             d="M0,5.5 L7,5.5 L9.5,1.5 L13,9.5 L16,5.5 L30,5.5"

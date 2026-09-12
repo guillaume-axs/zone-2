@@ -1,3 +1,4 @@
+import { flushSync } from 'react-dom'
 import { UNSTABLE_ToastQueue as ToastQueue } from 'react-aria-components'
 import type { SessionInput } from '../forms/sessionSchema'
 
@@ -13,5 +14,16 @@ export interface Enregistrement {
  * fourchette recommandée quand le toast porte une action, et le toucher
  * suspend le minuteur.
  */
-export const enregistrements = new ToastQueue<Enregistrement>({ maxVisibleToasts: 1 })
+export const enregistrements = new ToastQueue<Enregistrement>({
+  maxVisibleToasts: 1,
+  // Entrée et sortie animées par l'API View Transitions (mécanisme prévu par
+  // React Aria) ; les glissements sont dans Onglets.css.
+  wrapUpdate(fn) {
+    if ('startViewTransition' in document) {
+      document.startViewTransition(() => flushSync(fn))
+    } else {
+      fn()
+    }
+  },
+})
 export const DUREE_TOAST_MS = 8000

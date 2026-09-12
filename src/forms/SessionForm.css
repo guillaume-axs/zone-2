@@ -19,6 +19,22 @@
   border-bottom: 1px solid var(--rule);
 }
 
+/* Cible de 44 px ; la marge négative aligne l'icône sur le bord du contenu. */
+.form__fermer {
+  width: 44px;
+  height: 44px;
+  margin: -12px 0 -12px -12px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--fg-2);
+}
+
+.form__fermer[data-pressed] {
+  opacity: 0.72;
+}
+
 /* ---- durée : le champ principal, traité comme la donnée de l'écran ---- */
 
 .form__hero {
