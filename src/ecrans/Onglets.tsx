@@ -82,18 +82,19 @@ export default function Onglets() {
               Annuler
             </Button>
             <Button slot="close" className="toast__fermer" aria-label="Fermer">
-              {/* L'anneau se vide sur la durée du toast : on voit venir sa disparition. */}
-              <svg width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true">
+              {/* Le liseré du cercle se vide sur la durée du toast : on voit venir sa disparition. */}
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+                <circle className="toast__piste" cx="11" cy="11" r="10" />
                 <circle
                   className="toast__anneau"
-                  cx="18"
-                  cy="18"
-                  r="16"
+                  cx="11"
+                  cy="11"
+                  r="10"
                   pathLength="100"
-                  transform="rotate(-90 18 18)"
+                  transform="rotate(-90 11 11)"
                   style={{ animationDuration: `${DUREE_TOAST_MS}ms` }}
                 />
-                <path d="M13 13l10 10M23 13L13 23" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                <path d="M7.5 7.5l7 7M14.5 7.5l-7 7" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
               </svg>
             </Button>
           </Toast>

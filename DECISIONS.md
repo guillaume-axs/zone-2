@@ -363,10 +363,13 @@ Le serif n'apparaît **jamais** ailleurs (ni titres, ni listes, ni boutons).
 
 « Pas de cartes arrondies » vaut pour le **contenu de page** : blocs, listes, formulaires restent
 carrés et séparés par des filets. Ce qui est **posé par-dessus** l'écran — bouton flottant, toast,
-et plus tard toute feuille ou menu — prend des **coins de 16 px**, un liseré d'un pixel un peu plus
-clair que sa surface et une ombre portée. Motif : la surface flottante doit se détacher du fond, et
-le carré strict y produit l'esthétique Material 1 de 2014 (retour terrain sur le toast). Le bouton
-flottant respectait déjà cette règle sans qu'elle soit écrite.
+et plus tard toute feuille ou menu — prend des **coins arrondis, au rayon proportionné à la
+surface** (8 px pour une barre comme le toast, 16 px pour le bouton flottant de 56 px), un liseré
+d'un pixel un peu plus clair que sa surface et une ombre portée. Motif : la surface flottante doit
+se détacher du fond, et le carré strict y produit l'esthétique Material 1 de 2014 (retour terrain
+sur le toast). Un rayon trop grand fait l'effet inverse — grossier, « d'une autre app » (second
+retour terrain, sur un essai à 16 px). Le bouton flottant respectait déjà cette règle sans qu'elle
+soit écrite.
 
 ### Code de référence — à reprendre tel quel
 

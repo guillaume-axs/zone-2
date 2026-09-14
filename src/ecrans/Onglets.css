@@ -104,10 +104,11 @@
   }
 }
 
-/* Toast « Séance enregistrée » — surface flottante arrondie (sujet 7, précision
-   du 2026-09-14) : texte à gauche, pilule « Annuler », croix cerclée d'un anneau
-   qui se vide sur la durée du toast. Glisse depuis le bas et repart de même.
-   Posé au-dessus du bouton flottant, qui ne bouge pas. */
+/* Toast « Séance enregistrée » — surface flottante (sujet 7, précision du
+   2026-09-14) : rayon 8 px, liseré, ombre simple. Texte à gauche, « Annuler »
+   en étiquette mono braise comme le sélecteur de période, croix cerclée d'un
+   liseré qui se vide sur la durée du toast. Glisse depuis le bas et repart de
+   même. Posé au-dessus du bouton flottant, qui ne bouge pas. */
 .toasts {
   position: fixed;
   left: calc(22px + env(safe-area-inset-left));
@@ -119,16 +120,15 @@
 .toast {
   display: flex;
   align-items: center;
-  gap: 10px;
-  min-height: 56px;
-  padding: 6px 6px 6px 16px;
+  gap: 8px;
+  min-height: 52px;
+  padding: 4px 4px 4px 16px;
   border: 1px solid var(--surface-2-border);
-  border-radius: 16px;
+  border-radius: 8px;
   background: var(--surface-2);
   color: var(--fg);
   font-size: 14px;
-  font-weight: 500;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.5), 0 24px 48px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
   outline: none;
   view-transition-class: toast;
 }
@@ -142,13 +142,14 @@
 
 .toast__annuler {
   flex: none;
-  height: 32px;
-  padding: 0 12px;
-  border-radius: 999px;
-  background: var(--fg-hero);
-  color: var(--bg);
-  font-size: 13px;
-  font-weight: 600;
+  height: 44px;
+  padding: 0 8px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--accent);
 }
 
 .toast__fermer {
@@ -166,13 +167,19 @@
   opacity: 0.72;
 }
 
-/* pathLength="100" : le tour vaut 100, l'anneau se vide de 0 à -100 dans le
+/* Piste fantôme sous l'arc : le cercle reste lisible une fois vidé. */
+.toast__piste {
+  stroke: var(--surface-2-border);
+  stroke-width: 1.25;
+}
+
+/* pathLength="100" : le tour vaut 100, l'arc se vide de 0 à -100 dans le
    sens horaire depuis midi. Il se fige quand React Aria fige le minuteur :
    survol ou focus dans la région. Pas d'exception reduced-motion — c'est
    une information, pas un décor. */
 .toast__anneau {
   stroke: var(--fg-4);
-  stroke-width: 1.5;
+  stroke-width: 1.25;
   stroke-dasharray: 100;
   animation: toast-anneau linear forwards;
 }
