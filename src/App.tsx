@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { App as Android } from '@capacitor/app'
+import { SplashScreen } from '@capacitor/splash-screen'
 import { RouterProvider } from 'react-aria-components'
 import { Route, Routes, useHref, useNavigate } from 'react-router'
 import Accueil from './ecrans/Accueil'
@@ -26,6 +27,15 @@ export default function App() {
       ecouteur.then((e) => e.remove())
     }
   }, [navigate])
+
+  /**
+   * L'écran de lancement (launchAutoHide: false) tombe une fois les polices
+   * prêtes : la première image visible est composée, avec les marges système
+   * déjà appliquées — plus de saut au lancement.
+   */
+  useEffect(() => {
+    document.fonts.ready.then(() => SplashScreen.hide())
+  }, [])
 
   return (
     <RouterProvider navigate={navigate} useHref={useHref}>
