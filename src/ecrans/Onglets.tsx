@@ -10,7 +10,7 @@ import {
 import { Outlet, useLocation, useNavigate } from 'react-router'
 import { db } from '../db/db'
 import { softDeleteSession } from '../db/sessions'
-import { type Enregistrement, enregistrements } from './toast'
+import { DUREE_TOAST_MS, type Enregistrement, enregistrements } from './toast'
 import './Onglets.css'
 
 const ONGLETS = [
@@ -75,9 +75,6 @@ export default function Onglets() {
       <ToastRegion queue={enregistrements} className="toasts">
         {({ toast }) => (
           <Toast toast={toast} className="toast" style={{ viewTransitionName: toast.key }}>
-            <svg className="toast__coche" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-              <path d="M4 10.5l4 4 8-9" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
             <ToastContent>
               <Text slot="title">Séance enregistrée</Text>
             </ToastContent>
@@ -85,8 +82,18 @@ export default function Onglets() {
               Annuler
             </Button>
             <Button slot="close" className="toast__fermer" aria-label="Fermer">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              {/* L'anneau se vide sur la durée du toast : on voit venir sa disparition. */}
+              <svg width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true">
+                <circle
+                  className="toast__anneau"
+                  cx="18"
+                  cy="18"
+                  r="16"
+                  pathLength="100"
+                  transform="rotate(-90 18 18)"
+                  style={{ animationDuration: `${DUREE_TOAST_MS}ms` }}
+                />
+                <path d="M13 13l10 10M23 13L13 23" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
               </svg>
             </Button>
           </Toast>
