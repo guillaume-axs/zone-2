@@ -104,9 +104,11 @@
   }
 }
 
-/* Toast « Séance enregistrée » — modèle Outlook : coche à gauche, texte au
-   centre, action à droite ; glisse depuis le bas et repart de même. Posé
-   au-dessus du bouton flottant, qui ne bouge pas. */
+/* Toast « Séance enregistrée » — surface flottante (sujet 7, précision du
+   2026-09-14) : rayon 8 px, liseré, ombre simple. Texte à gauche, « Annuler »
+   en étiquette mono braise comme le sélecteur de période, croix cerclée d'un
+   liseré qui se vide sur la durée du toast. Glisse depuis le bas et repart de
+   même. Posé au-dessus du bouton flottant, qui ne bouge pas. */
 .toasts {
   position: fixed;
   left: calc(22px + env(safe-area-inset-left));
@@ -118,43 +120,42 @@
 .toast {
   display: flex;
   align-items: center;
-  gap: 10px;
-  min-height: 56px;
-  padding-left: 16px;
+  gap: 8px;
+  min-height: 52px;
+  padding: 4px 4px 4px 16px;
+  border: 1px solid var(--surface-2-border);
+  border-radius: 8px;
   background: var(--surface-2);
   color: var(--fg);
   font-size: 14px;
-  font-weight: 500;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.7), 0 2px 6px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
   outline: none;
   view-transition-class: toast;
-}
-
-.toast__coche {
-  flex: none;
-  color: var(--accent);
 }
 
 .toast .react-aria-ToastContent {
   flex: 1;
   min-width: 0;
-  /* 316 px de large sur le S22 : tout tient sur une ligne, au pixel près. */
+  /* 316 px de large sur le S22 : tout tient sur une ligne. */
   white-space: nowrap;
 }
 
 .toast__annuler {
   flex: none;
-  min-height: 56px;
+  height: 44px;
   padding: 0 8px;
-  font-size: 14px;
-  font-weight: 600;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
   color: var(--accent);
 }
 
 .toast__fermer {
   flex: none;
   width: 44px;
-  min-height: 56px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -164,6 +165,42 @@
 .toast__annuler[data-pressed],
 .toast__fermer[data-pressed] {
   opacity: 0.72;
+}
+
+/* Piste fantôme sous l'arc : le cercle reste lisible une fois vidé. */
+.toast__piste {
+  stroke: var(--surface-2-border);
+  stroke-width: 1.25;
+}
+
+/* pathLength="100" : le tour vaut 100, l'arc se vide de 0 à -100 dans le
+   sens horaire depuis midi. Il se fige quand React Aria fige le minuteur :
+   survol ou focus dans la région. Pas d'exception reduced-motion — c'est
+   une information, pas un décor. */
+.toast__anneau {
+  stroke: var(--fg-4);
+  stroke-width: 1.25;
+  stroke-dasharray: 100;
+  animation: toast-anneau linear forwards;
+}
+
+.toasts:focus-within .toast__anneau {
+  animation-play-state: paused;
+}
+
+@media (hover: hover) {
+  .toasts:hover .toast__anneau {
+    animation-play-state: paused;
+  }
+}
+
+@keyframes toast-anneau {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -100;
+  }
 }
 
 ::view-transition-new(.toast):only-child {

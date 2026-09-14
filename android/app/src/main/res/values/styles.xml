@@ -16,7 +16,11 @@
     </style>
 
 
+    <!-- Écran de lancement système (Android 12+) : icône de l'app sur le fond
+         de la charte (tokens.css, - -bg). Tenu à l'écran jusqu'à ce que le JS
+         appelle SplashScreen.hide(), une fois la première vue posée. -->
     <style name="AppTheme.NoActionBarLaunch" parent="Theme.SplashScreen">
-        <item name="android:background">@drawable/splash</item>
+        <item name="windowSplashScreenBackground">#0C0C0E</item>
+        <item name="postSplashScreenTheme">@style/AppTheme.NoActionBar</item>
     </style>
 </resources>

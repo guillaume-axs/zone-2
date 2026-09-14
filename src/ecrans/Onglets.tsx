@@ -10,7 +10,7 @@ import {
 import { Outlet, useLocation, useNavigate } from 'react-router'
 import { db } from '../db/db'
 import { softDeleteSession } from '../db/sessions'
-import { type Enregistrement, enregistrements } from './toast'
+import { DUREE_TOAST_MS, type Enregistrement, enregistrements } from './toast'
 import './Onglets.css'
 
 const ONGLETS = [
@@ -75,9 +75,6 @@ export default function Onglets() {
       <ToastRegion queue={enregistrements} className="toasts">
         {({ toast }) => (
           <Toast toast={toast} className="toast" style={{ viewTransitionName: toast.key }}>
-            <svg className="toast__coche" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-              <path d="M4 10.5l4 4 8-9" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
             <ToastContent>
               <Text slot="title">Séance enregistrée</Text>
             </ToastContent>
@@ -85,8 +82,19 @@ export default function Onglets() {
               Annuler
             </Button>
             <Button slot="close" className="toast__fermer" aria-label="Fermer">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              {/* Le liseré du cercle se vide sur la durée du toast : on voit venir sa disparition. */}
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+                <circle className="toast__piste" cx="11" cy="11" r="10" />
+                <circle
+                  className="toast__anneau"
+                  cx="11"
+                  cy="11"
+                  r="10"
+                  pathLength="100"
+                  transform="rotate(-90 11 11)"
+                  style={{ animationDuration: `${DUREE_TOAST_MS}ms` }}
+                />
+                <path d="M7.5 7.5l7 7M14.5 7.5l-7 7" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
               </svg>
             </Button>
           </Toast>
