@@ -37,7 +37,12 @@ export default function Accueil() {
         <>
           {/* Le héros entier ouvre le détail : un seul chiffre mis en avant, une seule porte. */}
           <Link href={`/efficience?f=${fenetre}`} className="hero">
-            <div className="eyebrow">Efficience</div>
+            <div className="hero-titre">
+              <span className="eyebrow">Efficience</span>
+              <svg className="chevron" viewBox="0 0 8 14" aria-hidden="true">
+                <path d="M1 1l6 6-6 6" />
+              </svg>
+            </div>
             <div className="gloss">watts produits par battement de cœur</div>
             <Valeur
               texte={fr(ef, 2)}
