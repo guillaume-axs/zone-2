@@ -17,6 +17,25 @@
   opacity: 0.72;
 }
 
+/* Chevron en bout de titre : le signe mobile pour « un niveau en dessous »
+   (retour terrain S22 : le bloc n'était pas perçu comme cliquable). */
+.hero-titre {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.chevron {
+  width: 8px;
+  height: 14px;
+  margin-right: 2px;
+  fill: none;
+  stroke: var(--fg-2);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 .spark {
   width: 100%;
   height: auto;
