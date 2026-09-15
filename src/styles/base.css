@@ -41,6 +41,12 @@ body {
   user-select: none;
 }
 
+/* Un appui maintenu sur un lien démarre un glisser-déposer dont l'ombre affiche
+   l'URL — sans objet dans une app, et laid sous le doigt (retour terrain S22). */
+a {
+  -webkit-user-drag: none;
+}
+
 /*
  * Marges de sécurité (encoche, barre de navigation système).
  * Elles sont appliquées *à l'intérieur* de la hauteur de l'écran, jamais en plus :

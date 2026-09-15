@@ -108,11 +108,12 @@
    2026-09-14) : rayon 8 px, liseré, ombre simple. Texte à gauche, « Annuler »
    en étiquette mono braise comme le sélecteur de période, croix cerclée d'un
    liseré qui se vide sur la durée du toast. Glisse depuis le bas et repart de
-   même. Posé au-dessus du bouton flottant, qui ne bouge pas. */
+   même. Posé au-dessus du bouton flottant, qui ne bouge pas. À 8 px des bords,
+   comme le snackbar Material (m3_snackbar_margin). */
 .toasts {
   position: fixed;
-  left: calc(22px + env(safe-area-inset-left));
-  right: calc(22px + env(safe-area-inset-right));
+  left: calc(8px + env(safe-area-inset-left));
+  right: calc(8px + env(safe-area-inset-right));
   bottom: calc(146px + env(safe-area-inset-bottom));
   outline: none;
 }
