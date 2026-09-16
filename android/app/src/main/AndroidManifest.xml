@@ -59,12 +59,26 @@
 
     <!--
         Le type `connectedDevice` exige que l'application detienne au moins une
-        permission de la liste prevue par Android. `BLUETOOTH_CONNECT` sera la
-        bonne a l'etage 2 ; mais elle se demande a l'execution, et l'etage 1
-        echouerait alors pour une raison etrangere a ce qu'il mesure.
-        `CHANGE_NETWORK_STATE` figure dans la meme liste et est accordee
-        automatiquement : elle satisfait le prerequis sans rien demander.
+        permission de la liste prevue par Android : `BLUETOOTH_CONNECT` la
+        satisfait. A l'etage 1, elle n'etait pas encore demandee a l'execution
+        et `CHANGE_NETWORK_STATE` tenait ce role sans rien demander a
+        l'utilisateur ; l'etage 2 demande les deux permissions Bluetooth pour de
+        bon, la bequille est donc retiree.
     -->
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
-    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+
+    <!--
+        `neverForLocation` : nous cherchons une ceinture cardiaque, jamais une
+        position. Sans ce drapeau, Android exigerait la permission de
+        localisation pour une recherche Bluetooth — une demande incomprehensible
+        pour l'utilisateur, et une donnee dont nous n'avons aucun usage.
+    -->
+    <uses-permission
+        android:name="android.permission.BLUETOOTH_SCAN"
+        android:usesPermissionFlags="neverForLocation" />
+
+    <!-- Avant Android 12, aucune recherche Bluetooth n'etait possible sans elle. -->
+    <uses-permission
+        android:name="android.permission.ACCESS_FINE_LOCATION"
+        android:maxSdkVersion="30" />
 </manifest>
