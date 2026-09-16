@@ -29,6 +29,12 @@
   color: var(--accent);
 }
 
+/* Tenue, mais sous le seuil de couverture : ni réussite ni échec, il reste
+   quelque chose à expliquer avant d'avancer. */
+.poc__verdict--tiede {
+  color: var(--fg);
+}
+
 .poc__grid {
   display: grid;
   grid-template-columns: 1fr auto;

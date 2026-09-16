@@ -20,26 +20,31 @@ import java.io.File
 import java.io.FileWriter
 
 /**
- * Service de survie — étage 1 du PoC de l'étape 2.
+ * Service de séance — étage 2 du PoC de l'étape 2.
  *
- * Il ne fait rien d'utile : il écrit un horodatage par seconde dans un fichier.
- * C'est délibéré. La question qu'on teste n'est pas « sait-on parler Bluetooth »
- * — c'est « One UI laisse-t-il vivre notre processus pendant quatre heures,
- * écran verrouillé ». Un générateur de battements remplace donc le capteur, et
- * tout le reste est l'architecture réelle décidée le 2026-08-11 : service de
- * premier plan, type `connectedDevice`, notification permanente, écriture
- * directe depuis le natif sans dépendre du JavaScript.
+ * L'étage 1 a mesuré la survie du *processus* : un faux cœur battait une fois
+ * par seconde et on comptait les trous. Verdict du 2026-08-28 : zéro relance
+ * sur 9 h 30 cumulées. Ce que ce test ne pouvait pas produire, c'est une
+ * déconnexion Bluetooth — le service peut rester parfaitement vivant pendant
+ * que le lien avec la ceinture tombe, et personne ne le verrait.
  *
- * Le verdict est un nombre : une série parfaite de 4 h contient 14 400 lignes.
- * On compte les trous.
+ * Le faux cœur est donc remplacé par le vrai. Tout le reste est inchangé, et
+ * c'est délibéré : une seule variable change par rapport aux 9 h 30 déjà
+ * mesurées, donc un échec sera interprétable.
  *
- * FIDÉLITÉ DU SIMULATEUR — à lire avant d'interpréter un résultat. Un `Handler`
- * qui s'auto-replanifie ne réveille pas le processeur endormi, alors qu'un
- * paquet BLE entrant, lui, le réveille. Sans précaution, ce service mesurerait
- * donc une somnolence que le vrai trafic Bluetooth ne subirait pas, et
- * échouerait pour une mauvaise raison. D'où le `WakeLock` partiel ci-dessous :
- * il tient le processeur éveillé comme le ferait un flux de battements réels.
- * Cette hypothèse devra être revalidée à l'étage 2, contre un vrai GATT.
+ * Le verdict n'est plus seulement « combien de battements manquent » mais
+ * **combien de temps s'est écoulé sans donnée**, et surtout la part de ce temps
+ * pendant laquelle la liaison se croyait vivante. Cette part-là est la panne
+ * silencieuse : celle qui ne lève aucune alarme et qu'on ne verrait jamais sans
+ * la mesurer.
+ *
+ * LE VERROU DE RÉVEIL RESTE, POUR CE TEST SEULEMENT. Il était là pour rendre le
+ * faux cœur crédible : un `Handler` qui se replanifie ne réveille pas un
+ * processeur endormi, alors qu'un paquet Bluetooth entrant, lui, le réveille.
+ * Le garder ici ne change donc qu'une chose à la fois. Un second test le
+ * retirera, pour savoir si le trafic réel suffit à nous tenir éveillés —
+ * tenir un processeur éveillé quatre heures coûte de la batterie, et finit par
+ * rendre une application suspecte aux yeux d'Android.
  */
 class SurvieService : Service() {
 
@@ -47,7 +52,8 @@ class SurvieService : Service() {
     private lateinit var handler: Handler
     private var verrou: PowerManager.WakeLock? = null
     private var journal: BufferedWriter? = null
-    private var ticks = 0L
+    private var ceinture: Ceinture? = null
+    private var battements = 0L
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -71,7 +77,7 @@ class SurvieService : Service() {
         }
 
         ServiceCompat.startForeground(
-            this, NOTIF_ID, notification(0),
+            this, NOTIF_ID, notification(),
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
                 ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE
             else 0,
@@ -92,27 +98,50 @@ class SurvieService : Service() {
         }
 
         actif = true
-        handler.removeCallbacksAndMessages(null)
-        handler.postDelayed(battement, PERIODE_MS)
+        demarrerCeinture()
         return START_STICKY
-    }
-
-    private val battement = object : Runnable {
-        override fun run() {
-            ticks++
-            ecrire("T,${System.currentTimeMillis()}")
-            if (ticks % 60 == 0L) majNotification()
-            handler.postDelayed(this, PERIODE_MS)
-        }
     }
 
     override fun onDestroy() {
         actif = false
+        ceinture?.arreter()
+        ceinture = null
         handler.removeCallbacksAndMessages(null)
         fil.quitSafely()
         fermerJournal()
         verrou?.takeIf { it.isHeld }?.release()
         super.onDestroy()
+    }
+
+    // --- ceinture -----------------------------------------------------------
+
+    private fun demarrerCeinture() {
+        ceinture?.arreter()
+        ceinture = Ceinture(this, handler, ::noterBattement, ::noterEtat).also { it.demarrer() }
+    }
+
+    /**
+     * Une ligne par battement reçu. Le contact peau y figure séparément de la
+     * liaison : une électrode sèche et un lien mort produisent tous deux du
+     * silence, et les confondre au dépouillement ferait accuser le Bluetooth
+     * d'une faute qui revient à un maillot mal humidifié.
+     */
+    private fun noterBattement(b: Battement) {
+        battements++
+        dernierBpm = b.bpm
+        val contact = when (b.contact) {
+            true -> "1"
+            false -> "0"
+            null -> "-"
+        }
+        ecrire("B,${System.currentTimeMillis()},${b.bpm},$contact,${b.rr.joinToString(";")}")
+        if (battements % 60 == 0L) majNotification()
+    }
+
+    private fun noterEtat(e: Ceinture.Etat) {
+        etat = e.name
+        ecrire("C,${System.currentTimeMillis()},${e.name}")
+        majNotification()
     }
 
     // --- journal ------------------------------------------------------------
@@ -159,13 +188,26 @@ class SurvieService : Service() {
         getSystemService(NotificationManager::class.java).createNotificationChannel(canal)
     }
 
-    private fun notification(n: Long): Notification {
+    /**
+     * La notification est le seul retour visible pendant quatre heures d'écran
+     * verrouillé. Elle dit donc l'essentiel : la liaison tient-elle, et combien
+     * de battements sont arrivés.
+     */
+    private fun notification(): Notification {
         val pi = PendingIntent.getActivity(
             this, 0, Intent(this, MainActivity::class.java), PendingIntent.FLAG_IMMUTABLE,
         )
+        val ligne = when (etat) {
+            Ceinture.Etat.CONNECTEE.name -> "$dernierBpm bpm · $battements battements"
+            Ceinture.Etat.RECHERCHE.name -> "Recherche de la ceinture…"
+            Ceinture.Etat.TROUVEE.name -> "Ceinture trouvée, connexion…"
+            Ceinture.Etat.DECROCHEE.name -> "Liaison perdue, reconnexion…"
+            Ceinture.Etat.ECHEC.name -> "Bluetooth indisponible"
+            else -> "Démarrage"
+        }
         return NotificationCompat.Builder(this, CANAL)
-            .setContentTitle("Test de survie en cours")
-            .setContentText(if (n == 0L) "Démarré" else "${n / 60} min · $n battements")
+            .setContentTitle("Test de séance en cours")
+            .setContentText(ligne)
             .setSmallIcon(R.mipmap.ic_launcher)
             .setOngoing(true)
             .setContentIntent(pi)
@@ -174,7 +216,7 @@ class SurvieService : Service() {
     }
 
     private fun majNotification() {
-        getSystemService(NotificationManager::class.java)?.notify(NOTIF_ID, notification(ticks))
+        getSystemService(NotificationManager::class.java)?.notify(NOTIF_ID, notification())
     }
 
     companion object {
@@ -184,12 +226,22 @@ class SurvieService : Service() {
 
         private const val CANAL = "survie"
         private const val NOTIF_ID = 4201
-        private const val PERIODE_MS = 1000L
 
         /** Lu par le pont : distingue « service toujours vivant » de « tué ». */
         @Volatile
         @JvmStatic
         var actif = false
+            private set
+
+        /** État de la liaison, affiché en direct par l'écran de diagnostic. */
+        @Volatile
+        @JvmStatic
+        var etat = ""
+            private set
+
+        @Volatile
+        @JvmStatic
+        var dernierBpm = 0
             private set
     }
 }

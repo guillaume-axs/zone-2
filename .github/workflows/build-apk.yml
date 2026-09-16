@@ -71,6 +71,13 @@ jobs:
       # par git, donc cette étape n'est pas optionnelle.
       - run: npx cap sync android
 
+      # Le décodage des trames de la ceinture est du Kotlin pur : il se vérifie
+      # sans téléphone et sans capteur. C'est la seule pièce de la capture BLE
+      # qu'on puisse éprouver ailleurs que sur le vélo — elle ne passera donc
+      # jamais sans avoir été testée.
+      - run: ./gradlew testDebugUnitTest --no-daemon
+        working-directory: android
+
       - run: ./gradlew assembleDebug --no-daemon
         working-directory: android
 
