@@ -823,6 +823,33 @@ sujet 4. Table séparée indexée par l'`id` de séance, ou champ de `Session` :
 Si elle doit fonctionner **téléphone en poche, écran verrouillé**, elle relève du service natif — le JS
 ne tourne pas. Cela ne change rien au stockage, mais ajoute une responsabilité au service.
 
+### Tranché le 2026-09-20 — les deux conséquences, plus la moyenne
+
+La liaison étant validée (sujet 2 bis, 2026-09-19), les questions laissées ouvertes ci-dessus se
+tranchent avant tout écran de séance.
+
+**1. La courbe va dans une table à part**, une ligne par séance, reliée par l'`id` de `Session`.
+L'accueil et l'historique lisent la liste des séances à chaque ouverture ; la courbe ne se lit qu'au
+détail d'une séance. Collée à `Session`, elle serait chargée à chaque ouverture pour rien, et de plus
+en plus au fil des séances. Le pas reste celui du sujet 4 : **un point toutes les 5 secondes**, chaque
+point valant la moyenne des trames reçues dans sa tranche. Une tranche sans trame (perte radio, contact
+peau perdu) est **absente**, ni nulle ni interpolée. La suppression logique de la séance couvre sa courbe.
+
+**2. La fréquence moyenne d'une séance live est écrite dans `avgHrBpm`**, le champ de la saisie
+manuelle, au moment du rangement en base. Écart assumé au sujet 4 (« aucune valeur dérivée stockée »),
+pour une raison précise : ce verrou vise les agrégats dont la formule peut changer et qui se
+désynchroniseraient. Une moyenne arithmétique de points équidistants n'a qu'une formule. La laisser
+vide obligerait chaque écran à gérer deux sortes de séances — manuelle à champ, live à calcul. Formule :
+somme des points de la courbe divisée par leur nombre, les tranches absentes ne comptant pas.
+→ Conséquence UX à instruire avec l'écran de fin de séance : ce champ n'a plus lieu d'être saisi pour
+une séance live.
+
+**3. L'alerte de sortie de zone est déclenchée par le service natif.** Il est le seul éveillé écran
+verrouillé ; l'application lui passe les bornes de zone au démarrage de la séance. Forme retenue :
+**vibration** pour le corps, **notification** pour l'œil — elle doit se lire sur l'écran verrouillé.
+**Pas de son.** Le motif de vibration, la fréquence des rappels et le comportement au retour en zone
+relèvent de l'étude UX de l'écran de séance.
+
 ---
 
 
