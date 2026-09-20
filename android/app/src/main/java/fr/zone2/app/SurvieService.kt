@@ -12,7 +12,6 @@ import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.IBinder
-import android.os.PowerManager
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
 import java.io.BufferedWriter
@@ -38,19 +37,19 @@ import java.io.FileWriter
  * silencieuse : celle qui ne lève aucune alarme et qu'on ne verrait jamais sans
  * la mesurer.
  *
- * LE VERROU DE RÉVEIL RESTE, POUR CE TEST SEULEMENT. Il était là pour rendre le
- * faux cœur crédible : un `Handler` qui se replanifie ne réveille pas un
- * processeur endormi, alors qu'un paquet Bluetooth entrant, lui, le réveille.
- * Le garder ici ne change donc qu'une chose à la fois. Un second test le
- * retirera, pour savoir si le trafic réel suffit à nous tenir éveillés —
- * tenir un processeur éveillé quatre heures coûte de la batterie, et finit par
- * rendre une application suspecte aux yeux d'Android.
+ * Verdict du 2026-09-19 : 3 h 41 à 99,4 % de couverture, zéro décrochage.
+ *
+ * PLUS DE VERROU DE RÉVEIL. Il n'existait que pour rendre le faux cœur
+ * crédible : un `Handler` qui se replanifie ne réveille pas un processeur
+ * endormi, alors qu'un paquet Bluetooth entrant, lui, le réveille. Avec la
+ * vraie ceinture il ne servait plus qu'à coûter de la batterie et à rendre
+ * l'application suspecte aux yeux d'Android. Les deux tests validés le
+ * tenaient encore ; les séances suivantes jugeront son absence.
  */
 class SurvieService : Service() {
 
     private lateinit var fil: HandlerThread
     private lateinit var handler: Handler
-    private var verrou: PowerManager.WakeLock? = null
     private var journal: BufferedWriter? = null
     private var ceinture: Ceinture? = null
     private var battements = 0L
@@ -60,11 +59,6 @@ class SurvieService : Service() {
     override fun onCreate() {
         super.onCreate()
         creerCanal()
-
-        verrou = getSystemService(PowerManager::class.java)
-            .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "zone2:survie")
-            .apply { acquire() }
-
         fil = HandlerThread("survie").apply { start() }
         handler = Handler(fil.looper)
     }
@@ -109,7 +103,6 @@ class SurvieService : Service() {
         handler.removeCallbacksAndMessages(null)
         fil.quitSafely()
         fermerJournal()
-        verrou?.takeIf { it.isHeld }?.release()
         super.onDestroy()
     }
 
