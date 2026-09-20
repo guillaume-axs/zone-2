@@ -203,6 +203,45 @@ signifié programmer contre une traduction de l'API sur le code le plus critique
 **Règle qui en découle : plus une ligne de Java dans `android/`.** Java n'a jamais été un choix ici,
 seulement le défaut des fichiers générés.
 
+### Mesuré le 2026-09-19 — la connexion survit aussi. Verdict : « Aucune interruption »
+
+Le test du 2026-08-28 laissait une question ouverte : le processus survit, mais le lien Bluetooth ?
+L'étage 2 du PoC (PR #19) remplace le faux cœur par la vraie ceinture — pile Android standard, profil
+Heart Rate `0x180D`, aucune dépendance — et mesure le temps sans donnée, décomposé en trois parts :
+connexion initiale, déconnecté, silencieux (le lien se croit vivant mais rien n'arrive).
+
+Deux tests réels, sur le S22, **en pédalant**, verrou de réveil actif, exemption d'optimisation
+batterie **non accordée**.
+
+| | Test A | Test B |
+|---|---|---|
+| Durée | 3 h 41 | 1 h 03 |
+| Trames reçues | 13 262 | 3 812 |
+| Couverture | 99,4 % | 99,8 % |
+| Décrochages · définitifs · relances Android | 0 · 0 · 0 | 0 · 0 · 0 |
+| Temps sans donnée | 1 min 18 s | 7 s |
+| — dont connexion initiale · déconnecté · silencieux | 3 s · 0 s · 1 min 15 s | 2 s · 0 s · 4 s |
+| Plus long trou | 5,1 s | 2,4 s |
+| Trames sans contact peau | 0 | 0 |
+| Batterie du téléphone | 79 → 53 % | 74 → 54 % |
+
+**Lecture.** La ceinture émet exactement une trame par seconde (13 262 trames pour 13 260 s) et
+tout arrive : les trous de 2 à 5 s sont des pertes radio banales, et la trame suivante porte les
+intervalles RR manqués — les battements eux-mêmes ne sont pas perdus. Le critère bloquant, *zéro
+décrochage définitif*, est tenu ; la grille de lecture, *couverture ≥ 99 %*, aussi. Le test A dure
+3 h 41 et non 4 h : l'écart est assumé, une séance dure une heure.
+
+**Conséquences.**
+- La ligne « Aucune interruption » du tableau ci-dessus s'applique : **l'étape 2 part sur la pile
+  standard**. Le SDK Polar et la relecture de la mémoire interne sont **écartés** — ils étaient le plan B
+  d'une panne qui ne s'est pas produite. La mention « la ceinture à mémoire interne reste un filet
+  obligatoire » du 2026-08-28 est levée.
+- Android n'a rien tué **sans** exemption batterie. On tenait cette exemption pour indispensable ; elle
+  redevient une option de confort à instruire avec l'écran de séance, pas un prérequis.
+- **Ce que ces tests ne disent pas** : la part de l'application dans la consommation. Les deux tests
+  tenaient le verrou de réveil, hérité du faux cœur ; un troisième test, sans verrou, dira si le trafic
+  Bluetooth réel suffit à tenir le service éveillé. Il se mène avant l'écran de séance.
+
 ---
 
 ## Sujet 3 — Parcours utilisateur ✅
