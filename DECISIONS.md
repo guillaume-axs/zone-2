@@ -265,6 +265,11 @@ Enregistrer = **4 gestes, ~6 secondes**.
 **Parade au risque du pré-remplissage** (enregistrer par erreur les valeurs de la veille) : valeurs reprises
 affichées en gris atténué avec la mention « repris du 07/08 » ; un tap sur un champ le sélectionne entièrement.
 
+### Précision du 2026-09-21 — la saisie manuelle reste à un tap
+
+À l'étape 2, le bouton central ouvre l'écran **Démarrer** (sujet 12). La saisie manuelle y reste
+accessible par un lien « Saisir à la main » en bas de l'écran — action secondaire, jamais retirée.
+
 ---
 
 ## Sujet 3 bis — Bibliothèque de composants ✅ *(décidé le 2026-08-11)*
@@ -324,15 +329,28 @@ calculable dès l'étape 1. Progresser = produire plus de watts à FC égale.
 **Piège d'interprétation à gérer :** l'EF est très sensible à la dérive cardiaque (chaleur, déshydratation,
 sommeil). D'où les 3 tags de contexte — pour écarter les séances aberrantes au lieu de croire à une régression.
 
-**Calibrage des zones.** Le bon test **n'est pas** la FC max (les bornes de zone 2 dépendent du premier
-seuil LT1, pas du plafond ; deux athlètes de même FC max peuvent avoir un LT1 séparé de 20 bpm).
-Le bon test est le **LTHR**, réalisable sur le vélo de salle :
+**Bornes de zone 2** *(révisé le 2026-09-21 — remplace le test LTHR et la plage « 81 à 89 % de la
+LTHR » écrits initialement)*. Aucune formule ne donne la zone 2 d'une personne à mieux que ±10 à
+20 bpm : les ancrages fixes sur le premier seuil ont une erreur moyenne de 5 à 7 bpm et des limites
+d'accord jusqu'à ±20 bpm. Le marché ne cherche pas mieux : Garmin, Apple et Polar proposent 60 à 70 %
+d'une FC max estimée sur l'âge, Strava 66 à 81 %, et tous laissent l'utilisateur éditer deux chiffres.
+Zone2.app reprend les zones d'Apple Santé sans rien inventer.
 
-> Échauffement 15 min, puis **30 min à la plus haute intensité tenable régulièrement, seul**.
-> **LTHR = FC moyenne des 20 dernières minutes.** Puis **zone 2 = 81 à 89% de la LTHR** (Friel).
-> À refaire tous les 3-4 mois.
+Décision, alignée sur ce standard :
 
-Plage provisoire en attendant la ceinture, remplacée après le test. Ne bloque pas le démarrage.
+- **Réglages « Zone cible » : l'âge donne une plage par défaut, 65 à 75 % de la FC max estimée**
+  (Tanaka, 208 − 0,7 × âge, moins biaisée que 220 − âge). 65–75 % plutôt que 60–70 % parce que c'est
+  la fourchette citée pour des personnes entraînées ; plus prudent que 180 − âge (Maffetone), qui
+  tombe haut chez les jeunes. Se tromper bas ne coûte rien, se tromper haut fait rouler en zone 3.
+- **Deux chiffres éditables**, historisés (SCD type 2 ci-dessous). Pas de test LTHR, pas de labo, pas
+  de test de la parole : ils ne seraient pas refaits.
+- **Pas d'ajustement automatique.** Le test de dérive cardiaque (Uphill Athlete : sur une heure à
+  effort constant, dérive > 5 % = plafond trop haut, < 3,5 % = trop bas) a été étudié puis écarté de
+  l'écran de fin : il se contredit avec l'alerte de sortie de zone — obéir à l'alerte masque la
+  dérive — et le détecter proprement demandait quatre cas et un mode « séance test ». La courbe 5 s
+  est en base, la dérive restera calculable après coup ; un conseil déterministe sur l'historique est
+  une piste ultérieure, comme le DFA α1 (HRV, validé sur H10, FatMaxxer en source ouverte) pour un
+  seuil mesuré plutôt qu'estimé.
 
 ### Modèle
 
@@ -349,10 +367,11 @@ distance_m    int                ───────────────�
 rpe           smallint           id          uuid  PK
 notes         text               user_id     uuid  FK
 source        manual|live        valid_from  date
-context       tags[]             method      lthr|maf|hrmax|manuel
-created_at    timestamptz        lthr_bpm    smallint
-updated_at    timestamptz        z2_min_bpm  smallint
-deleted_at    timestamptz        z2_max_bpm  smallint
+context       tags[]             z2_min_bpm  smallint
+created_at    timestamptz        z2_max_bpm  smallint
+updated_at    timestamptz
+deleted_at    timestamptz        (2026-09-21 : `method` et `lthr_bpm` retirés,
+                                  la méthode est unique — voir « Bornes de zone 2 »)
 
 ● = seul champ obligatoire
 ```
@@ -848,10 +867,73 @@ une séance live.
 verrouillé ; l'application lui passe les bornes de zone au démarrage de la séance. Forme retenue :
 **vibration** pour le corps, **notification** pour l'œil — elle doit se lire sur l'écran verrouillé.
 **Pas de son.** Le motif de vibration, la fréquence des rappels et le comportement au retour en zone
-relèvent de l'étude UX de l'écran de séance.
+relèvent de l'étude UX de l'écran de séance → **sujet 12**.
 
 ---
 
+
+## Sujet 12 — Écran de séance ✅ *(décidé le 2026-09-21)*
+
+Étude UX menée avant la maquette, sur le marché 2026 : Apple Fitness, Garmin, Samsung Health,
+Zone2.app, Zone2 Pulse, Nike Run Club. Ce qui en ressort, puis ce qui est retenu.
+
+### Ce que fait le marché
+
+- L'écran d'effort montre trois choses : la FC, l'état par rapport à la zone, le temps — dont le
+  temps passé en zone (Zone2.app : « ZONE 2 · HOLD 139 », « 22:41 in zone »).
+- L'alerte de zone est haptique, jamais sonore par défaut. Apple répète tant qu'on est hors zone,
+  Garmin une fois. Zone2 Pulse tamponne le franchissement de borne pour ne pas clignoter.
+- La pause accidentelle est la plainte n° 1 sur montres Galaxy et Apple ; Nike Run Club termine par
+  un appui long.
+- Une valeur périmée doit avoir l'air périmée.
+- Android 16 : « Live Updates », notification promue visible sur l'écran verrouillé et dans la barre
+  d'état ; One UI 8 l'affiche dans la Now Bar. Allumer l'écran verrouillé est réservé aux alarmes et
+  appels (« full-screen intent », permission `USE_FULL_SCREEN_INTENT`, révocable par le système
+  depuis Android 14 : à vérifier au démarrage et à expliquer si elle manque).
+
+### Règles retenues
+
+**Démarrer** (bouton central) : recherche automatique de la ceinture, état de la ceinture, bornes en
+vigueur, un seul bouton « Démarrer ». Sans bornes → renvoi vers le réglage. Indice après 20 s sans
+ceinture. Lien « Saisir à la main » en bas (sujet 3).
+
+**Échauffement** : l'alerte s'arme à la première entrée en zone. L'écran dit « Échauffement ».
+
+**Effort** : la FC en héros (Instrument Serif, sujet 7), une bande horizontale portant les deux
+bornes et un curseur, un mot d'état (Échauffement / En zone / Trop haut / Trop bas), temps écoulé et
+temps en zone. Braise en zone, blanc cassé hors zone. Pas de barre d'onglets, pas de courbe en direct.
+L'affichage suit **chaque trame de la ceinture** (une par seconde) ; le pas de 5 s n'est que du
+stockage. **L'écran reste allumé** tant que la séance est devant.
+
+**🫀 Signature** (sujet 7) : le chiffre gonfle à chaque battement réel, un anneau fin se dilate, les
+chiffres glissent, le curseur suit avec inertie. Ceinture muette → le cœur s'arrête de battre.
+
+**Ceinture muette plus de 5 s** : le chiffre s'atténue avec « il y a N s » ; contact peau perdu →
+« Ceinture ? ». La séance continue, la reconnexion est automatique.
+
+**Alerte de sortie de zone** (déclenchée par le service natif, sujet 11) : **5 s consécutives** hors
+zone pour déclencher, 5 s en zone pour revenir. Deux motifs distincts : trop haut = deux longues,
+trop bas = trois courtes. **Rappel toutes les 20 s** tant qu'on est hors zone. Une courte au retour.
+Pas de son. Écran verrouillé : la notification en cours affiche « FC · état · temps » rafraîchie
+toutes les 5 s, et **l'alerte allume l'écran comme un appel** — « TROP HAUT · 152 » en plein écran,
+qui s'efface au retour en zone ou d'un tap. Doute à lever sur le terrain : la vibration d'un
+téléphone posé sur la console peut ne pas se sentir.
+
+**Commandes** : **Terminer** et **Pause** par **appui long de 2 s** avec un anneau qui se remplit —
+aucune commande à un tap. Pendant la pause **tout s'arrête** : chrono, courbe, temps en zone, alerte.
+La ceinture reste connectée, le journal note les pauses.
+
+**Fin de séance** : la séance est rangée immédiatement (durée, courbe, `avgHrBpm`), puis l'écran de
+fin : temps en zone en héros, durée et FC moyenne affichées non modifiables, mini-courbe, formulaire
+réduit à watts / RPE / contexte / notes. Pas de bouton supprimer.
+
+**Accidents** : un journal inachevé trouvé à la réouverture est rangé automatiquement, puis l'écran de
+fin s'ouvre — et dans ce seul cas la durée redevient modifiable, puisqu'on a oublié de terminer.
+
+**Écartés** : verrouillage tactile (l'appui long suffit), demande d'exemption batterie (sujet 2 bis),
+conseil de dérive sur l'écran de fin (sujet 4).
+
+---
 
 ## Qualité « portfolio » — les 4 axes validés
 
