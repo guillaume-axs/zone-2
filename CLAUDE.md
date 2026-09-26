@@ -68,7 +68,14 @@ Une release `latest` est republiée à chaque push sur `main`.
 
 - **Annoncer chaque étape avant de l'exécuter** sur une tâche longue. Ne jamais enchaîner en silence.
 - **Étude UX avant toute maquette d'écran** : chercher en ligne les pratiques du marché, puis expliquer
-  les règles retenues. Vaut pour chaque écran, sans exception.
+  les règles retenues. Vaut pour chaque écran, sans exception. **Un écran à la fois** — benchmark,
+  usage, maquette, validation. Jamais deux écrans dans la même passe.
+- **Une maquette charge le CSS réel de l'application**, elle ne le recopie pas : `src/styles/tokens.css`
+  et la feuille de l'écran existant le plus proche, publiés à côté de la page. `DECISIONS.md` donne les
+  jetons, le CSS donne les **composants** — `.save` (carré, fond `--fg-hero`), `.field`, `.tag`,
+  `.stepper`, `.label`. Une maquette bâtie sur les seuls jetons invente ses composants sans le voir :
+  c'est arrivé le 2026-09-21, d'où le hook `.claude/hooks/maquette-charte.py` qui refuse une page
+  écrivant la palette en dur. Un composant réellement nouveau se soumet comme arbitrage, jamais en douce.
 - **Chercher en ligne plutôt que dans sa mémoire** dès qu'il s'agit d'un standard, d'une version ou
   d'une pratique. L'état actuel du projet ne décide jamais d'une question d'architecture à sa place.
 - **Un « go » couvre la chaîne mécanique** jusqu'à la livraison : commit, PR, CI, merge, publication.
