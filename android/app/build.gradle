@@ -20,10 +20,33 @@ android {
     kotlinOptions {
         jvmTarget = '21'
     }
+    // Signature de release. La clé de signature ne vit jamais dans le dépôt :
+    // la CI la restitue depuis ses secrets dans un fichier temporaire et en
+    // passe le chemin par l'environnement. Sans ces variables — un build local
+    // ou un fork — le bloc reste inerte et l'APK sort non signé.
+    //
+    // Motif : jusqu'au 2026-09-26 la CI signait avec la clé de debug, que
+    // Gradle fabrique à la volée sur une machine neuve à chaque exécution.
+    // Chaque APK portait donc une signature différente, Android refusait la
+    // mise à jour, il fallait désinstaller — et la base partait avec.
+    signingConfigs {
+        release {
+            def magasin = System.getenv("ANDROID_KEYSTORE_FILE")
+            if (magasin) {
+                storeFile file(magasin)
+                storePassword System.getenv("ANDROID_KEYSTORE_PASSWORD")
+                keyAlias "zone2"
+                keyPassword System.getenv("ANDROID_KEYSTORE_PASSWORD")
+            }
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            if (System.getenv("ANDROID_KEYSTORE_FILE")) {
+                signingConfig signingConfigs.release
+            }
         }
     }
 }
