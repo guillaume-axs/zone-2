@@ -935,6 +935,39 @@ conseil de dérive sur l'écran de fin (sujet 4).
 
 ---
 
+## Sujet 13 — Écran « Zone 2 » ✅ *(décidé le 2026-09-26)*
+
+**Où** : une ligne de l'onglet Réglages ouvre un écran plein, comme Apple le fait pour ses zones
+cardiaques. Pas un bloc posé dans l'onglet — le bouton flottant occupe déjà le bas de tout écran
+d'onglet (`Onglets.css`, `.fab` à 78 px du bas).
+
+**Titre** : « Zone 2 », pas « Zone cible » — l'écran doit dire de quelle zone il parle.
+
+**Contenu** : trois lignes, un nombre par ligne, chacune avec son intitulé à gauche et sa valeur
+à droite. Âge (ans), Début de zone (bpm), Fin de zone (bpm). C'est l'anatomie exacte de l'écran
+Apple de réglage manuel d'une zone. **Aucun titre géant, aucune phrase d'explication** : aucun
+écran de réglage du marché n'en porte.
+
+**Mécanique** : l'âge remplit les deux bornes par Tanaka (208 − 0,7 × âge), puis 65 à 75 %.
+Le recalcul se déclenche **dès que l'âge est plausible — deux chiffres, de 15 à 99 ans** — et pas
+à chaque touche : sinon les bornes d'un enfant de 4 ans s'affichent une seconde avant de sauter.
+Les bornes restent modifiables à la main ; **retaper l'âge écrase la correction**, et c'est la
+seule manière de revenir au calcul automatique — il n'y a donc pas de lien « recalculer » à écrire.
+
+**L'âge n'est pas stocké** : le champ est vide à chaque ouverture. Seules les deux bornes vivent
+en base (`zone_config`, sujet 4). Motif : le dépôt est public (sujet 8) et l'âge est une donnée
+identifiante ; par ailleurs une valeur dérivée ne se stocke pas.
+
+**Écartés** : les deux bornes sur une même ligne séparées d'un tiret — inventé, le marché met un
+nombre par ligne ; le grand chiffre en tête d'écran ; l'interrupteur automatique / manuel de
+Garmin et d'Apple, sans objet puisque retaper l'âge fait le retour à l'automatique ; la molette
+de sélection de Garmin, qui interdit de taper au clavier.
+
+**Sources regardées** : Apple (réglage manuel d'une zone, liste des réglages d'entraînement),
+Garmin Connect (zones d'un profil, saisie d'une valeur en bpm). Captures dans la maquette.
+
+---
+
 ## Qualité « portfolio » — les 4 axes validés
 
 1. **Moteur de métriques testé** — module TypeScript pur : EF, découplage, comparaisons glissantes.
