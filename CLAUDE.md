@@ -75,8 +75,9 @@ Une release `latest` est republiée à chaque push sur `main`.
   Où chercher, dans cet ordre : la fiche Play Store ou App Store de l'app (5 à 8 captures officielles),
   les bancs d'essai (DC Rainmaker, the5krunner, Tom's Guide), la version web de l'app via Claude dans
   Chrome. La maquette porte en tête un bloc `SOURCES` qui nomme, pour chaque écran, l'app, l'écran, le
-  fichier de la capture, ce qu'on lui **garde** et ce qu'on lui **jette** avec le motif. Le hook
-  `.claude/hooks/maquette-charte.py` refuse la publication sans ce bloc : la consigne écrite seule
+  fichier de la capture, ce qu'on lui **garde** et ce qu'on lui **jette** avec le motif, et elle
+  **affiche chaque capture en bas de planche** — une source qu'on ne voit pas oblige le PO à croire
+  sur parole. Le hook `.claude/hooks/maquette-charte.py` refuse la publication sans ce bloc : la consigne écrite seule
   n'a pas suffi le 2026-09-26, la maquette de Zone cible a été inventée alors que la règle existait.
   Un écran sans équivalent sur le marché est un arbitrage à soumettre, pas une case à cocher.
 - **Une maquette charge le CSS réel de l'application**, elle ne le recopie pas : `src/styles/tokens.css`

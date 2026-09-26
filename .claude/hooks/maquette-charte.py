@@ -19,7 +19,8 @@ Règles qui bloquent :
      charger `tokens.css` ;
   2. une maquette (elle charge `tokens.css`) sans bloc SOURCES conforme : au
      moins deux écrans concurrents réellement regardés, fichiers présents sur
-     le disque, et pour chacun ce qu'on garde et ce qu'on jette.
+     le disque, affichés dans la planche, et pour chacun ce qu'on garde et ce
+     qu'on jette.
 
 Les deux sont étroites volontairement — une page d'étude ou un graphique qui
 n'emploie pas la palette passe sans rien déclarer, et `<!-- hors-app -->` sort
@@ -57,6 +58,9 @@ MODE_EMPLOI = (
     "    garde : le fond noir et le contraste élevé\n"
     "    jette : les jauges circulaires\n"
     "  -->\n\n"
+    "Et chaque capture citée est affichée dans la page, en bas de planche, "
+    "sous un <img src=\"…\"> reprenant le même chemin : le PO doit pouvoir "
+    "voir la source sans croire sur parole.\n\n"
     "Où trouver les écrans, dans cet ordre : la fiche Play Store ou App Store "
     "de l'app (5 à 8 captures officielles), les bancs d'essai (DC Rainmaker, "
     "the5krunner, Tom's Guide), la version web de l'app via Claude dans "
@@ -158,6 +162,16 @@ if charge_jetons:
             "disque :\n  " + "\n  ".join(manquants) + "\n\n"
             "Les chemins sont relatifs à la page. Citer un écran qu'on n'a pas "
             "ouvert, c'est exactement l'erreur que ce garde-fou empêche."
+        )
+
+    non_montrees = [c for _, _, c in sources if 'src="%s"' % c not in page]
+    if non_montrees:
+        refuser(
+            "Maquette refusée — des captures sont citées mais pas affichées :\n  "
+            + "\n  ".join(non_montrees) + "\n\n"
+            "Une source qu'on ne voit pas oblige le PO à croire sur parole. La "
+            "planche montre chaque écran regardé en bas de page, avec son app, "
+            "son chemin dans l'app, ce qu'on lui prend et ce qu'on lui laisse."
         )
 
     minuscule = corps.lower()
