@@ -265,6 +265,11 @@ Enregistrer = **4 gestes, ~6 secondes**.
 **Parade au risque du pré-remplissage** (enregistrer par erreur les valeurs de la veille) : valeurs reprises
 affichées en gris atténué avec la mention « repris du 07/08 » ; un tap sur un champ le sélectionne entièrement.
 
+### Précision du 2026-09-21 — la saisie manuelle reste à un tap
+
+À l'étape 2, le bouton central ouvre l'écran **Démarrer** (sujet 12). La saisie manuelle y reste
+accessible par un lien « Saisir à la main » en bas de l'écran — action secondaire, jamais retirée.
+
 ---
 
 ## Sujet 3 bis — Bibliothèque de composants ✅ *(décidé le 2026-08-11)*
@@ -324,15 +329,28 @@ calculable dès l'étape 1. Progresser = produire plus de watts à FC égale.
 **Piège d'interprétation à gérer :** l'EF est très sensible à la dérive cardiaque (chaleur, déshydratation,
 sommeil). D'où les 3 tags de contexte — pour écarter les séances aberrantes au lieu de croire à une régression.
 
-**Calibrage des zones.** Le bon test **n'est pas** la FC max (les bornes de zone 2 dépendent du premier
-seuil LT1, pas du plafond ; deux athlètes de même FC max peuvent avoir un LT1 séparé de 20 bpm).
-Le bon test est le **LTHR**, réalisable sur le vélo de salle :
+**Bornes de zone 2** *(révisé le 2026-09-21 — remplace le test LTHR et la plage « 81 à 89 % de la
+LTHR » écrits initialement)*. Aucune formule ne donne la zone 2 d'une personne à mieux que ±10 à
+20 bpm : les ancrages fixes sur le premier seuil ont une erreur moyenne de 5 à 7 bpm et des limites
+d'accord jusqu'à ±20 bpm. Le marché ne cherche pas mieux : Garmin, Apple et Polar proposent 60 à 70 %
+d'une FC max estimée sur l'âge, Strava 66 à 81 %, et tous laissent l'utilisateur éditer deux chiffres.
+Zone2.app reprend les zones d'Apple Santé sans rien inventer.
 
-> Échauffement 15 min, puis **30 min à la plus haute intensité tenable régulièrement, seul**.
-> **LTHR = FC moyenne des 20 dernières minutes.** Puis **zone 2 = 81 à 89% de la LTHR** (Friel).
-> À refaire tous les 3-4 mois.
+Décision, alignée sur ce standard :
 
-Plage provisoire en attendant la ceinture, remplacée après le test. Ne bloque pas le démarrage.
+- **Réglages « Zone cible » : l'âge donne une plage par défaut, 65 à 75 % de la FC max estimée**
+  (Tanaka, 208 − 0,7 × âge, moins biaisée que 220 − âge). 65–75 % plutôt que 60–70 % parce que c'est
+  la fourchette citée pour des personnes entraînées ; plus prudent que 180 − âge (Maffetone), qui
+  tombe haut chez les jeunes. Se tromper bas ne coûte rien, se tromper haut fait rouler en zone 3.
+- **Deux chiffres éditables**, historisés (SCD type 2 ci-dessous). Pas de test LTHR, pas de labo, pas
+  de test de la parole : ils ne seraient pas refaits.
+- **Pas d'ajustement automatique.** Le test de dérive cardiaque (Uphill Athlete : sur une heure à
+  effort constant, dérive > 5 % = plafond trop haut, < 3,5 % = trop bas) a été étudié puis écarté de
+  l'écran de fin : il se contredit avec l'alerte de sortie de zone — obéir à l'alerte masque la
+  dérive — et le détecter proprement demandait quatre cas et un mode « séance test ». La courbe 5 s
+  est en base, la dérive restera calculable après coup ; un conseil déterministe sur l'historique est
+  une piste ultérieure, comme le DFA α1 (HRV, validé sur H10, FatMaxxer en source ouverte) pour un
+  seuil mesuré plutôt qu'estimé.
 
 ### Modèle
 
@@ -349,10 +367,11 @@ distance_m    int                ───────────────�
 rpe           smallint           id          uuid  PK
 notes         text               user_id     uuid  FK
 source        manual|live        valid_from  date
-context       tags[]             method      lthr|maf|hrmax|manuel
-created_at    timestamptz        lthr_bpm    smallint
-updated_at    timestamptz        z2_min_bpm  smallint
-deleted_at    timestamptz        z2_max_bpm  smallint
+context       tags[]             z2_min_bpm  smallint
+created_at    timestamptz        z2_max_bpm  smallint
+updated_at    timestamptz
+deleted_at    timestamptz        (2026-09-21 : `method` et `lthr_bpm` retirés,
+                                  la méthode est unique — voir « Bornes de zone 2 »)
 
 ● = seul champ obligatoire
 ```
@@ -823,8 +842,224 @@ sujet 4. Table séparée indexée par l'`id` de séance, ou champ de `Session` :
 Si elle doit fonctionner **téléphone en poche, écran verrouillé**, elle relève du service natif — le JS
 ne tourne pas. Cela ne change rien au stockage, mais ajoute une responsabilité au service.
 
+### Tranché le 2026-09-20 — les deux conséquences, plus la moyenne
+
+La liaison étant validée (sujet 2 bis, 2026-09-19), les questions laissées ouvertes ci-dessus se
+tranchent avant tout écran de séance.
+
+**1. La courbe va dans une table à part**, une ligne par séance, reliée par l'`id` de `Session`.
+L'accueil et l'historique lisent la liste des séances à chaque ouverture ; la courbe ne se lit qu'au
+détail d'une séance. Collée à `Session`, elle serait chargée à chaque ouverture pour rien, et de plus
+en plus au fil des séances. Le pas reste celui du sujet 4 : **un point toutes les 5 secondes**, chaque
+point valant la moyenne des trames reçues dans sa tranche. Une tranche sans trame (perte radio, contact
+peau perdu) est **absente**, ni nulle ni interpolée. La suppression logique de la séance couvre sa courbe.
+
+**2. La fréquence moyenne d'une séance live est écrite dans `avgHrBpm`**, le champ de la saisie
+manuelle, au moment du rangement en base. Écart assumé au sujet 4 (« aucune valeur dérivée stockée »),
+pour une raison précise : ce verrou vise les agrégats dont la formule peut changer et qui se
+désynchroniseraient. Une moyenne arithmétique de points équidistants n'a qu'une formule. La laisser
+vide obligerait chaque écran à gérer deux sortes de séances — manuelle à champ, live à calcul. Formule :
+somme des points de la courbe divisée par leur nombre, les tranches absentes ne comptant pas.
+→ Conséquence UX à instruire avec l'écran de fin de séance : ce champ n'a plus lieu d'être saisi pour
+une séance live.
+
+**3. L'alerte de sortie de zone est déclenchée par le service natif.** Il est le seul éveillé écran
+verrouillé ; l'application lui passe les bornes de zone au démarrage de la séance. Forme retenue :
+**vibration** pour le corps, **notification** pour l'œil — elle doit se lire sur l'écran verrouillé.
+**Pas de son.** Le motif de vibration, la fréquence des rappels et le comportement au retour en zone
+relèvent de l'étude UX de l'écran de séance → **sujet 12**.
+
 ---
 
+
+## Sujet 12 — Écran de séance ✅ *(décidé le 2026-09-21)*
+
+Étude UX menée avant la maquette, sur le marché 2026 : Apple Fitness, Garmin, Samsung Health,
+Zone2.app, Zone2 Pulse, Nike Run Club. Ce qui en ressort, puis ce qui est retenu.
+
+### Ce que fait le marché
+
+- L'écran d'effort montre trois choses : la FC, l'état par rapport à la zone, le temps — dont le
+  temps passé en zone (Zone2.app : « ZONE 2 · HOLD 139 », « 22:41 in zone »).
+- L'alerte de zone est haptique, jamais sonore par défaut. Apple répète tant qu'on est hors zone,
+  Garmin une fois. Zone2 Pulse tamponne le franchissement de borne pour ne pas clignoter.
+- La pause accidentelle est la plainte n° 1 sur montres Galaxy et Apple ; Nike Run Club termine par
+  un appui long.
+- Une valeur périmée doit avoir l'air périmée.
+- Android 16 : « Live Updates », notification promue visible sur l'écran verrouillé et dans la barre
+  d'état ; One UI 8 l'affiche dans la Now Bar. Allumer l'écran verrouillé est réservé aux alarmes et
+  appels (« full-screen intent », permission `USE_FULL_SCREEN_INTENT`, révocable par le système
+  depuis Android 14 : à vérifier au démarrage et à expliquer si elle manque).
+
+### Règles retenues
+
+**Démarrer** (bouton central) : recherche automatique de la ceinture, état de la ceinture, bornes en
+vigueur, un seul bouton « Démarrer ». Sans bornes → renvoi vers le réglage. Indice après 20 s sans
+ceinture. Lien « Saisir à la main » en bas (sujet 3).
+
+**Échauffement** : l'alerte s'arme à la première entrée en zone. L'écran dit « Échauffement ».
+
+**Effort** : la FC en héros (Instrument Serif, sujet 7), une bande horizontale portant les deux
+bornes et un curseur, un mot d'état (Échauffement / En zone / Trop haut / Trop bas), temps écoulé et
+temps en zone. Braise en zone, blanc cassé hors zone. Pas de barre d'onglets, pas de courbe en direct.
+L'affichage suit **chaque trame de la ceinture** (une par seconde) ; le pas de 5 s n'est que du
+stockage. **L'écran reste allumé** tant que la séance est devant.
+
+**🫀 Signature** (sujet 7) : le chiffre gonfle à chaque battement réel, un anneau fin se dilate, les
+chiffres glissent, le curseur suit avec inertie. Ceinture muette → le cœur s'arrête de battre.
+
+**Ceinture muette plus de 5 s** : le chiffre s'atténue avec « il y a N s » ; contact peau perdu →
+« Ceinture ? ». La séance continue, la reconnexion est automatique.
+
+**Alerte de sortie de zone** (déclenchée par le service natif, sujet 11) : **5 s consécutives** hors
+zone pour déclencher, 5 s en zone pour revenir. Deux motifs distincts : trop haut = deux longues,
+trop bas = trois courtes. **Rappel toutes les 20 s** tant qu'on est hors zone. Une courte au retour.
+Pas de son. Écran verrouillé : la notification en cours affiche « FC · état · temps » rafraîchie
+toutes les 5 s, et **l'alerte allume l'écran comme un appel** — « TROP HAUT · 152 » en plein écran,
+qui s'efface au retour en zone ou d'un tap. Doute à lever sur le terrain : la vibration d'un
+téléphone posé sur la console peut ne pas se sentir.
+
+**Commandes** : **Terminer** et **Pause** par **appui long de 2 s** avec un anneau qui se remplit —
+aucune commande à un tap. Pendant la pause **tout s'arrête** : chrono, courbe, temps en zone, alerte.
+La ceinture reste connectée, le journal note les pauses.
+
+**Fin de séance** : la séance est rangée immédiatement (durée, courbe, `avgHrBpm`), puis l'écran de
+fin : temps en zone en héros, durée et FC moyenne affichées non modifiables, mini-courbe, formulaire
+réduit à watts / RPE / contexte / notes. Pas de bouton supprimer.
+
+**Accidents** : un journal inachevé trouvé à la réouverture est rangé automatiquement, puis l'écran de
+fin s'ouvre — et dans ce seul cas la durée redevient modifiable, puisqu'on a oublié de terminer.
+
+**Écartés** : verrouillage tactile (l'appui long suffit), demande d'exemption batterie (sujet 2 bis),
+conseil de dérive sur l'écran de fin (sujet 4).
+
+---
+
+## Sujet 13 — Écran « Zone 2 » ✅ *(décidé le 2026-09-26)*
+
+**Où** : une ligne de l'onglet Réglages ouvre un écran plein, comme Apple le fait pour ses zones
+cardiaques. Pas un bloc posé dans l'onglet — le bouton flottant occupe déjà le bas de tout écran
+d'onglet (`Onglets.css`, `.fab` à 78 px du bas).
+
+**Titre** : « Zone 2 », pas « Zone cible » — l'écran doit dire de quelle zone il parle.
+
+**Contenu** : trois lignes, un nombre par ligne, chacune avec son intitulé à gauche et sa valeur
+à droite. Âge (ans), Début de zone (bpm), Fin de zone (bpm). C'est l'anatomie exacte de l'écran
+Apple de réglage manuel d'une zone. **Aucun titre géant, aucune phrase d'explication** : aucun
+écran de réglage du marché n'en porte.
+
+**Mécanique** : l'âge remplit les deux bornes par Tanaka (208 − 0,7 × âge), puis 65 à 75 %.
+Le recalcul se déclenche **dès que l'âge est plausible — deux chiffres, de 15 à 99 ans** — et pas
+à chaque touche : sinon les bornes d'un enfant de 4 ans s'affichent une seconde avant de sauter.
+Les bornes restent modifiables à la main ; **retaper l'âge écrase la correction**, et c'est la
+seule manière de revenir au calcul automatique — il n'y a donc pas de lien « recalculer » à écrire.
+
+**L'âge n'est pas stocké** : le champ est vide à chaque ouverture. Seules les deux bornes vivent
+en base (`zone_config`, sujet 4). Motif : le dépôt est public (sujet 8) et l'âge est une donnée
+identifiante ; par ailleurs une valeur dérivée ne se stocke pas.
+
+**Écartés** : les deux bornes sur une même ligne séparées d'un tiret — inventé, le marché met un
+nombre par ligne ; le grand chiffre en tête d'écran ; l'interrupteur automatique / manuel de
+Garmin et d'Apple, sans objet puisque retaper l'âge fait le retour à l'automatique ; la molette
+de sélection de Garmin, qui interdit de taper au clavier.
+
+**Sources regardées** : Apple (réglage manuel d'une zone, liste des réglages d'entraînement),
+Garmin Connect (zones d'un profil, saisie d'une valeur en bpm). Captures dans la maquette.
+
+---
+
+## Sujet 14 — Onglet Réglages ✅ *(décidé le 2026-09-26)*
+
+**Ce que fait le marché.** Garmin Connect, onglet « More » : une liste de lignes, icône, intitulé,
+chevron, filet fin entre chaque, et rien d'autre. Strava, écran Réglages : même squelette, avec
+trois précisions utiles — les lignes sont groupées sous des intertitres en petites capitales,
+**une ligne qui ouvre un sous-écran affiche déjà sa valeur actuelle à droite** (« Units of
+Measurement · Kilometers »), et un réglage oui/non se règle sur place par un interrupteur.
+
+**Règle retenue.** Une ligne porte son intitulé à gauche et **sa valeur à droite** : on lit son
+réglage sans entrer dedans. Pas d'icônes — la charte du sujet 7 ne laisse rien décorer. Les filets
+restent dans la marge de 22 px de `.onglets__page`, comme les lignes de l'Historique, pas bord à bord.
+
+**Contenu (étape 2)** — trois lignes :
+
+| Ligne | Valeur affichée à droite |
+|---|---|
+| Zone 2 | les deux bornes, `115 – 133 bpm` |
+| Ceinture | le nom de la ceinture appairée, ou « aucune » |
+| Exporter mes séances | — |
+
+Le numéro de version se pose en bas, hors liste, non cliquable : utile quand on installe une
+release après l'autre. Le sujet 3 avait esquissé « zones cibles · compte · état de synchro ·
+export » ; le compte et la synchro n'existent pas à ce stade, ils reviendront avec Supabase.
+
+**Écarté — la ligne « réglages du téléphone ».** Elle devait guider la désactivation des brides
+One UI (sujet 2). Trois motifs :
+
+1. **Ce sont deux natures de réglages différentes.** Les trois brides One UI — mise en veille des
+   applis peu utilisées, veille profonde, optimisation automatique de Soins de l'appareil — sont des
+   réglages **du téléphone** : coupés une fois, ils le restent, et désinstaller l'application n'y
+   change rien. L'exemption d'optimisation batterie est une permission **accordée à l'application** :
+   elle disparaît à chaque désinstallation.
+2. **L'exemption n'est pas nécessaire.** Les tests de l'étage 2 du PoC (sujet 11, 2026-09-20) ont
+   tourné 3 h 41 et 1 h 03 en pédalant **sans** cette exemption, avec zéro relance Android.
+3. **L'application ne peut pas vérifier.** Android expose l'état de l'exemption batterie, et rien
+   d'autre : les trois brides One UI ne sont lisibles par aucune API publique. L'écran ne serait donc
+   pas une vérification mais une liste de consignes à cocher soi-même — autant la mettre dans la doc.
+
+Le sujet redevient ouvert le jour où une vraie séance se fait couper. Les quatre réglages restent
+écrits ici et dans le sujet 2.
+
+**Sources regardées** : Garmin Connect (onglet « More »), Strava (écran Réglages). Captures dans
+la maquette.
+
+---
+
+## Sujet 15 — Ne jamais perdre une séance ✅ *(décidé le 2026-09-26)*
+
+La contrainte absolue « la donnée ne doit jamais être perdue » se joue à trois endroits distincts,
+qui n'ont rien à voir l'un avec l'autre.
+
+### 1. Entre deux versions de l'application — la clé de signature
+
+**Constat.** La CI fait `assembleDebug`. Gradle fabrique la clé de debug à la volée, et comme chaque
+exécution part d'une machine neuve, **elle diffère à chaque build**. Android refuse d'installer une
+mise à jour signée par une autre clé : il faut désinstaller, et la base part avec. C'est la raison
+pour laquelle aucune séance réelle n'a pu être enregistrée pendant tout le développement.
+
+**Décision.** Une **clé de signature stable**, rangée dans les secrets GitHub, jamais dans le dépôt —
+il est public, et la barrière gitleaks du sujet 8 est là pour ça. Chaque APK s'installe alors
+par-dessus le précédent et la base survit. C'est le préalable à toute accumulation de données réelles.
+
+### 2. Pendant la séance — le journal, et ce qu'on en fait
+
+Le mécanisme est celui du sujet 11 : le service natif écrit, le JavaScript importe à la fin. Quatre
+règles le complètent, sans lesquelles il ne tient pas sa promesse :
+
+1. **Écriture poussée sur le disque à chaque trame**, jamais une minute gardée en mémoire pour
+   « faire moins d'écritures ». Une interruption coûte alors une seconde, pas soixante.
+2. **Au lancement, l'application cherche un journal jamais importé** et le propose : « une séance de
+   47 minutes a été retrouvée ». Sans cela une séance tuée reste un fichier que personne ne lit.
+3. **Le journal n'est effacé qu'une fois l'import confirmé.** Jamais avant.
+4. **La couverture est calculée et affichée en fin de séance** — trames reçues rapportées à la durée,
+   la ceinture en émettant exactement une par seconde. Un chiffre qui dit la vérité plutôt qu'une
+   impression. Elle se calcule à la lecture et **ne se stocke pas** (sujet 4).
+
+**Ce qu'on ne promet pas** : ne jamais être interrompu. Aucune pile ne l'empêche. Ce qu'on promet,
+c'est qu'une interruption coûte une seconde.
+
+**Risque résiduel assumé** : si le téléphone s'éteint complètement, la séance est amputée de ce qui
+n'était pas encore écrit. Le filet aurait été la relecture de la mémoire interne de la ceinture,
+écartée au sujet 11 faute de panne constatée. Elle redevient une option le jour où ça arrive.
+
+### 3. En dehors du téléphone — l'export
+
+Une ligne « Exporter mes séances » dans les Réglages (sujet 14). Elle couvre les deux cas que la clé
+de signature ne couvre pas : une migration de schéma qui se passe mal, et le changement de téléphone.
+
+**Le fichier produit contient des séances réelles.** Il atterrit dans les Téléchargements du
+téléphone, jamais dans le dépôt (sujet 8). Les données de développement, elles, restent inventées.
+
+---
 
 ## Qualité « portfolio » — les 4 axes validés
 

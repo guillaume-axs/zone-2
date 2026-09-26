@@ -68,7 +68,24 @@ Une release `latest` est republiée à chaque push sur `main`.
 
 - **Annoncer chaque étape avant de l'exécuter** sur une tâche longue. Ne jamais enchaîner en silence.
 - **Étude UX avant toute maquette d'écran** : chercher en ligne les pratiques du marché, puis expliquer
-  les règles retenues. Vaut pour chaque écran, sans exception.
+  les règles retenues. Vaut pour chaque écran, sans exception. **Un écran à la fois** — benchmark,
+  usage, maquette, validation. Jamais deux écrans dans la même passe.
+- **Deux écrans du marché regardés avant de dessiner.** Regardés veut dire : l'image téléchargée et
+  ouverte. Une page d'aide de l'éditeur est du texte, elle ne montre pas l'écran — elle ne compte pas.
+  Où chercher, dans cet ordre : la fiche Play Store ou App Store de l'app (5 à 8 captures officielles),
+  les bancs d'essai (DC Rainmaker, the5krunner, Tom's Guide), la version web de l'app via Claude dans
+  Chrome. La maquette porte en tête un bloc `SOURCES` qui nomme, pour chaque écran, l'app, l'écran, le
+  fichier de la capture, ce qu'on lui **garde** et ce qu'on lui **jette** avec le motif, et elle
+  **affiche chaque capture en bas de planche** — une source qu'on ne voit pas oblige le PO à croire
+  sur parole. Le hook `.claude/hooks/maquette-charte.py` refuse la publication sans ce bloc : la consigne écrite seule
+  n'a pas suffi le 2026-09-26, la maquette de Zone cible a été inventée alors que la règle existait.
+  Un écran sans équivalent sur le marché est un arbitrage à soumettre, pas une case à cocher.
+- **Une maquette charge le CSS réel de l'application**, elle ne le recopie pas : `src/styles/tokens.css`
+  et la feuille de l'écran existant le plus proche, publiés à côté de la page. `DECISIONS.md` donne les
+  jetons, le CSS donne les **composants** — `.save` (carré, fond `--fg-hero`), `.field`, `.tag`,
+  `.stepper`, `.label`. Une maquette bâtie sur les seuls jetons invente ses composants sans le voir :
+  c'est arrivé le 2026-09-21, d'où le hook `.claude/hooks/maquette-charte.py` qui refuse une page
+  écrivant la palette en dur. Un composant réellement nouveau se soumet comme arbitrage, jamais en douce.
 - **Chercher en ligne plutôt que dans sa mémoire** dès qu'il s'agit d'un standard, d'une version ou
   d'une pratique. L'état actuel du projet ne décide jamais d'une question d'architecture à sa place.
 - **Un « go » couvre la chaîne mécanique** jusqu'à la livraison : commit, PR, CI, merge, publication.
