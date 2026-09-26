@@ -968,6 +968,99 @@ Garmin Connect (zones d'un profil, saisie d'une valeur en bpm). Captures dans la
 
 ---
 
+## Sujet 14 — Onglet Réglages ✅ *(décidé le 2026-09-26)*
+
+**Ce que fait le marché.** Garmin Connect, onglet « More » : une liste de lignes, icône, intitulé,
+chevron, filet fin entre chaque, et rien d'autre. Strava, écran Réglages : même squelette, avec
+trois précisions utiles — les lignes sont groupées sous des intertitres en petites capitales,
+**une ligne qui ouvre un sous-écran affiche déjà sa valeur actuelle à droite** (« Units of
+Measurement · Kilometers »), et un réglage oui/non se règle sur place par un interrupteur.
+
+**Règle retenue.** Une ligne porte son intitulé à gauche et **sa valeur à droite** : on lit son
+réglage sans entrer dedans. Pas d'icônes — la charte du sujet 7 ne laisse rien décorer. Les filets
+restent dans la marge de 22 px de `.onglets__page`, comme les lignes de l'Historique, pas bord à bord.
+
+**Contenu (étape 2)** — trois lignes :
+
+| Ligne | Valeur affichée à droite |
+|---|---|
+| Zone 2 | les deux bornes, `115 – 133 bpm` |
+| Ceinture | le nom de la ceinture appairée, ou « aucune » |
+| Exporter mes séances | — |
+
+Le numéro de version se pose en bas, hors liste, non cliquable : utile quand on installe une
+release après l'autre. Le sujet 3 avait esquissé « zones cibles · compte · état de synchro ·
+export » ; le compte et la synchro n'existent pas à ce stade, ils reviendront avec Supabase.
+
+**Écarté — la ligne « réglages du téléphone ».** Elle devait guider la désactivation des brides
+One UI (sujet 2). Trois motifs :
+
+1. **Ce sont deux natures de réglages différentes.** Les trois brides One UI — mise en veille des
+   applis peu utilisées, veille profonde, optimisation automatique de Soins de l'appareil — sont des
+   réglages **du téléphone** : coupés une fois, ils le restent, et désinstaller l'application n'y
+   change rien. L'exemption d'optimisation batterie est une permission **accordée à l'application** :
+   elle disparaît à chaque désinstallation.
+2. **L'exemption n'est pas nécessaire.** Les tests de l'étage 2 du PoC (sujet 11, 2026-09-20) ont
+   tourné 3 h 41 et 1 h 03 en pédalant **sans** cette exemption, avec zéro relance Android.
+3. **L'application ne peut pas vérifier.** Android expose l'état de l'exemption batterie, et rien
+   d'autre : les trois brides One UI ne sont lisibles par aucune API publique. L'écran ne serait donc
+   pas une vérification mais une liste de consignes à cocher soi-même — autant la mettre dans la doc.
+
+Le sujet redevient ouvert le jour où une vraie séance se fait couper. Les quatre réglages restent
+écrits ici et dans le sujet 2.
+
+**Sources regardées** : Garmin Connect (onglet « More »), Strava (écran Réglages). Captures dans
+la maquette.
+
+---
+
+## Sujet 15 — Ne jamais perdre une séance ✅ *(décidé le 2026-09-26)*
+
+La contrainte absolue « la donnée ne doit jamais être perdue » se joue à trois endroits distincts,
+qui n'ont rien à voir l'un avec l'autre.
+
+### 1. Entre deux versions de l'application — la clé de signature
+
+**Constat.** La CI fait `assembleDebug`. Gradle fabrique la clé de debug à la volée, et comme chaque
+exécution part d'une machine neuve, **elle diffère à chaque build**. Android refuse d'installer une
+mise à jour signée par une autre clé : il faut désinstaller, et la base part avec. C'est la raison
+pour laquelle aucune séance réelle n'a pu être enregistrée pendant tout le développement.
+
+**Décision.** Une **clé de signature stable**, rangée dans les secrets GitHub, jamais dans le dépôt —
+il est public, et la barrière gitleaks du sujet 8 est là pour ça. Chaque APK s'installe alors
+par-dessus le précédent et la base survit. C'est le préalable à toute accumulation de données réelles.
+
+### 2. Pendant la séance — le journal, et ce qu'on en fait
+
+Le mécanisme est celui du sujet 11 : le service natif écrit, le JavaScript importe à la fin. Quatre
+règles le complètent, sans lesquelles il ne tient pas sa promesse :
+
+1. **Écriture poussée sur le disque à chaque trame**, jamais une minute gardée en mémoire pour
+   « faire moins d'écritures ». Une interruption coûte alors une seconde, pas soixante.
+2. **Au lancement, l'application cherche un journal jamais importé** et le propose : « une séance de
+   47 minutes a été retrouvée ». Sans cela une séance tuée reste un fichier que personne ne lit.
+3. **Le journal n'est effacé qu'une fois l'import confirmé.** Jamais avant.
+4. **La couverture est calculée et affichée en fin de séance** — trames reçues rapportées à la durée,
+   la ceinture en émettant exactement une par seconde. Un chiffre qui dit la vérité plutôt qu'une
+   impression. Elle se calcule à la lecture et **ne se stocke pas** (sujet 4).
+
+**Ce qu'on ne promet pas** : ne jamais être interrompu. Aucune pile ne l'empêche. Ce qu'on promet,
+c'est qu'une interruption coûte une seconde.
+
+**Risque résiduel assumé** : si le téléphone s'éteint complètement, la séance est amputée de ce qui
+n'était pas encore écrit. Le filet aurait été la relecture de la mémoire interne de la ceinture,
+écartée au sujet 11 faute de panne constatée. Elle redevient une option le jour où ça arrive.
+
+### 3. En dehors du téléphone — l'export
+
+Une ligne « Exporter mes séances » dans les Réglages (sujet 14). Elle couvre les deux cas que la clé
+de signature ne couvre pas : une migration de schéma qui se passe mal, et le changement de téléphone.
+
+**Le fichier produit contient des séances réelles.** Il atterrit dans les Téléchargements du
+téléphone, jamais dans le dépôt (sujet 8). Les données de développement, elles, restent inventées.
+
+---
+
 ## Qualité « portfolio » — les 4 axes validés
 
 1. **Moteur de métriques testé** — module TypeScript pur : EF, découplage, comparaisons glissantes.
