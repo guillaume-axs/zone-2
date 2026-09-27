@@ -980,17 +980,51 @@ Measurement · Kilometers »), et un réglage oui/non se règle sur place par un
 réglage sans entrer dedans. Pas d'icônes — la charte du sujet 7 ne laisse rien décorer. Les filets
 restent dans la marge de 22 px de `.onglets__page`, comme les lignes de l'Historique, pas bord à bord.
 
-**Contenu (étape 2)** — trois lignes :
+**Contenu (étape 2)** — quatre lignes sous deux groupes :
 
-| Ligne | Valeur affichée à droite |
-|---|---|
-| Zone 2 | les deux bornes, `115 – 133 bpm` |
-| Ceinture | le nom de la ceinture appairée, ou « aucune » |
-| Exporter mes séances | — |
+| Ligne | À droite | Ce que la ligne promet |
+|---|---|---|
+| Zone 2 | les deux bornes, `115 – 133 bpm` | chevron — un écran s'ouvre *(sujet 13)* |
+| Ceinture | « Polar H10 », ou « aucune » | rien — la ligne s'affiche, elle ne se touche pas |
+| *Mes données* | *(intertitre en petites capitales)* | |
+| Exporter mes séances | — | flèche vers le bas — un fichier part vers le téléphone |
+| Importer une sauvegarde | — | flèche vers le haut — un fichier revient dans l'application |
 
-Le numéro de version se pose en bas, hors liste, non cliquable : utile quand on installe une
+Le pied de page se pose en bas, hors liste, non cliquable : utile quand on installe une
 release après l'autre. Le sujet 3 avait esquissé « zones cibles · compte · état de synchro ·
 export » ; le compte et la synchro n'existent pas à ce stade, ils reviendront avec Supabase.
+
+### Précisions du 2026-09-27, tirées de la maquette
+
+**Une marque par nature d'action, et l'absence de marque en est une.** Trois signes, trois
+promesses : le chevron dit qu'un écran s'ouvre, la flèche vers le bas qu'un fichier part vers le
+téléphone, la flèche vers le haut qu'un fichier revient dans l'application. Une ligne sans aucun
+signe se lit et ne se touche pas. Le motif est un aller-retour : la ligne d'export sans marque
+avait l'air morte, et le chevron qu'on lui a d'abord donné promettait un écran qui n'existe pas.
+Les deux erreurs sont symétriques — c'est la nature de l'action qui choisit le signe, pas le
+besoin de rendre la ligne vivante.
+
+**La ligne « Ceinture » ne se touche pas.** Il n'y a rien à y régler : l'application se connecte
+à la première ceinture cardiaque qui répond et retient son adresse (`Ceinture.kt`). « à appairer »
+a donc été écarté — c'est une invitation vers une porte qui n'existe pas. « aucune » énonce un
+état, ce qui est exactement ce que la ligne fait.
+
+**Risque assumé, et pas encore couvert.** « La première qui répond » veut dire qu'en salle de
+sport, ce peut être la ceinture d'un voisin — et rien dans l'interface ne permet de l'oublier.
+Un écran d'appairage est **écarté à ce stade** *(arbitré le 2026-09-27)* : il ne se justifiera que
+si le cas se produit. Le sujet se réouvre au premier enregistrement d'une fréquence étrangère.
+
+**Le pied de page porte le commit, pas un numéro de version.** `package.json` est à `0.0.0`,
+`versionCode 1` et `versionName "1.0"` n'ont jamais été incrémentés : un numéro qui ne bouge pas ne
+distingue pas deux APK, et c'est précisément le service qu'on attend de lui quand on en installe
+un par semaine. Le commit qui a produit le build, lui, est unique — `2b09826 · 26 sept. 2026`.
+Afficher « Version 1.0 » serait afficher une information fausse.
+
+**La marque de l'application en tête d'écran.** Le tracé électrocardiographique de 30 × 11 déjà
+présent en tête du formulaire de saisie (`SessionForm.tsx`), posé devant le titre. Elle est portée
+**aussi sur l'Accueil et l'Historique** *(arbitré le 2026-09-27)* : une marque qui n'apparaît que
+sur un écran ressemble à un accident. Elle devient donc une classe partagée et un composant unique,
+pas trois copies du même tracé.
 
 **Écarté — la ligne « réglages du téléphone ».** Elle devait guider la désactivation des brides
 One UI (sujet 2). Trois motifs :
@@ -1055,6 +1089,19 @@ n'était pas encore écrit. Le filet aurait été la relecture de la mémoire in
 
 Une ligne « Exporter mes séances » dans les Réglages (sujet 14). Elle couvre les deux cas que la clé
 de signature ne couvre pas : une migration de schéma qui se passe mal, et le changement de téléphone.
+
+**Format : du JSON, et une ligne « Importer une sauvegarde » en face** *(précisé le 2026-09-27)*.
+Le raisonnement part de l'usage, pas de la lisibilité du fichier. On exporte pour que les séances
+survivent au téléphone : presque tout export est donc une sauvegarde, et **une sauvegarde qu'on ne
+peut pas restaurer n'est pas une sauvegarde**. Le CSV, d'abord proposé parce qu'il s'ouvre dans un
+tableur, a été écarté sur ce seul motif — il se relit à l'œil et ne se réinjecte pas. Le fichier
+porte les séances **et** les bornes de zone avec leurs dates de validité : restaurer une base sans
+ses bornes rouvrirait l'application sur un réglage à refaire.
+
+**L'import fusionne, il n'écrase jamais.** Sélecteur de fichiers du système, puis chaque séance est
+reconnue à son identifiant : un identifiant déjà présent est ignoré, jamais remplacé. Le compte-rendu
+est un toast — « 12 ajoutées, 34 déjà là ». La ligne vit dans les Réglages et non sur l'Accueil parce
+que le moment où on en a besoin est le lendemain d'une réinstallation, pas au quotidien.
 
 **Le fichier produit contient des séances réelles.** Il atterrit dans les Téléchargements du
 téléphone, jamais dans le dépôt (sujet 8). Les données de développement, elles, restent inventées.
