@@ -8,6 +8,7 @@ import Efficience from './ecrans/Efficience'
 import Historique from './ecrans/Historique'
 import NouvelleSeance from './ecrans/NouvelleSeance'
 import Onglets from './ecrans/Onglets'
+import Zone2 from './ecrans/Zone2'
 import EcranSurvie from './poc/Survie'
 
 export default function App() {
@@ -20,7 +21,11 @@ export default function App() {
    */
   useEffect(() => {
     const ecouteur = Android.addListener('backButton', () => {
-      if (window.location.pathname === '/') Android.exitApp()
+      const chemin = window.location.pathname
+      if (chemin === '/') Android.exitApp()
+      // Un sous-écran de réglage remonte d'un niveau, pas jusqu'à l'Accueil :
+      // c'est le comportement attendu du retour sur une destination imbriquée.
+      else if (chemin.startsWith('/reglages/')) navigate('/reglages')
       else navigate('/')
     })
     return () => {
@@ -47,6 +52,9 @@ export default function App() {
           <Route path="reglages" element={<EcranSurvie />} />
         </Route>
         <Route path="seance/nouvelle" element={<NouvelleSeance />} />
+        {/* Plein écran, hors du gabarit des onglets : le bouton flottant y
+            occuperait le bas, où se trouve « Enregistrer » (sujet 13). */}
+        <Route path="reglages/zone-2" element={<Zone2 />} />
       </Routes>
     </RouterProvider>
   )
