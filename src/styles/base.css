@@ -114,6 +114,21 @@ button:active {
 }
 
 /*
+ * La marque de l'application : un tracé d'ECG. Un seul dessin, appelé partout
+ * où l'application se nomme — quatre copies finiraient par diverger.
+ * Le composant est `src/ecrans/Marque.tsx`.
+ */
+.marque {
+  width: 30px;
+  height: 11px;
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/*
  * Grain (charte, sujet 7). Une trame de bruit très légère par-dessus toute
  * l'application : elle enlève au fond noir son aspect numérique plat.
  * `pointer-events: none` la rend totalement transparente aux doigts.

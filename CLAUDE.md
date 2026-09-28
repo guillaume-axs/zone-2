@@ -89,7 +89,7 @@ Une release `latest` est republiée à chaque push sur `main`.
 - **Le vocabulaire visuel est relu, jamais deviné.** `.claude/hooks/inventaire.py` reconstruit à
   chaque démarrage de session et après chaque `/compact` la liste des classes CSS et des dessins
   SVG de `src/`, et l'injecte dans le contexte. Rien n'est écrit sur le disque : l'inventaire ne
-  peut donc pas divergir du code. Il existe parce que la discipline n'a pas suffi — le 2026-09-26,
+  peut donc pas diverger du code. Il existe parce que la discipline n'a pas suffi — le 2026-09-26,
   le toast d'une maquette a été rebâti sans son anneau, et la marque ECG de l'application a été
   déclarée inexistante alors qu'elle vit dans `SessionForm.tsx`. **Reprendre un composant veut dire
   le reprendre entier**, sous-classes comprises.
