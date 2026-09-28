@@ -238,9 +238,17 @@ décrochage définitif*, est tenu ; la grille de lecture, *couverture ≥ 99 %*,
   obligatoire » du 2026-08-28 est levée.
 - Android n'a rien tué **sans** exemption batterie. On tenait cette exemption pour indispensable ; elle
   redevient une option de confort à instruire avec l'écran de séance, pas un prérequis.
-- **Ce que ces tests ne disent pas** : la part de l'application dans la consommation. Les deux tests
-  tenaient le verrou de réveil, hérité du faux cœur ; un troisième test, sans verrou, dira si le trafic
-  Bluetooth réel suffit à tenir le service éveillé. Il se mène avant l'écran de séance.
+- **Ce que ces tests ne disaient pas** : la part de l'application dans la consommation. Les deux tests
+  tenaient le verrou de réveil, hérité du faux cœur ; un troisième test, sans verrou, devait dire si le
+  trafic Bluetooth réel suffit à tenir le service éveillé.
+
+**Troisième test — verdict** *(rapporté le 2026-09-28)*. Environ une heure, sans verrou de réveil,
+**aucun incident**. Le trafic Bluetooth réel suffit donc à tenir le service éveillé : le verrou était
+un héritage du faux cœur, il ne revient pas. La durée couvre l'usage visé — une séance dure une heure.
+
+**Conséquence : le PoC de survie est clos.** Il a rendu les trois verdicts qu'on lui demandait, son
+écran de diagnostic (`src/poc/`) n'a plus d'objet et part avec le lot des Réglages. Le code natif —
+service de premier plan, liaison ceinture, journal — n'en fait pas partie : c'est le socle de l'étape 2.
 
 ---
 
