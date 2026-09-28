@@ -1102,9 +1102,16 @@ de signature ne couvre pas : une migration de schéma qui se passe mal, et le ch
 Le raisonnement part de l'usage, pas de la lisibilité du fichier. On exporte pour que les séances
 survivent au téléphone : presque tout export est donc une sauvegarde, et **une sauvegarde qu'on ne
 peut pas restaurer n'est pas une sauvegarde**. Le CSV, d'abord proposé parce qu'il s'ouvre dans un
-tableur, a été écarté sur ce seul motif — il se relit à l'œil et ne se réinjecte pas. Le fichier
-porte les séances **et** les bornes de zone avec leurs dates de validité : restaurer une base sans
-ses bornes rouvrirait l'application sur un réglage à refaire.
+tableur, a été écarté sur ce seul motif — il se relit à l'œil et ne se réinjecte pas.
+
+**Le fichier ne porte que les séances** *(arbitré le 2026-09-28)*. Y joindre les bornes de zone a été
+proposé puis abandonné sous deux objections. La première : le seul bénéfice est d'éviter de retaper son
+âge une fois après une réinstallation — trois gestes, contre du code à écrire et à maintenir. L'historique
+des bornes serait, lui, irrécupérable, mais aucun écran ne s'en sert et il n'aura qu'une seule ligne
+pendant longtemps : c'est un besoin futur hypothétique, que la règle de simplicité refuse. La seconde,
+dirimante : les bornes se calculent depuis l'âge, donc **elles permettent de le déduire**. Les inclure
+mettrait une donnée identifiante dans un fichier qui séjourne dans les Téléchargements. Les exclure
+supprime le risque au lieu de le gérer.
 
 **L'import fusionne, il n'écrase jamais.** Sélecteur de fichiers du système, puis chaque séance est
 reconnue à son identifiant : un identifiant déjà présent est ignoré, jamais remplacé. Le compte-rendu
