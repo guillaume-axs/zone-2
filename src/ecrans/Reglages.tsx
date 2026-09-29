@@ -1,8 +1,6 @@
-import { useEffect, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { Link } from 'react-aria-components'
 import { bornesEnVigueur } from '../db/zones'
-import { type CeintureConnue, ceintureConnue } from '../natif/ceinture'
 import './Reglages.css'
 
 /**
@@ -15,18 +13,16 @@ import './Reglages.css'
  * La marque à droite de chaque ligne dit ce qu'elle promet : chevron, un écran
  * s'ouvre ; rien du tout, la ligne se lit et ne se touche pas. L'absence de
  * marque en est une.
+ *
+ * La ligne Ceinture n'est pas encore ici : elle pilote la liaison à la main —
+ * chercher, connecter, montrer la FC en direct, déconnecter — et ça demande son
+ * étude et sa maquette (sujet 16). Une ligne qui dirait « appairée » hors
+ * connexion affirmerait ce qu'elle ne sait pas.
  */
 export default function Reglages() {
   // `?? null` distingue « pas encore lu » (undefined) de « jamais réglé » (null) :
   // sans lui, la ligne afficherait « à régler » le temps d'une image.
   const bornes = useLiveQuery(async () => (await bornesEnVigueur()) ?? null)
-
-  // Le souvenir de la ceinture ne bouge pas tant qu'aucune séance ne tourne :
-  // une lecture au montage suffit, il n'y a rien à observer.
-  const [ceinture, setCeinture] = useState<CeintureConnue | null>()
-  useEffect(() => {
-    ceintureConnue().then(setCeinture)
-  }, [])
 
   return (
     <>
@@ -49,26 +45,7 @@ export default function Reglages() {
             </span>
           </Link>
         </li>
-
-        {/* Aucune marque à droite : la ligne se lit, elle ne se touche pas. Il n'y
-            a pas d'écran d'appairage à cette étape — la ceinture qui répond la
-            première gagne, et le risque est assumé (sujet 14). */}
-        <li className="hist__item">
-          <span className="label">Ceinture</span>
-          <span className="hist__value">{nomCeinture(ceinture)}</span>
-        </li>
       </ul>
     </>
   )
-}
-
-/**
- * Quatre états, trois réponses. `undefined` est la lecture en cours et `null` le
- * greffon injoignable — dans les deux cas on ne sait pas, et on ne dit rien
- * plutôt que d'affirmer une absence.
- */
-function nomCeinture(ceinture: CeintureConnue | null | undefined) {
-  if (!ceinture) return null
-  if (!ceinture.connue) return 'aucune'
-  return ceinture.nom ?? 'appairée'
 }

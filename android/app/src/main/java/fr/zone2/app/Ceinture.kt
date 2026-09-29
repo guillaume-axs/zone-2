@@ -31,9 +31,6 @@ import java.util.UUID
  * Les rappels sont délivrés sur le [fil] fourni, jamais sur le fil principal :
  * celui qui les reçoit écrit sur le disque à chaque battement.
  */
-/** Ce que le téléphone garde d'une ceinture déjà rencontrée. */
-data class CeintureConnue(val adresse: String, val nom: String?)
-
 class Ceinture(
     private val context: Context,
     private val fil: Handler,
@@ -63,24 +60,11 @@ class Ceinture(
         val connue = prefs.getString(CLE_ADRESSE, null)
         if (connue != null) {
             runCatching { bluetooth.adapter.getRemoteDevice(connue) }.getOrNull()?.let {
-                // Une ceinture appairée avant que le nom ne soit mémorisé le reçoit
-                // ici, au premier démarrage qui suit : le système le garde en cache.
-                if (prefs.getString(CLE_NOM, null) == null) retenirNom(it.name)
                 connecter(it, auto = false)
                 return
             }
         }
         chercher()
-    }
-
-    /**
-     * Le nom annoncé par la ceinture. Il sert à l'écran des Réglages, qui ne peut
-     * pas afficher une adresse MAC : elle ne dit rien à personne. Le nom peut
-     * manquer — une annonce Bluetooth n'est pas tenue d'en porter un.
-     */
-    private fun retenirNom(nom: String?) {
-        if (nom.isNullOrBlank()) return
-        prefs.edit().putString(CLE_NOM, nom).apply()
     }
 
     @SuppressLint("MissingPermission")
@@ -129,7 +113,6 @@ class Ceinture(
         override fun onScanResult(callbackType: Int, result: ScanResult) {
             arreterRecherche()
             prefs.edit().putString(CLE_ADRESSE, result.device.address).apply()
-            retenirNom(result.device.name ?: result.scanRecord?.deviceName)
             surEtat(Etat.TROUVEE)
             connecter(result.device, auto = false)
         }
@@ -254,20 +237,6 @@ class Ceinture(
 
         private const val PREFS = "ceinture"
         private const val CLE_ADRESSE = "adresse"
-        private const val CLE_NOM = "nom"
-
-        /**
-         * Ce que le téléphone garde de la ceinture entre deux séances.
-         *
-         * Lisible sans rien allumer : l'écran des Réglages dit ce qu'il sait sans
-         * démarrer ni le Bluetooth ni le service. `null` quand aucune ceinture n'a
-         * jamais répondu.
-         */
-        fun connue(context: Context): CeintureConnue? {
-            val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-            val adresse = prefs.getString(CLE_ADRESSE, null) ?: return null
-            return CeintureConnue(adresse, prefs.getString(CLE_NOM, null))
-        }
 
         /** Délai au-delà duquel une reconnexion automatique est jugée morte. */
         private const val PATIENCE_MS = 60_000L
