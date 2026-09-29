@@ -1,6 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { Link } from 'react-aria-components'
 import { bornesEnVigueur } from '../db/zones'
+import Marque from './Marque'
 import './Reglages.css'
 
 /**
@@ -26,7 +27,10 @@ export default function Reglages() {
 
   return (
     <>
-      <span className="label">Réglages</span>
+      <div className="tete">
+        <Marque />
+        <span className="label">Réglages</span>
+      </div>
       <ul className="hist">
         <li>
           <Link href="/reglages/zone-2" className="hist__item reglages__ligne">

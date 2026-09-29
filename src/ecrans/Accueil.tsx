@@ -15,6 +15,7 @@ import {
 import { Aide, SelecteurFenetre, Valeur } from './Bilan'
 import { FENETRES, useFenetre } from './fenetre'
 import { duree, fr } from './format'
+import Marque from './Marque'
 import './Accueil.css'
 
 export default function Accueil() {
@@ -30,6 +31,9 @@ export default function Accueil() {
 
   return (
     <div className="accueil">
+      <div className="tete">
+        <Marque />
+      </div>
       <SelecteurFenetre fenetre={fenetre} onChange={setFenetre} />
       {ef === null ? (
         <SansFrequenceCardiaque sessions={sessions} actuelles={actuelles} now={now} />
@@ -172,6 +176,9 @@ function Decouplage() {
 function PremierLancement() {
   return (
     <div className="accueil">
+      <div className="tete">
+        <Marque />
+      </div>
       <SelecteurFenetre isDisabled />
       <div className="eyebrow">Efficience</div>
       <div className="gloss">watts produits par battement de cœur</div>

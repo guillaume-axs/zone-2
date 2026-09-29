@@ -1,6 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db/db'
 import type { Session } from '../db/schema'
+import Marque from './Marque'
 import './Historique.css'
 
 const JOURS = ['dim.', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.']
@@ -53,7 +54,10 @@ function ListeSeances() {
 export default function Historique() {
   return (
     <>
-      <span className="label">Historique</span>
+      <div className="tete">
+        <Marque />
+        <span className="label">Historique</span>
+      </div>
       <ListeSeances />
     </>
   )

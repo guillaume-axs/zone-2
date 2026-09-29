@@ -7,6 +7,15 @@
 }
 
 /* Le héros est un lien : bloc entier, retour au toucher comme les onglets. */
+/*
+ * L'Accueil n'a pas de titre : la marque est seule au-dessus du sélecteur de
+ * fenêtre, et `.accueil` n'espace pas ses blocs. Sans cet écart elle se colle au
+ * sélecteur et ressemble à une erreur de rendu.
+ */
+.accueil .tete {
+  margin-bottom: 14px;
+}
+
 .hero {
   display: block;
   color: inherit;

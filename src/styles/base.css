@@ -105,6 +105,20 @@ button:active {
 }
 
 /* Étiquette : petites capitales espacées, en monospace */
+/*
+ * Tête d'écran : la marque de l'application devant le titre (sujet 14). Un
+ * conteneur plutôt qu'une marge sur la marque elle-même — l'écart du formulaire
+ * de saisie vient déjà de son en-tête, une marge le doublerait.
+ *
+ * Sur l'Accueil la marque est seule : la disposition en ligne lui évite le blanc
+ * qu'un SVG en flux laisse sous lui.
+ */
+.tete {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .label {
   font-family: var(--font-mono);
   font-size: 9.5px;
