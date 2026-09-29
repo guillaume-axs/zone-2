@@ -28,3 +28,22 @@
 .reglages__vide {
   color: var(--accent);
 }
+
+/*
+ * Le pied se pose en bas de l'écran, hors liste : on le cherche quand on vient
+ * d'installer une release, jamais au fil de la lecture. Même disposition que
+ * l'Accueil — une colonne qui remplit la hauteur, et `auto` pousse le reste.
+ */
+.reglages {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.reglages__pied {
+  margin-top: auto;
+  padding-top: 24px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--fg-4);
+}

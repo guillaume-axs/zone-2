@@ -26,7 +26,7 @@ export default function Reglages() {
   const bornes = useLiveQuery(async () => (await bornesEnVigueur()) ?? null)
 
   return (
-    <>
+    <div className="reglages">
       <div className="tete">
         <Marque />
         <span className="label">Réglages</span>
@@ -50,6 +50,13 @@ export default function Reglages() {
           </Link>
         </li>
       </ul>
-    </>
+
+      {/* Le commit qui a produit l'APK, pas un numéro de version : `versionName`
+          n'a jamais bougé, et un numéro qui ne bouge pas ne distingue pas deux
+          builds installés à une semaine d'écart (sujet 14). */}
+      {import.meta.env.VITE_COMMIT && (
+        <footer className="reglages__pied">{import.meta.env.VITE_COMMIT}</footer>
+      )}
+    </div>
   )
 }
