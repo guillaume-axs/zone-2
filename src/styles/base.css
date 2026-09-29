@@ -114,6 +114,21 @@ button:active {
 }
 
 /*
+ * Chevron : le signe mobile pour « un niveau en dessous ». Partagé par le héros
+ * de l'Accueil et les lignes des Réglages, d'où sa place ici.
+ */
+.chevron {
+  width: 8px;
+  height: 14px;
+  margin-right: 2px;
+  fill: none;
+  stroke: var(--fg-2);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/*
  * La marque de l'application : un tracé d'ECG. Un seul dessin, appelé partout
  * où l'application se nomme — quatre copies finiraient par diverger.
  * Le composant est `src/ecrans/Marque.tsx`.

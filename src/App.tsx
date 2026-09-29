@@ -8,8 +8,8 @@ import Efficience from './ecrans/Efficience'
 import Historique from './ecrans/Historique'
 import NouvelleSeance from './ecrans/NouvelleSeance'
 import Onglets from './ecrans/Onglets'
+import Reglages from './ecrans/Reglages'
 import Zone2 from './ecrans/Zone2'
-import EcranSurvie from './poc/Survie'
 
 export default function App() {
   const navigate = useNavigate()
@@ -49,7 +49,7 @@ export default function App() {
           <Route index element={<Accueil />} />
           <Route path="efficience" element={<Efficience />} />
           <Route path="historique" element={<Historique />} />
-          <Route path="reglages" element={<EcranSurvie />} />
+          <Route path="reglages" element={<Reglages />} />
         </Route>
         <Route path="seance/nouvelle" element={<NouvelleSeance />} />
         {/* Plein écran, hors du gabarit des onglets : le bouton flottant y

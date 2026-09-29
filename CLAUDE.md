@@ -39,6 +39,7 @@ src/db/        Dexie — source de vérité locale (schema.ts, db.ts, sessions.t
 src/metrics/   calculs purs et testés (efficience, bilan par fenêtre)
 src/forms/     saisie de séance + validation
 src/ecrans/    écrans et gabarit des onglets — un fichier par route (App.tsx tient les routes)
+src/natif/     ce que le greffon Capacitor rend au JavaScript
 src/poc/       écran de diagnostic du PoC de survie — temporaire, partira avec le PoC
 src/styles/    tokens.css porte la charte du sujet 7
 android/       code natif Kotlin (service de survie, greffon Capacitor)

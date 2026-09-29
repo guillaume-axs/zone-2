@@ -86,6 +86,23 @@ class SurviePlugin : Plugin() {
         call.resolve()
     }
 
+    /**
+     * Ce que le téléphone sait de la ceinture, hors de toute séance : l'écran des
+     * Réglages l'affiche sans rien allumer.
+     *
+     * L'adresse ne traverse pas le pont. Elle identifie un appareil, et le
+     * JavaScript n'en a aucun usage — il affiche un nom ou rien (sujet 8).
+     * `nom` est absent d'une ceinture rencontrée avant que le nom ne soit
+     * mémorisé : la ligne dit alors « appairée », ce qui reste vrai.
+     */
+    @PluginMethod
+    fun ceinture(call: PluginCall) {
+        val connue = Ceinture.connue(context)
+        val reponse = JSObject().put("connue", connue != null)
+        connue?.nom?.let { reponse.put("nom", it) }
+        call.resolve(reponse)
+    }
+
     @PluginMethod
     fun arreter(call: PluginCall) {
         context.startService(
