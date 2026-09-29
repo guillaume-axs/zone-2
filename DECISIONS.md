@@ -993,7 +993,7 @@ restent dans la marge de 22 px de `.onglets__page`, comme les lignes de l'Histor
 | Ligne | À droite | Ce que la ligne promet |
 |---|---|---|
 | Zone 2 | les deux bornes, `115 – 133 bpm` | chevron — un écran s'ouvre *(sujet 13)* |
-| Ceinture | « Polar H10 », ou « aucune » | rien — la ligne s'affiche, elle ne se touche pas |
+| Ceinture | son nom pendant la connexion | un appui connecte ou déconnecte *(revu par le sujet 16)* |
 | *Mes données* | *(intertitre en petites capitales)* | |
 | Exporter mes séances | — | flèche vers le bas — un fichier part vers le téléphone |
 | Importer une sauvegarde | — | flèche vers le haut — un fichier revient dans l'application |
@@ -1120,6 +1120,59 @@ que le moment où on en a besoin est le lendemain d'une réinstallation, pas au 
 
 **Le fichier produit contient des séances réelles.** Il atterrit dans les Téléchargements du
 téléphone, jamais dans le dépôt (sujet 8). Les données de développement, elles, restent inventées.
+
+---
+
+## Sujet 16 — La ligne Ceinture ✅ *(décidé le 2026-09-29)*
+
+Le sujet 14 en avait fait une ligne de lecture : « Polar H10 » ou « aucune », sans rien à toucher.
+Elle a été écrite, puis retirée avant d'être livrée. Le motif : **hors connexion, elle ne peut rien
+savoir.** Ce que le téléphone garde entre deux séances est une adresse, pas un état. Afficher
+« appairée » parce qu'une adresse traîne en mémoire, c'est affirmer ce qu'on n'a pas vérifié — et
+c'est faux dès que la ceinture est au fond d'un sac, déchargée ou portée par quelqu'un d'autre.
+
+**La ligne ne se lit pas, elle se pilote.** Un appui cherche et connecte. La liaison n'attend pas
+une séance pour exister : rien ne l'y obligeait, c'était une habitude du PoC prise pour une
+contrainte.
+
+**Pas d'écran d'appairage.** Les apps du marché en ont un parce qu'elles gèrent une dizaine de
+capteurs — puissance, cadence, vitesse, et plusieurs exemplaires de chacun. Ici il y a une ceinture,
+pour toujours : une ligne qui change d'état suffit, et c'est un geste au lieu de trois.
+
+**Cinq états.**
+
+| État | La ligne |
+|---|---|
+| Rien de connecté | propose de connecter |
+| Recherche en cours | le dit, et laisse annuler |
+| Connectée | le nom **et la FC en direct** |
+| Aucune ceinture trouvée | le dit, et repropose d'essayer |
+| La ceinture décroche seule | revient à « propose de connecter » |
+
+**La FC en direct est la preuve.** Un nom, il faut le croire. Un chiffre qui monte quand on souffle
+fort, non — on le voit. C'est aussi le seul garde-fou contre la ceinture du voisin de vélo : si le
+chiffre ne suit pas l'effort, ce n'est pas la bonne, on déconnecte et on recommence. Cette FC ne
+passe **jamais** en base et n'enregistre aucune séance (sujet 11) : elle s'affiche, rien de plus.
+
+**Deux façons de perdre la liaison, deux conséquences opposées.**
+
+- **Déconnexion volontaire → on oublie l'adresse.** Sans ça, une première connexion qui attrape la
+  ceinture du voisin serait définitive : on irait droit à la sienne à chaque séance, pour toujours.
+- **Décrochage subi** (capteur débranché, hors de portée) **→ on garde l'adresse.** Elle est
+  toujours la bonne. Ce qu'on a choisi de lâcher n'est plus un choix ; ce qui s'est éloigné le reste.
+
+**Quitter l'application équivaut à un décrochage.** La liaison ne survit pas au passage en
+arrière-plan sans un service de premier plan, donc sans une notification permanente — une
+notification en cours pour de l'appairage, hors séance, ne vaut pas son prix. Au retour, la ligne
+repropose de connecter, et l'adresse mémorisée rend l'appui immédiat.
+
+**Pourquoi l'adresse reste mémorisée.** Pas pour l'affichage — pour la connexion. La recherche est
+filtrée sur le service cardiaque et prend **la première ceinture qui répond** : dans une salle,
+ce peut être celle du vélo d'à côté. L'adresse retenue au premier appairage fait de ce choix le
+choix des fois suivantes.
+
+**Reste à trancher avec la maquette :** comment la recherche évite la ceinture du voisin *la
+première fois* — la puissance du signal désigne celle qui est sur la poitrine, mais ça se vérifie.
 
 ---
 
