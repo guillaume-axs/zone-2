@@ -98,6 +98,14 @@ def dessins(tsx: str):
                               f" · viewBox {boite.group(1) if boite else '?'}"))
     for m in re.finditer(r'\bd="([^"]+)"', tsx):
         vus.append((m.start(), "d=" + " ".join(m.group(1).split())[:110]))
+    # Un tracé n'est pas toujours un `<path>`. L'icône des Réglages est deux
+    # traits *et deux cercles* ; ne relever que les `d="…"` la montrait à moitié,
+    # ce qui est pire que ne pas la montrer du tout.
+    for m in re.finditer(r"<(circle|rect|line|polyline|polygon|ellipse)\b([^>]*)>", tsx):
+        attrs = " ".join(
+            f"{a}={v}" for a, v in re.findall(r'\b(c?[xy]\d?|r[xy]?|width|height|points)="([^"]+)"', m.group(2))
+        )
+        vus.append((m.start(), f"<{m.group(1)}> {attrs}"[:120]))
     for place, quoi in sorted(vus):
         yield tsx[:place].count("\n") + 1, quoi
 
