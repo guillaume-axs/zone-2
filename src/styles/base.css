@@ -105,12 +105,56 @@ button:active {
 }
 
 /* Étiquette : petites capitales espacées, en monospace */
+/*
+ * Tête d'écran : la marque de l'application devant le titre (sujet 14). Un
+ * conteneur plutôt qu'une marge sur la marque elle-même — l'écart du formulaire
+ * de saisie vient déjà de son en-tête, une marge le doublerait.
+ *
+ * Sur l'Accueil la marque est seule : la disposition en ligne lui évite le blanc
+ * qu'un SVG en flux laisse sous lui.
+ */
+.tete {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .label {
   font-family: var(--font-mono);
   font-size: 9.5px;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--fg-4);
+}
+
+/*
+ * Chevron : le signe mobile pour « un niveau en dessous ». Partagé par le héros
+ * de l'Accueil et les lignes des Réglages, d'où sa place ici.
+ */
+.chevron {
+  width: 8px;
+  height: 14px;
+  margin-right: 2px;
+  fill: none;
+  stroke: var(--fg-2);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/*
+ * La marque de l'application : un tracé d'ECG. Un seul dessin, appelé partout
+ * où l'application se nomme — quatre copies finiraient par diverger.
+ * Le composant est `src/ecrans/Marque.tsx`.
+ */
+.marque {
+  width: 30px;
+  height: 11px;
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 /*

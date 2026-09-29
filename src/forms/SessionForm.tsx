@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { sessionSchema, type SessionInput } from './sessionSchema'
 import { createSession } from '../db/sessions'
+import Marque from '../ecrans/Marque'
 import './SessionForm.css'
 
 /** Étiquettes des contextes. Les valeurs sont celles du modèle, les mots ceux de l'utilisateur. */
@@ -184,16 +185,7 @@ export default function SessionForm({ onSaved, initial }: Props) {
             <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
           </svg>
         </Link>
-        <svg width="30" height="11" viewBox="0 0 30 11" aria-hidden="true">
-          <path
-            d="M0,5.5 L7,5.5 L9.5,1.5 L13,9.5 L16,5.5 L30,5.5"
-            fill="none"
-            stroke="var(--accent)"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
+        <Marque />
         <span className="label">Nouvelle séance</span>
       </header>
 

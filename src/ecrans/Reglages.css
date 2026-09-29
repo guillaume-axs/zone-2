@@ -1,0 +1,49 @@
+/*
+ * Réglages — la ligne est celle de l'Historique (`.hist__item`), rendue
+ * touchable. Rien n'est redessiné : seul manque ici ce qu'une liste de lecture
+ * n'a pas besoin de dire.
+ */
+
+.reglages__ligne {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Même retour au toucher que le héros de l'Accueil. */
+.reglages__ligne[data-pressed] {
+  opacity: 0.72;
+}
+
+.reglages__droite {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/*
+ * Un réglage encore vide s'écrit en braise, comme l'invitation de l'Accueil
+ * vide : l'absence de bornes est la seule chose qui empêchera une séance en
+ * direct de démarrer (sujet 12).
+ */
+.reglages__vide {
+  color: var(--accent);
+}
+
+/*
+ * Le pied se pose en bas de l'écran, hors liste : on le cherche quand on vient
+ * d'installer une release, jamais au fil de la lecture. Même disposition que
+ * l'Accueil — une colonne qui remplit la hauteur, et `auto` pousse le reste.
+ */
+.reglages {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.reglages__pied {
+  margin-top: auto;
+  padding-top: 24px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--fg-4);
+}

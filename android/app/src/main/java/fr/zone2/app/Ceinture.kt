@@ -41,7 +41,7 @@ class Ceinture(
     enum class Etat { RECHERCHE, TROUVEE, CONNECTEE, DECROCHEE, ECHEC }
 
     private val bluetooth = context.getSystemService(BluetoothManager::class.java)
-    private val prefs = context.getSharedPreferences("ceinture", Context.MODE_PRIVATE)
+    private val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
 
     private var gatt: BluetoothGatt? = null
     private var enRecherche = false
@@ -235,6 +235,7 @@ class Ceinture(
         /** Descripteur de configuration des notifications, `0x2902`. */
         private val CCCD = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
 
+        private const val PREFS = "ceinture"
         private const val CLE_ADRESSE = "adresse"
 
         /** Délai au-delà duquel une reconnexion automatique est jugée morte. */

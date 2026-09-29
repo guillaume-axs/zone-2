@@ -39,7 +39,6 @@ src/db/        Dexie — source de vérité locale (schema.ts, db.ts, sessions.t
 src/metrics/   calculs purs et testés (efficience, bilan par fenêtre)
 src/forms/     saisie de séance + validation
 src/ecrans/    écrans et gabarit des onglets — un fichier par route (App.tsx tient les routes)
-src/poc/       écran de diagnostic du PoC de survie — temporaire, partira avec le PoC
 src/styles/    tokens.css porte la charte du sujet 7
 android/       code natif Kotlin (service de survie, greffon Capacitor)
 DECISIONS.md   les décisions de cadrage
@@ -86,6 +85,14 @@ Une release `latest` est republiée à chaque push sur `main`.
   `.stepper`, `.label`. Une maquette bâtie sur les seuls jetons invente ses composants sans le voir :
   c'est arrivé le 2026-09-21, d'où le hook `.claude/hooks/maquette-charte.py` qui refuse une page
   écrivant la palette en dur. Un composant réellement nouveau se soumet comme arbitrage, jamais en douce.
+- **Le vocabulaire visuel est relu, jamais deviné.** `.claude/hooks/inventaire.py` reconstruit à
+  chaque démarrage de session et après chaque `/compact` la liste des classes CSS et des dessins
+  SVG de `src/`, et l'injecte dans le contexte. Rien n'est écrit sur le disque : l'inventaire ne
+  peut donc pas diverger du code. Il existe parce que la discipline n'a pas suffi — le 2026-09-26,
+  le toast d'une maquette a été rebâti sans son anneau, et la marque ECG de l'application a été
+  déclarée inexistante alors qu'elle vit dans `SessionForm.tsx`. **Reprendre un composant veut dire
+  le reprendre entier**, sous-classes comprises.
+
 - **Chercher en ligne plutôt que dans sa mémoire** dès qu'il s'agit d'un standard, d'une version ou
   d'une pratique. L'état actuel du projet ne décide jamais d'une question d'architecture à sa place.
 - **Un « go » couvre la chaîne mécanique** jusqu'à la livraison : commit, PR, CI, merge, publication.

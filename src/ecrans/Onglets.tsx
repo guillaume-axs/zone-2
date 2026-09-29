@@ -10,7 +10,7 @@ import {
 import { Outlet, useLocation, useNavigate } from 'react-router'
 import { db } from '../db/db'
 import { softDeleteSession } from '../db/sessions'
-import { DUREE_TOAST_MS, type Enregistrement, enregistrements } from './toast'
+import { DUREE_TOAST_MS, type Enregistrement, annonces } from './toast'
 import './Onglets.css'
 
 const ONGLETS = [
@@ -54,7 +54,7 @@ export default function Onglets() {
   /** Suppression logique, puis retour au formulaire pré-rempli : on corrige, on ne retape pas. */
   async function annuler(cle: string, { id, input }: Enregistrement) {
     await softDeleteSession(id)
-    enregistrements.close(cle)
+    annonces.close(cle)
     navigate('/seance/nouvelle', { state: { brouillon: input } })
   }
 
@@ -72,15 +72,25 @@ export default function Onglets() {
       </Link>
       )}
 
-      <ToastRegion queue={enregistrements} className="toasts">
-        {({ toast }) => (
+      <ToastRegion queue={annonces} className="toasts">
+        {({ toast }) => {
+          // Nommée avant d'être lue : le rétrécissement de type d'une propriété
+          // ne traverse pas une fermeture, celui d'une constante locale si.
+          const annonce = toast.content
+          return (
           <Toast toast={toast} className="toast" style={{ viewTransitionName: toast.key }}>
             <ToastContent>
-              <Text slot="title">Séance enregistrée</Text>
+              <Text slot="title">
+                {annonce.genre === 'seance' ? 'Séance enregistrée' : annonce.texte}
+              </Text>
             </ToastContent>
-            <Button className="toast__annuler" onPress={() => annuler(toast.key, toast.content)}>
-              Annuler
-            </Button>
+            {/* Annuler n'a de sens que pour une séance : un réglage se corrige en
+                rouvrant son écran, et l'annuler demanderait d'écrire une ligne de plus. */}
+            {annonce.genre === 'seance' && (
+              <Button className="toast__annuler" onPress={() => annuler(toast.key, annonce)}>
+                Annuler
+              </Button>
+            )}
             <Button slot="close" className="toast__fermer" aria-label="Fermer">
               {/* Le liseré du cercle se vide sur la durée du toast : on voit venir sa disparition. */}
               <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
@@ -98,7 +108,8 @@ export default function Onglets() {
               </svg>
             </Button>
           </Toast>
-        )}
+          )
+        }}
       </ToastRegion>
 
       <nav className="nav">
