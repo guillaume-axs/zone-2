@@ -48,6 +48,9 @@ export default function Onglets() {
   const navigate = useNavigate()
   // Le détail de l'efficience est une page de l'Accueil : même onglet actif, pas de bouton flottant.
   const detail = pathname === '/efficience'
+  // Le bouton flottant veut dire « démarrer une séance ». On ne vient pas dans
+  // les Réglages pour en démarrer une, et il y masquait le pied de page.
+  const sansFab = detail || pathname === '/reglages'
   // Tant qu'aucune séance n'existe, le bouton pulse pour appeler la première saisie.
   const vide = useLiveQuery(() => db.sessions.filter((s) => !s.deletedAt).count()) === 0
 
@@ -60,11 +63,11 @@ export default function Onglets() {
 
   return (
     <div className="onglets">
-      <main className={detail ? 'onglets__page onglets__page--sans-fab' : 'onglets__page'}>
+      <main className={sansFab ? 'onglets__page onglets__page--sans-fab' : 'onglets__page'}>
         <Outlet />
       </main>
 
-      {!detail && (
+      {!sansFab && (
       <Link href="/seance/nouvelle" className={vide ? 'fab fab--pulse' : 'fab'} aria-label="Nouvelle séance">
         <svg width="21" height="21" viewBox="0 0 21 21" fill="none" aria-hidden="true">
           <path d="M10.5 3.6v13.8M3.6 10.5h13.8" stroke="var(--bg)" strokeWidth="1.7" strokeLinecap="round" />
