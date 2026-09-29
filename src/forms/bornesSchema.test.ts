@@ -13,13 +13,13 @@ describe('bornesSchema', () => {
   })
 
   it('refuse une fin sous le début', () => {
-    expect(refus(133, 115)).toBe('Doit dépasser le début')
+    expect(refus(133, 115)).toBe('Doit dépasser 133')
   })
 
   // Une zone large de 0 bpm n'est pas une zone : sans ce cas, l'inversion seule
   // serait refusée et `130 – 130` passerait.
   it('refuse deux bornes égales', () => {
-    expect(refus(130, 130)).toBe('Doit dépasser le début')
+    expect(refus(130, 130)).toBe('Doit dépasser 130')
   })
 
   it('refuse une borne hors de la plage cardiaque', () => {

@@ -24,10 +24,16 @@ export const bornesSchema = z
     z2MaxBpm: borneBpm('Fin requise'),
   })
   // Une zone large de 0 bpm n'est pas une zone : l'égalité est refusée comme
-  // l'inversion. Le message se pose sur la fin, qui est la valeur qu'on corrige.
-  .refine((b) => b.z2MaxBpm > b.z2MinBpm, {
-    message: 'Doit dépasser le début',
-    path: ['z2MaxBpm'],
+  // l'inversion. Le message se pose sur la fin, qui est la valeur qu'on corrige,
+  // et il porte le chiffre réellement saisi : « Doit dépasser 118 » ne demande
+  // rien à déduire, « Doit dépasser le début » oblige à relire l'autre champ.
+  .superRefine((b, ctx) => {
+    if (b.z2MaxBpm > b.z2MinBpm) return
+    ctx.addIssue({
+      code: 'custom',
+      message: `Doit dépasser ${b.z2MinBpm}`,
+      path: ['z2MaxBpm'],
+    })
   })
 
 export type BornesInput = z.infer<typeof bornesSchema>
