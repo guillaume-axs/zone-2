@@ -1189,6 +1189,33 @@ montre, et la déconnexion volontaire oublie l'adresse.
 **Écarté du marché :** la liste des appareils proches avec un bouton par appareil (Polar Beat),
 la grille d'une tuile par capteur (Zwift) — les deux servent à gérer plusieurs capteurs.
 
+### Complément du 2026-10-01 — la maquette validée
+
+**Le constat en gris, l'action en orange.** Dans chaque état, le mot orange est ce que fait
+l'appui sur la ligne :
+
+| État | À droite de la ligne |
+|---|---|
+| Rien de connecté, ou décrochage | **Connecter** |
+| Recherche | Recherche… (points animés) · **Annuler** |
+| Connecté | 72 bpm · **Déconnecter** — le nom de l'appareil en petit sous « Capteur cardio » |
+| Aucun capteur | Aucun capteur · **Réessayer** |
+
+**Déconnecter s'écrit.** Un appui sur une ligne connectée sans mot orange casserait la règle :
+écarté. Une seconde ligne « Déconnecter » ferait bouger la liste à la connexion : écartée. Le nom
+de l'appareil passe donc sous l'intitulé, petit et pâle, pour laisser la place au mot.
+
+**Pas de message après une déconnexion**, la ligne revenue à « Connecter » suffit. **Les points de
+« Recherche » s'animent** — la preuve que l'app n'est pas figée — sauf si le téléphone demande
+moins d'animations.
+
+**Toutes les lignes des Réglages font 64 px**, la hauteur de la ligne du capteur connecté, contenu
+centré : la liste ne bouge pas quand le nom apparaît.
+
+**Pas de bouton flottant sur les Réglages**, comme aujourd'hui.
+
+Maquette : artefact « Ligne Capteur cardio », version 6.
+
 ---
 
 ## Qualité « portfolio » — les 4 axes validés
