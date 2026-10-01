@@ -198,37 +198,15 @@ export default function Zone2() {
           </span>
         </div>
 
-        <div className={`field${errors.z2MinBpm ? ' field--bad' : ''}`}>
-          <span className="label">Début de zone</span>
-          <span className="field__in">
-            <input
-              {...numerique('z2MinBpm', debutRef, finRef)}
-              className="field__num"
-              type="text"
-              inputMode="numeric"
-              enterKeyHint="next"
-              placeholder="—"
-              aria-label="Début de zone en battements par minute"
-              aria-invalid={errors.z2MinBpm ? true : undefined}
-            />
-            <span className="unit">bpm</span>
-          </span>
-          {errors.z2MinBpm && (
-            <p className="field__err" role="alert">
-              {errors.z2MinBpm.message}
-            </p>
-          )}
-        </div>
-
         <div className={`field${errors.z2MaxBpm ? ' field--bad' : ''}`}>
           <span className="label">Fin de zone</span>
           <span className="field__in">
             <input
-              {...numerique('z2MaxBpm', finRef)}
+              {...numerique('z2MaxBpm', finRef, debutRef)}
               className="field__num"
               type="text"
               inputMode="numeric"
-              enterKeyHint="done"
+              enterKeyHint="next"
               placeholder="—"
               aria-label="Fin de zone en battements par minute"
               aria-invalid={errors.z2MaxBpm ? true : undefined}
@@ -238,6 +216,28 @@ export default function Zone2() {
           {errors.z2MaxBpm && (
             <p className="field__err" role="alert">
               {errors.z2MaxBpm.message}
+            </p>
+          )}
+        </div>
+
+        <div className={`field${errors.z2MinBpm ? ' field--bad' : ''}`}>
+          <span className="label">Début de zone</span>
+          <span className="field__in">
+            <input
+              {...numerique('z2MinBpm', debutRef)}
+              className="field__num"
+              type="text"
+              inputMode="numeric"
+              enterKeyHint="done"
+              placeholder="—"
+              aria-label="Début de zone en battements par minute"
+              aria-invalid={errors.z2MinBpm ? true : undefined}
+            />
+            <span className="unit">bpm</span>
+          </span>
+          {errors.z2MinBpm && (
+            <p className="field__err" role="alert">
+              {errors.z2MinBpm.message}
             </p>
           )}
         </div>

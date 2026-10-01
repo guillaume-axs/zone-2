@@ -42,8 +42,12 @@
 
 .reglages__pied {
   margin-top: auto;
+  /* Descend sous la marge de la page : le pied se pose contre la barre
+     d'onglets, il ne participe pas à la mise en page de la liste. */
+  margin-bottom: -8px;
   padding-top: 24px;
   font-family: var(--font-mono);
-  font-size: 10.5px;
-  color: var(--fg-4);
+  font-size: 9px;
+  text-align: center;
+  color: var(--fg-5);
 }
