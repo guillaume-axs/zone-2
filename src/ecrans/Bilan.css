@@ -36,10 +36,6 @@
   background: var(--surface-pressed);
 }
 
-.window[data-disabled] {
-  pointer-events: none;
-}
-
 /* ---------- Héros ---------- */
 
 .eyebrow {
