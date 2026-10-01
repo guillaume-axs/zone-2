@@ -184,3 +184,23 @@ body::after {
     transition: none !important;
   }
 }
+
+/* L'invitation à la première séance, sur l'Accueil et l'Historique vides.
+   Posée au-dessus du bouton « + » (fixe, bas à 78 px, 56 px de haut), pas
+   dans le flux : l'écran vide ne défile pas et le texte ne peut pas s'en
+   écarter. Le contenu de l'écran doit donc finir au-dessus d'elle. */
+.point {
+  position: fixed;
+  left: calc(22px + env(safe-area-inset-left));
+  right: calc(22px + env(safe-area-inset-right));
+  bottom: calc(152px + env(safe-area-inset-bottom));
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--accent);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+  pointer-events: none;
+}
