@@ -179,7 +179,6 @@ function PremierLancement() {
       <div className="tete">
         <Marque />
       </div>
-      <SelecteurFenetre isDisabled />
       <div className="eyebrow">Efficience</div>
       <div className="gloss">watts produits par battement de cœur</div>
       <div className="value ghost"><i /></div>

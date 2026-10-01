@@ -15,24 +15,15 @@ import './Bilan.css'
 
 /* Pièces communes à l'Accueil et au Détail : la période, le héros, la bulle d'aide. */
 
-export function SelecteurFenetre({
-  fenetre,
-  onChange,
-  isDisabled,
-}: {
-  fenetre?: Fenetre
-  onChange?: (f: Fenetre) => void
-  isDisabled?: boolean
-}) {
+export function SelecteurFenetre({ fenetre, onChange }: { fenetre: Fenetre; onChange: (f: Fenetre) => void }) {
   return (
     <ToggleButtonGroup
       className="window"
       aria-label="Période"
       selectionMode="single"
       disallowEmptySelection
-      isDisabled={isDisabled}
-      selectedKeys={fenetre ? [fenetre] : []}
-      onSelectionChange={(keys) => onChange?.([...keys][0] as Fenetre)}
+      selectedKeys={[fenetre]}
+      onSelectionChange={(keys) => onChange([...keys][0] as Fenetre)}
     >
       {FENETRES.map((f) => (
         <ToggleButton key={f.id} id={f.id} className="seg">
