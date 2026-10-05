@@ -1216,6 +1216,27 @@ centré : la liste ne bouge pas quand le nom apparaît.
 
 Maquette : artefact « Ligne Capteur cardio », version 6.
 
+### Complément du 2026-10-05 — l'approche technique
+
+**On écoute toujours 3 secondes, même avec une adresse mémorisée.** Le capteur mémorisé gagne s'il
+est entendu ; sinon, le signal le plus fort. Aller droit à l'adresse, comme le disait le texte
+d'origine, posait deux problèmes : un capteur mémorisé éteint met une trentaine de secondes à faire
+échouer la connexion directe d'Android, et un capteur perdu ou mort ne pourrait plus jamais être
+remplacé — « Déconnecter », qui oublie l'adresse, n'existe qu'une fois connecté. L'attente est
+donc toujours de 3 secondes. Si le plus fort n'est pas le bon, la FC en direct le montre.
+
+**Deux cas sans état visuel propre.**
+
+- **Bluetooth coupé** : l'appui sur « Connecter » ouvre la demande d'Android « Activer le
+  Bluetooth ? » ; accepté, la recherche part.
+- **Accès au Bluetooth refusé** : la ligne reste à « Connecter ». Refusé définitivement, l'appui
+  ouvre la page de l'application dans les paramètres d'Android.
+
+Écrire « Aucun capteur » dans ces deux cas serait faux.
+
+**Pas de reconnexion automatique hors séance.** Un décrochage dans les Réglages ramène à
+« Connecter » ; la reconnexion automatique reste réservée au service de séance.
+
 ---
 
 ## Qualité « portfolio » — les 4 axes validés
