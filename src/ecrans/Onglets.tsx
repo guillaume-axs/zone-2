@@ -37,6 +37,49 @@ const ONGLETS = [
   },
 ]
 
+/** Part de la largeur du toast au-delà de laquelle un balayage le ferme. */
+const SEUIL_BALAYAGE = 0.35
+
+/*
+ * Balayer le toast de côté le ferme, comme le snackbar Android. Le départ du
+ * doigt est gardé sur l'élément, pas dans React : le toast est dessiné par une
+ * fonction de rendu, où un hook n'a pas sa place. Un geste parti d'un bouton
+ * n'est pas un balayage — il ne doit jamais déclencher « Annuler » en route.
+ */
+function balayage(fermer: () => void) {
+  const ecart = (e: React.PointerEvent<HTMLDivElement>) =>
+    e.clientX - Number(e.currentTarget.dataset.depart)
+  const relacher = (el: HTMLDivElement) => {
+    delete el.dataset.depart
+    el.style.translate = ''
+    el.style.opacity = ''
+  }
+  return {
+    onPointerDown(e: React.PointerEvent<HTMLDivElement>) {
+      if ((e.target as Element).closest('button')) return
+      e.currentTarget.dataset.depart = String(e.clientX)
+      e.currentTarget.setPointerCapture(e.pointerId)
+    },
+    onPointerMove(e: React.PointerEvent<HTMLDivElement>) {
+      const el = e.currentTarget
+      if (el.dataset.depart === undefined) return
+      const dx = ecart(e)
+      el.style.translate = `${dx}px 0`
+      el.style.opacity = String(1 - Math.min(Math.abs(dx) / el.offsetWidth, 1))
+    },
+    onPointerUp(e: React.PointerEvent<HTMLDivElement>) {
+      const el = e.currentTarget
+      if (el.dataset.depart === undefined) return
+      const loin = Math.abs(ecart(e)) > el.offsetWidth * SEUIL_BALAYAGE
+      if (loin) fermer()
+      else relacher(el)
+    },
+    onPointerCancel(e: React.PointerEvent<HTMLDivElement>) {
+      relacher(e.currentTarget)
+    },
+  }
+}
+
 /**
  * Gabarit des destinations de premier niveau (sujet 3) : la page, la barre
  * d'onglets, le bouton flottant vers la saisie et le toast qui annonce une
@@ -75,13 +118,18 @@ export default function Onglets() {
       </Link>
       )}
 
-      <ToastRegion queue={annonces} className="toasts">
+      <ToastRegion queue={annonces} className={sansFab ? 'toasts toasts--sans-fab' : 'toasts'}>
         {({ toast }) => {
           // Nommée avant d'être lue : le rétrécissement de type d'une propriété
           // ne traverse pas une fermeture, celui d'une constante locale si.
           const annonce = toast.content
           return (
-          <Toast toast={toast} className="toast" style={{ viewTransitionName: toast.key }}>
+          <Toast
+            toast={toast}
+            className="toast"
+            style={{ viewTransitionName: toast.key }}
+            {...balayage(() => annonces.close(toast.key))}
+          >
             <ToastContent>
               <Text slot="title">
                 {annonce.genre === 'seance' ? 'Séance enregistrée' : annonce.texte}

@@ -20,7 +20,7 @@ import './Reglages.css'
  */
 export default function Reglages() {
   // `?? null` distingue « pas encore lu » (undefined) de « jamais réglé » (null) :
-  // sans lui, la ligne afficherait « non définie » le temps d'une image.
+  // sans lui, la ligne afficherait « Non définie » le temps d'une image.
   const bornes = useLiveQuery(async () => (await bornesEnVigueur()) ?? null)
 
   return (
@@ -35,7 +35,7 @@ export default function Reglages() {
             <span className="label">Zone 2</span>
             <span className="reglages__droite">
               {bornes === undefined ? null : bornes === null ? (
-                <span className="hist__value reglages__vide">non définie</span>
+                <span className="hist__value reglages__vide">Non définie</span>
               ) : (
                 <span className="hist__value">
                   {bornes.z2MinBpm} – {bornes.z2MaxBpm} bpm

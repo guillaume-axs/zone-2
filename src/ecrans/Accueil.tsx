@@ -33,6 +33,7 @@ export default function Accueil() {
     <div className="accueil">
       <div className="tete">
         <Marque />
+        <span className="label">Accueil</span>
       </div>
       <SelecteurFenetre fenetre={fenetre} onChange={setFenetre} />
       {ef === null ? (
@@ -178,6 +179,7 @@ function PremierLancement() {
     <div className="accueil">
       <div className="tete">
         <Marque />
+        <span className="label">Accueil</span>
       </div>
       <div className="eyebrow">Efficience</div>
       <div className="gloss">watts produits par battement de cœur</div>
