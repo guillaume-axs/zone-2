@@ -1,5 +1,6 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { Link } from 'react-aria-components'
+import { Button, Link } from 'react-aria-components'
+import { useCapteur } from '../capteur/useCapteur'
 import { bornesEnVigueur } from '../db/zones'
 import Marque from './Marque'
 import './Reglages.css'
@@ -12,13 +13,10 @@ import './Reglages.css'
  * du sujet 7 ne laisse rien décorer.
  *
  * La marque à droite de chaque ligne dit ce qu'elle promet : chevron, un écran
- * s'ouvre ; rien du tout, la ligne se lit et ne se touche pas. L'absence de
- * marque en est une.
+ * s'ouvre ; un mot en braise, l'appui fait ce que dit le mot.
  *
- * La ligne Ceinture n'est pas encore ici : elle pilote la liaison à la main —
- * chercher, connecter, montrer la FC en direct, déconnecter — et ça demande son
- * étude et sa maquette (sujet 16). Une ligne qui dirait « appairée » hors
- * connexion affirmerait ce qu'elle ne sait pas.
+ * Toutes les lignes ont la hauteur de la ligne du capteur connecté : la liste
+ * ne bouge pas quand le nom de l'appareil apparaît (sujet 16).
  */
 export default function Reglages() {
   // `?? null` distingue « pas encore lu » (undefined) de « jamais réglé » (null) :
@@ -49,6 +47,9 @@ export default function Reglages() {
             </span>
           </Link>
         </li>
+        <li>
+          <LigneCapteur />
+        </li>
       </ul>
 
       {/* Le commit qui a produit l'APK, pas un numéro de version : `versionName`
@@ -58,5 +59,57 @@ export default function Reglages() {
         <footer className="reglages__pied">{import.meta.env.VITE_COMMIT}</footer>
       )}
     </div>
+  )
+}
+
+/**
+ * La ligne « Capteur cardio » — sujet 16. Elle ne se lit pas, elle se pilote :
+ * le constat en gris, l'action en braise, et l'appui fait l'action. Pas de
+ * chevron, aucun écran ne s'ouvre. Connectée, la FC en direct est la preuve
+ * que c'est le bon capteur : un nom, il faudrait le croire.
+ */
+function LigneCapteur() {
+  const { ligne, connecter, annuler, deconnecter } = useCapteur()
+  const action = { rien: connecter, aucun: connecter, recherche: annuler, connecte: deconnecter }[ligne.etat]
+
+  return (
+    <Button className="hist__item reglages__ligne" onPress={action}>
+      {ligne.etat === 'connecte' && ligne.nom ? (
+        <div>
+          <div className="label">Capteur cardio</div>
+          <div className="reglages__appareil">{ligne.nom}</div>
+        </div>
+      ) : (
+        <span className="label">Capteur cardio</span>
+      )}
+      <span className="reglages__droite">
+        {ligne.etat === 'rien' && <span className="hist__value reglages__vide">Connecter</span>}
+        {ligne.etat === 'recherche' && (
+          <>
+            <span className="hist__value">
+              Recherche
+              <span className="reglages__points" aria-hidden="true">
+                <i>.</i>
+                <i>.</i>
+                <i>.</i>
+              </span>
+            </span>
+            <span className="hist__value reglages__vide">Annuler</span>
+          </>
+        )}
+        {ligne.etat === 'connecte' && (
+          <>
+            <span className="hist__value reglages__fc">{ligne.bpm} bpm</span>
+            <span className="hist__value reglages__vide">Déconnecter</span>
+          </>
+        )}
+        {ligne.etat === 'aucun' && (
+          <>
+            <span className="hist__value">Aucun capteur</span>
+            <span className="hist__value reglages__vide">Réessayer</span>
+          </>
+        )}
+      </span>
+    </Button>
   )
 }
