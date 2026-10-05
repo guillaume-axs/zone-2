@@ -38,6 +38,7 @@ Un écart à une décision écrite est un arbitrage — il se soumet **avant**, 
 src/db/        Dexie — source de vérité locale (schema.ts, db.ts, sessions.ts)
 src/metrics/   calculs purs et testés (efficience, bilan par fenêtre)
 src/forms/     saisie de séance + validation
+src/capteur/   la ligne Capteur cardio : signaux du greffon natif, état affiché (sujet 16)
 src/ecrans/    écrans et gabarit des onglets — un fichier par route (App.tsx tient les routes)
 src/styles/    tokens.css porte la charte du sujet 7
 android/       code natif Kotlin (service de survie, greffon Capacitor)

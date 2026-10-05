@@ -28,17 +28,30 @@ import java.util.UUID
  * n'a d'intérêt que si cette liaison se révèle peu fiable. C'est justement ce
  * que le PoC mesure.
  *
- * Les rappels sont délivrés sur le [fil] fourni, jamais sur le fil principal :
- * celui qui les reçoit écrit sur le disque à chaque battement.
+ * N'importe quel capteur qui parle ce service convient, ceinture ou brassard
+ * optique (sujet 16) : rien ici ne suppose la forme de l'appareil.
+ *
+ * Les rappels sont délivrés sur le [fil] fourni. Le service de séance lui en
+ * donne un à part, parce qu'il écrit sur le disque à chaque battement.
+ *
+ * [reconnecter] : le service de séance se rattache seul au capteur qui
+ * décroche ; la ligne des Réglages, non — un décrochage la ramène à
+ * « Connecter » (sujet 16).
  */
 class Ceinture(
     private val context: Context,
     private val fil: Handler,
+    private val reconnecter: Boolean,
     private val surBattement: (Battement) -> Unit,
     private val surEtat: (Etat) -> Unit,
 ) {
 
-    enum class Etat { RECHERCHE, TROUVEE, CONNECTEE, DECROCHEE, ECHEC }
+    /** [INTROUVABLE] : l'écoute a fini sans rien entendre. [ECHEC] : le Bluetooth n'a pas pu chercher, ou le capteur ne donne pas de FC. */
+    enum class Etat { RECHERCHE, TROUVEE, CONNECTEE, DECROCHEE, INTROUVABLE, ECHEC }
+
+    /** Le nom que le capteur donne de lui-même (« Polar H10 … »), connu dès qu'il est choisi. */
+    var nom: String? = null
+        private set
 
     private val bluetooth = context.getSystemService(BluetoothManager::class.java)
     private val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
@@ -47,36 +60,38 @@ class Ceinture(
     private var enRecherche = false
     private var arretDemande = false
 
+    /** Les capteurs entendus pendant l'écoute, par adresse : le dernier signal de chacun. */
+    private val entendus = mutableMapOf<String, ScanResult>()
+
     // --- cycle de vie -------------------------------------------------------
 
-    /**
-     * Une adresse déjà connue évite la recherche : on va droit à la ceinture.
-     * Elle n'est mémorisée que sur ce téléphone et n'apparaît nulle part
-     * ailleurs — le dépôt est public (sujet 8).
-     */
-    @SuppressLint("MissingPermission")
     fun demarrer() {
         arretDemande = false
-        val connue = prefs.getString(CLE_ADRESSE, null)
-        if (connue != null) {
-            runCatching { bluetooth.adapter.getRemoteDevice(connue) }.getOrNull()?.let {
-                connecter(it, auto = false)
-                return
-            }
-        }
         chercher()
     }
 
+    /**
+     * Coupe tout, sans rappel : celui qui arrête sait déjà pourquoi. L'adresse
+     * reste mémorisée — c'est un décrochage, pas un choix (sujet 16).
+     */
     @SuppressLint("MissingPermission")
     fun arreter() {
         arretDemande = true
         fil.removeCallbacks(chien)
+        fil.removeCallbacks(finEcoute)
+        fil.removeCallbacks(relance)
         arreterRecherche()
         gatt?.let {
             it.disconnect()
             it.close()
         }
         gatt = null
+        nom = null
+    }
+
+    /** La déconnexion volontaire : le capteur choisi n'est plus le bon (sujet 16). */
+    fun oublier() {
+        prefs.edit().remove(CLE_ADRESSE).apply()
     }
 
     // --- recherche ----------------------------------------------------------
@@ -90,6 +105,7 @@ class Ceinture(
         }
         if (enRecherche) return
         enRecherche = true
+        entendus.clear()
         surEtat(Etat.RECHERCHE)
 
         // Filtré sur le service cardiaque : une salle de sport est pleine
@@ -99,7 +115,36 @@ class Ceinture(
             ScanSettings.Builder().setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY).build(),
             chasse,
         )
+        fil.postDelayed(finEcoute, ECOUTE_MS)
     }
+
+    /**
+     * La fin de l'écoute choisit (sujet 16) : le capteur mémorisé s'il a été
+     * entendu, sinon le signal le plus fort — celui qu'on porte est à 30 cm,
+     * celui du voisin de vélo à plusieurs mètres. L'adresse est mémorisée
+     * sur ce téléphone seulement, jamais ailleurs : le dépôt est public (sujet 8).
+     */
+    private val finEcoute = Runnable {
+        arreterRecherche()
+        val choisi = entendus[prefs.getString(CLE_ADRESSE, null)]
+            ?: entendus.values.maxByOrNull { it.rssi }
+        entendus.clear()
+        if (choisi == null) {
+            surEtat(Etat.INTROUVABLE)
+            if (reconnecter) fil.postDelayed(relance, RELANCE_MS)
+            return@Runnable
+        }
+        prefs.edit().putString(CLE_ADRESSE, choisi.device.address).apply()
+        nom = choisi.nom()
+        surEtat(Etat.TROUVEE)
+        connecter(choisi.device, auto = false)
+    }
+
+    /** Le service de séance n'abandonne pas : il réécoute un peu plus tard. */
+    private val relance = Runnable { if (!arretDemande) chercher() }
+
+    @SuppressLint("MissingPermission")
+    private fun ScanResult.nom(): String? = scanRecord?.deviceName ?: device.name
 
     @SuppressLint("MissingPermission")
     private fun arreterRecherche() {
@@ -110,16 +155,18 @@ class Ceinture(
 
     private val chasse = object : ScanCallback() {
         @SuppressLint("MissingPermission")
+        // Les résultats arrivent sur le fil principal : on les repasse sur
+        // [fil], où la fin de l'écoute les lira.
         override fun onScanResult(callbackType: Int, result: ScanResult) {
-            arreterRecherche()
-            prefs.edit().putString(CLE_ADRESSE, result.device.address).apply()
-            surEtat(Etat.TROUVEE)
-            connecter(result.device, auto = false)
+            fil.post { if (enRecherche) entendus[result.device.address] = result }
         }
 
         override fun onScanFailed(errorCode: Int) {
-            enRecherche = false
-            surEtat(Etat.ECHEC)
+            fil.post {
+                fil.removeCallbacks(finEcoute)
+                enRecherche = false
+                surEtat(Etat.ECHEC)
+            }
         }
     }
 
@@ -173,7 +220,7 @@ class Ceinture(
                     g.close()
                     if (!arretDemande) {
                         gatt = null
-                        fil.post { connecter(g.device, auto = true) }
+                        if (reconnecter) fil.post { connecter(g.device, auto = true) }
                     }
                 }
             }
@@ -183,6 +230,10 @@ class Ceinture(
         override fun onServicesDiscovered(g: BluetoothGatt, status: Int) {
             val mesure = g.getService(SERVICE)?.getCharacteristic(MESURE)
             if (mesure == null) {
+                // Pas un capteur cardiaque après tout : on lâche, sans
+                // reconnexion — il n'en deviendra pas un.
+                arretDemande = true
+                g.disconnect()
                 fil.post { surEtat(Etat.ECHEC) }
                 return
             }
@@ -237,6 +288,15 @@ class Ceinture(
 
         private const val PREFS = "ceinture"
         private const val CLE_ADRESSE = "adresse"
+
+        /** La durée d'écoute avant de choisir (sujet 16). */
+        private const val ECOUTE_MS = 3_000L
+
+        /**
+         * Le service de séance réécoute après ce délai. Android refuse plus de
+         * cinq recherches en 30 s : réécouter aussitôt finirait bloqué.
+         */
+        private const val RELANCE_MS = 10_000L
 
         /** Délai au-delà duquel une reconnexion automatique est jugée morte. */
         private const val PATIENCE_MS = 60_000L

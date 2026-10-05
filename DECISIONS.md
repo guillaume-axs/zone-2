@@ -1171,8 +1171,71 @@ filtrée sur le service cardiaque et prend **la première ceinture qui répond**
 ce peut être celle du vélo d'à côté. L'adresse retenue au premier appairage fait de ce choix le
 choix des fois suivantes.
 
-**Reste à trancher avec la maquette :** comment la recherche évite la ceinture du voisin *la
-première fois* — la puissance du signal désigne celle qui est sur la poitrine, mais ça se vérifie.
+### Complément du 2026-10-01 — après l'étude UX (Polar Beat, Zwift)
+
+**N'importe quel capteur cardiaque, pas seulement une ceinture.** Un brassard optique parle le
+même service cardiaque standard : l'application ne suppose rien de l'appareil. La ligne s'appelle
+donc **« Capteur cardio »**, et connectée elle montre le nom que l'appareil donne de lui-même
+(« Polar H10 », « Verity Sense »). Aucun texte ne parle d'électrodes à humidifier : ce conseil
+serait faux pour un brassard.
+
+**La ceinture du voisin, la première fois : le signal le plus fort gagne.** La recherche écoute
+3 secondes et retient le capteur dont le signal est le plus fort — celui qu'on porte est à 30 cm,
+celui du voisin à plusieurs mètres. Elle ne prend plus le premier qui répond. Écarté : le seuil
+de proximité des montres Polar (téléphone collé au capteur), qui demande un réglage à mesurer et
+un geste de plus à chaque fois. Si le plus fort n'est quand même pas le bon, la FC en direct le
+montre, et la déconnexion volontaire oublie l'adresse.
+
+**Écarté du marché :** la liste des appareils proches avec un bouton par appareil (Polar Beat),
+la grille d'une tuile par capteur (Zwift) — les deux servent à gérer plusieurs capteurs.
+
+### Complément du 2026-10-01 — la maquette validée
+
+**Le constat en gris, l'action en orange.** Dans chaque état, le mot orange est ce que fait
+l'appui sur la ligne :
+
+| État | À droite de la ligne |
+|---|---|
+| Rien de connecté, ou décrochage | **Connecter** |
+| Recherche | Recherche… (points animés) · **Annuler** |
+| Connecté | 72 bpm · **Déconnecter** — le nom de l'appareil en petit sous « Capteur cardio » |
+| Aucun capteur | Aucun capteur · **Réessayer** |
+
+**Déconnecter s'écrit.** Un appui sur une ligne connectée sans mot orange casserait la règle :
+écarté. Une seconde ligne « Déconnecter » ferait bouger la liste à la connexion : écartée. Le nom
+de l'appareil passe donc sous l'intitulé, petit et pâle, pour laisser la place au mot.
+
+**Pas de message après une déconnexion**, la ligne revenue à « Connecter » suffit. **Les points de
+« Recherche » s'animent** — la preuve que l'app n'est pas figée — sauf si le téléphone demande
+moins d'animations.
+
+**Toutes les lignes des Réglages font 64 px**, la hauteur de la ligne du capteur connecté, contenu
+centré : la liste ne bouge pas quand le nom apparaît.
+
+**Pas de bouton flottant sur les Réglages**, comme aujourd'hui.
+
+Maquette : artefact « Ligne Capteur cardio », version 6.
+
+### Complément du 2026-10-05 — l'approche technique
+
+**On écoute toujours 3 secondes, même avec une adresse mémorisée.** Le capteur mémorisé gagne s'il
+est entendu ; sinon, le signal le plus fort. Aller droit à l'adresse, comme le disait le texte
+d'origine, posait deux problèmes : un capteur mémorisé éteint met une trentaine de secondes à faire
+échouer la connexion directe d'Android, et un capteur perdu ou mort ne pourrait plus jamais être
+remplacé — « Déconnecter », qui oublie l'adresse, n'existe qu'une fois connecté. L'attente est
+donc toujours de 3 secondes. Si le plus fort n'est pas le bon, la FC en direct le montre.
+
+**Deux cas sans état visuel propre.**
+
+- **Bluetooth coupé** : l'appui sur « Connecter » ouvre la demande d'Android « Activer le
+  Bluetooth ? » ; accepté, la recherche part.
+- **Accès au Bluetooth refusé** : la ligne reste à « Connecter ». Refusé définitivement, l'appui
+  ouvre la page de l'application dans les paramètres d'Android.
+
+Écrire « Aucun capteur » dans ces deux cas serait faux.
+
+**Pas de reconnexion automatique hors séance.** Un décrochage dans les Réglages ramène à
+« Connecter » ; la reconnexion automatique reste réservée au service de séance.
 
 ---
 

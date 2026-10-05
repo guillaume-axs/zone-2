@@ -54,6 +54,10 @@ class SurvieService : Service() {
     private var ceinture: Ceinture? = null
     private var battements = 0L
 
+    // Repris par la notification.
+    private var etat = ""
+    private var dernierBpm = 0
+
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onCreate() {
@@ -91,13 +95,11 @@ class SurvieService : Service() {
             ecrire("R,${System.currentTimeMillis()},${batterie()}")
         }
 
-        actif = true
         demarrerCeinture()
         return START_STICKY
     }
 
     override fun onDestroy() {
-        actif = false
         ceinture?.arreter()
         ceinture = null
         handler.removeCallbacksAndMessages(null)
@@ -110,7 +112,7 @@ class SurvieService : Service() {
 
     private fun demarrerCeinture() {
         ceinture?.arreter()
-        ceinture = Ceinture(this, handler, ::noterBattement, ::noterEtat).also { it.demarrer() }
+        ceinture = Ceinture(this, handler, reconnecter = true, ::noterBattement, ::noterEtat).also { it.demarrer() }
     }
 
     /**
@@ -195,6 +197,7 @@ class SurvieService : Service() {
             Ceinture.Etat.RECHERCHE.name -> "Recherche de la ceinture…"
             Ceinture.Etat.TROUVEE.name -> "Ceinture trouvée, connexion…"
             Ceinture.Etat.DECROCHEE.name -> "Liaison perdue, reconnexion…"
+            Ceinture.Etat.INTROUVABLE.name -> "Aucun capteur, nouvel essai…"
             Ceinture.Etat.ECHEC.name -> "Bluetooth indisponible"
             else -> "Démarrage"
         }
@@ -219,22 +222,5 @@ class SurvieService : Service() {
 
         private const val CANAL = "survie"
         private const val NOTIF_ID = 4201
-
-        /** Lu par le pont : distingue « service toujours vivant » de « tué ». */
-        @Volatile
-        @JvmStatic
-        var actif = false
-            private set
-
-        /** État de la liaison, affiché en direct par l'écran de diagnostic. */
-        @Volatile
-        @JvmStatic
-        var etat = ""
-            private set
-
-        @Volatile
-        @JvmStatic
-        var dernierBpm = 0
-            private set
     }
 }

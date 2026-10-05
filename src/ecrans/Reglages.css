@@ -4,7 +4,17 @@
  * n'a pas besoin de dire.
  */
 
+/*
+ * 64 px pour toutes, contenu centré : la hauteur de la ligne du capteur
+ * connecté, nom de l'appareil compris (sujet 16). La ligne capteur est un
+ * bouton : largeur et alignement à remettre à ceux d'un lien.
+ */
 .reglages__ligne {
+  min-height: 64px;
+  width: 100%;
+  padding: 0;
+  align-items: center;
+  text-align: left;
   color: inherit;
   text-decoration: none;
 }
@@ -50,4 +60,55 @@
   font-size: 9px;
   text-align: center;
   color: var(--fg-5);
+}
+
+/* ---------- Ligne Capteur cardio (sujet 16) ---------- */
+
+/* La FC en direct : même police que les bornes de la Zone 2, la teinte du
+   héros — la seule valeur vivante de la liste. */
+.reglages__fc {
+  color: var(--fg-hero);
+}
+
+/* Le nom de l'appareil, sous l'intitulé : on le lit si on le cherche, la FC
+   suffit à prouver la liaison. */
+.reglages__appareil {
+  margin-top: 3px;
+  font-size: 11px;
+  line-height: 1.2;
+  color: var(--fg-4);
+}
+
+/* Les points de « Recherche » s'allument l'un après l'autre : l'app travaille,
+   elle n'est pas figée. Immobiles si le téléphone demande moins d'animations. */
+.reglages__points i {
+  font-style: normal;
+  opacity: 0.2;
+  animation: points 1.2s infinite;
+}
+
+.reglages__points i:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.reglages__points i:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes points {
+  0%,
+  60%,
+  100% {
+    opacity: 0.2;
+  }
+  30% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reglages__points i {
+    animation: none;
+    opacity: 1;
+  }
 }
