@@ -64,9 +64,10 @@ export default function Reglages() {
 
 /**
  * La ligne « Capteur cardio » — sujet 16. Elle ne se lit pas, elle se pilote :
- * le constat en gris, l'action en braise, et l'appui fait l'action. Pas de
- * chevron, aucun écran ne s'ouvre. Connectée, la FC en direct est la preuve
- * que c'est le bon capteur : un nom, il faudrait le croire.
+ * le constat en gris sous l'intitulé, l'action en braise à droite, et l'appui
+ * fait l'action. Pas de chevron, aucun écran ne s'ouvre. La ligne change de
+ * mots, jamais de forme : deux étages dans tous les états, et les quatre
+ * actions empilées dans une même case, dont seule celle de l'état se voit.
  */
 function LigneCapteur() {
   const { ligne, connecter, annuler, deconnecter } = useCapteur()
@@ -74,42 +75,44 @@ function LigneCapteur() {
 
   return (
     <Button className="hist__item reglages__ligne" onPress={action}>
-      {ligne.etat === 'connecte' && ligne.nom ? (
-        <div>
-          <div className="label">Capteur cardio</div>
-          <div className="reglages__appareil">{ligne.nom}</div>
-        </div>
-      ) : (
-        <span className="label">Capteur cardio</span>
-      )}
-      <span className="reglages__droite">
-        {ligne.etat === 'rien' && <span className="hist__value reglages__vide">Connecter</span>}
-        {ligne.etat === 'recherche' && (
-          <>
-            <span className="hist__value">
+      <div>
+        <div className="label">Capteur cardio</div>
+        <div className="reglages__etat">
+          {ligne.etat === 'rien' && 'Non connecté'}
+          {ligne.etat === 'recherche' && (
+            <>
               Recherche
               <span className="reglages__points" aria-hidden="true">
                 <i>.</i>
                 <i>.</i>
                 <i>.</i>
               </span>
-            </span>
-            <span className="hist__value reglages__vide">Annuler</span>
-          </>
-        )}
-        {ligne.etat === 'connecte' && (
-          <>
-            <span className="hist__value reglages__fc">{ligne.bpm} bpm</span>
-            <span className="hist__value reglages__vide">Déconnecter</span>
-          </>
-        )}
-        {ligne.etat === 'aucun' && (
-          <>
-            <span className="hist__value">Aucun capteur</span>
-            <span className="hist__value reglages__vide">Réessayer</span>
-          </>
-        )}
+            </>
+          )}
+          {ligne.etat === 'connecte' && (
+            <>
+              {ligne.nom && `${ligne.nom} · `}
+              <span className="reglages__fc">{ligne.bpm} bpm</span>
+            </>
+          )}
+          {ligne.etat === 'aucun' && 'Aucun capteur trouvé'}
+        </div>
+      </div>
+      <span className="hist__value reglages__vide reglages__action">
+        {ACTIONS.map(([etat, mot]) => (
+          <span key={etat} data-actif={etat === ligne.etat || undefined}>
+            {mot}
+          </span>
+        ))}
       </span>
     </Button>
   )
 }
+
+/** Le mot orange de chaque état, dans l'ordre où la ligne les traverse. */
+const ACTIONS = [
+  ['rien', 'Connecter'],
+  ['recherche', 'Annuler'],
+  ['connecte', 'Déconnecter'],
+  ['aucun', 'Réessayer'],
+] as const
