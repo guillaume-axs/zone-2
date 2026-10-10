@@ -8,6 +8,7 @@ class MainActivity : BridgeActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         registerPlugin(SurviePlugin::class.java)
         registerPlugin(CapteurPlugin::class.java)
+        registerPlugin(SauvegardePlugin::class.java)
         super.onCreate(savedInstanceState)
     }
 }
