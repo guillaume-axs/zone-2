@@ -91,7 +91,12 @@ function LigneCapteur() {
           )}
           {ligne.etat === 'connecte' && (
             <>
-              {ligne.nom && `${ligne.nom} · `}
+              {ligne.nom && (
+                <>
+                  <span className="reglages__appareil">{ligne.nom}</span>
+                  {'\u00a0·\u00a0'}
+                </>
+              )}
               <span className="reglages__fc">{ligne.bpm} bpm</span>
             </>
           )}

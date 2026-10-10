@@ -1,0 +1,57 @@
+name: Couverture
+
+# Sujet 17 : le banc ne vérifie que ce qu'on lui apprend. Ce job refuse une PR
+# qui modifie un écran sans toucher à ses parcours, ou qui ne dit pas quels
+# critères sont vérifiés et par quoi. Workflow à part : il se relance quand la
+# description change, sans reconstruire l'APK.
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+
+permissions:
+  contents: read
+
+jobs:
+  couverture:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Un écran modifié a son parcours modifié
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          fichiers=$(git diff --name-only "$BASE...$HEAD")
+          if echo "$fichiers" | grep -qE '^src/(ecrans|forms)/[^/]+\.(tsx|css)$' \
+            && ! echo "$fichiers" | grep -qE '^(e2e|\.maestro)/'; then
+            echo "::error::Un écran change sans que ses parcours (e2e/ ou .maestro/) changent."
+            exit 1
+          fi
+
+      - name: La description porte le tableau des critères
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+          DESCRIPTION: ${{ github.event.pull_request.body }}
+        run: |
+          # Exigé dès que le code de l'application change ; une PR de doc ou de CI en est dispensée.
+          git diff --name-only "$BASE...$HEAD" | grep -qE '^src/.*\.(tsx?|css)$' || exit 0
+          python3 - <<'PY'
+          import os, re, sys
+          texte = os.environ.get("DESCRIPTION") or ""
+          section = re.search(r"^## Critères\s*$(.*?)(?=^## |\Z)", texte, re.M | re.S)
+          lignes = []
+          for l in (section.group(1) if section else "").splitlines():
+              cellules = [c.strip() for c in l.strip().strip("|").split("|")]
+              if l.strip().startswith("|") and len(cellules) >= 2 and all(cellules) \
+                 and not all(re.fullmatch(r":?-+:?", c) for c in cellules):
+                  lignes.append(cellules)
+          # La première ligne remplie est l'en-tête.
+          if len(lignes) < 2:
+              print("::error::La section « ## Critères » de la description n'a aucune ligne remplie.")
+              sys.exit(1)
+          print(f"{len(lignes) - 1} critères.")
+          PY
