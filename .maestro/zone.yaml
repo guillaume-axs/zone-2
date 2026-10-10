@@ -11,8 +11,9 @@ appId: fr.zone2.app
 - tapOn: "Réglages"
 - tapOn: "(?i).*zone 2.*"
 - assertVisible: "Enregistrer"
-# Le champ, pas son libellé : seul son nom accessible est unique.
-- tapOn: "Fin de zone en battements par minute"
+# Le champ, pas son libellé : seul son nom accessible est unique. Chrome
+# l'expose avec l'indication du champ : l'expression doit couvrir le reste.
+- tapOn: "(?i).*fin de zone en battements.*"
 - inputText: "140"
 - takeScreenshot: zone-clavier
 - pressKey: Enter
