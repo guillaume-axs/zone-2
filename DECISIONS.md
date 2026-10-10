@@ -1121,6 +1121,15 @@ que le moment où on en a besoin est le lendemain d'une réinstallation, pas au 
 **Le fichier produit contient des séances réelles.** Il atterrit dans les Téléchargements du
 téléphone, jamais dans le dépôt (sujet 8). Les données de développement, elles, restent inventées.
 
+**Précision du 2026-10-10 — « Enregistrer sous », pas Téléchargements d'office.** Écrire en silence dans
+les Téléchargements laisse la sauvegarde sur le téléphone : elle meurt avec lui, et le changement de
+téléphone, l'un des deux cas que l'export doit couvrir, n'est protégé que si l'on pense à copier le
+fichier ailleurs. L'export ouvre donc la fenêtre « Enregistrer sous » du système (Storage Access
+Framework, `ACTION_CREATE_DOCUMENT`) : Téléchargements reste à un toucher, Google Drive aussi. Le geste
+de plus est accepté parce que l'export est rare et ne se fait jamais sur le vélo. Second motif : sur
+Android 11 et plus, `@capacitor/filesystem` ne peut plus écrire dans le dossier public ; les deux voies
+demandaient donc du Kotlin dans le greffon existant, et c'est celle-ci qui couvre le besoin.
+
 ---
 
 ## Sujet 16 — La ligne Ceinture ✅ *(décidé le 2026-09-29)*
