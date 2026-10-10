@@ -10,7 +10,9 @@ import { defineConfig } from '@playwright/test'
  */
 export default defineConfig({
   testDir: 'e2e',
-  fullyParallel: true,
+  // Un seul navigateur : à deux, la machine de dev (2 Go) s'étouffe et les
+  // tests se figent au hasard. Un banc instable ne protège de rien.
+  workers: 1,
   forbidOnly: !!process.env.CI,
   reporter: [['list'], ['html', { open: 'never' }]],
   use: {

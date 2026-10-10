@@ -42,6 +42,13 @@ export const test = base.extend({
           for (const { node, previousRect: a, currentRect: b } of e.sources) {
             // Sous le pixel, l'œil ne voit rien : arrondis de police, demi-pixels.
             if (Math.abs(a.x - b.x) < 1 && Math.abs(a.y - b.y) < 1) continue
+            // Une boîte vide qui s'élargit ne se voit pas : seul compte ce qui
+            // porte du texte, un dessin ou une action (même règle que `releve`).
+            const porteur =
+              node instanceof Element &&
+              (node.matches('button, a, input, select, textarea, svg, img, [role]') ||
+                [...node.childNodes].some((c) => c.nodeType === 3 && c.textContent!.trim()))
+            if (!porteur) continue
             const nom = node instanceof HTMLElement ? node.innerText.trim().slice(0, 40) : String(node?.nodeName)
             window.__decalages.push(`${nom} (${Math.round(a.x)},${Math.round(a.y)} → ${Math.round(b.x)},${Math.round(b.y)})`)
           }
@@ -99,7 +106,7 @@ export async function premierAffichage(page: Page, nom: string) {
 }
 
 /**
- * Un geste de l'utilisateur, contrôlé. La position de chaque élément est
+ * Un geste de l'utilisateur — ou un signal du natif —, contrôlé. La position de chaque élément est
  * relevée avant et après : tout ce qui bouge sans figurer dans `bouge` est un
  * saut. Le CLS ne sert à rien ici — il ignore les 500 ms qui suivent une
  * action, exactement là où nos sauts arrivent.
@@ -126,7 +133,9 @@ export async function geste(
         Object.entries(apres)
           .filter(([id, b]) => {
             const a = avant[id]
-            if (!a || (Math.abs(a.x - b.x) < 1 && Math.abs(a.y - b.y) < 1)) return false
+            // Une valeur qui change (« 128 bpm » → « 97 bpm ») n'a pas sauté :
+            // seuls comptent les voisins qu'elle aurait poussés.
+            if (!a || a.nom !== b.nom || (Math.abs(a.x - b.x) < 1 && Math.abs(a.y - b.y) < 1)) return false
             const el = document.querySelector(`[data-banc="${id}"]`)
             return !bouge.some((s) => el?.closest(s))
           })
