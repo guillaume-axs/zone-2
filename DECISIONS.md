@@ -1143,7 +1143,8 @@ supprime le risque au lieu de le gérer.
 
 **L'import fusionne, il n'écrase jamais.** Sélecteur de fichiers du système, puis chaque séance est
 reconnue à son identifiant : un identifiant déjà présent est ignoré, jamais remplacé. Le compte-rendu
-est un toast — « 12 ajoutées, 34 déjà là ». La ligne vit dans les Réglages et non sur l'Accueil parce
+est un toast — « 12 séances importées », ou « Aucune nouvelle séance » *(texte précisé le 2026-10-11 :
+le nombre de séances déjà présentes n'apprend rien à l'usager)*. La ligne vit dans les Réglages et non sur l'Accueil parce
 que le moment où on en a besoin est le lendemain d'une réinstallation, pas au quotidien.
 
 **Le fichier produit contient des séances réelles.** Il atterrit dans les Téléchargements du
