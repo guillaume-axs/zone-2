@@ -94,6 +94,10 @@ Une release `latest` est republiée à chaque push sur `main`.
   déclarée inexistante alors qu'elle vit dans `SessionForm.tsx`. **Reprendre un composant veut dire
   le reprendre entier**, sous-classes comprises.
 
+- **Le banc d'essai passe avant le S22** (sujet 17). Un écran modifié ne part pas au PO tant que
+  `npm run e2e` et l'émulateur CI ne sont pas verts. Le PO fait une seule passe, sur la liste des
+  angles morts que la PR lui donne.
+
 - **Chercher en ligne plutôt que dans sa mémoire** dès qu'il s'agit d'un standard, d'une version ou
   d'une pratique. L'état actuel du projet ne décide jamais d'une question d'architecture à sa place.
 - **Un « go » couvre la chaîne mécanique** jusqu'à la livraison : commit, PR, CI, merge, publication.

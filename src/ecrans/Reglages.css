@@ -28,6 +28,9 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  /* Une valeur ne casse jamais (« 120 – 135 / bpm »). */
+  flex: none;
+  white-space: nowrap;
 }
 
 /*
@@ -64,9 +67,18 @@
 
 /* ---------- Ligne Capteur cardio (sujet 16) ---------- */
 
+/* Le bloc intitulé + état cède la place à l'action, jamais l'inverse. */
+.reglages__ligne > div {
+  min-width: 0;
+}
+
 /* L'état, sous l'intitulé et dans tous les états : l'intitulé ne bouge
-   jamais. Petit et pâle — c'est le constat, l'action est à droite. */
+   jamais. Petit et pâle — c'est le constat, l'action est à droite. Une seule
+   ligne : sur deux, la ligne grandirait et l'intitulé sauterait. */
 .reglages__etat {
+  display: flex;
+  align-items: baseline;
+  white-space: nowrap;
   margin-top: 3px;
   font-size: 11px;
   line-height: 1.2;
@@ -75,6 +87,13 @@
 
 /* La FC en direct : la teinte du héros, seule valeur vivante de la liste.
    Chiffres à chasse fixe : 68 puis 71 ne font rien trembler. */
+/* Seul le nom de l'appareil cède, en « … » comme dans les réglages
+   Bluetooth d'Android : la FC, elle, se lit toujours en entier. */
+.reglages__appareil {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .reglages__fc {
   color: var(--fg-hero);
   font-variant-numeric: tabular-nums;

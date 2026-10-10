@@ -1,0 +1,20 @@
+# Étage 2 du banc d'essai (sujet 17) : ce que le navigateur ne montre pas.
+# Le vrai clavier sur la saisie de zone (champ masqué ? touche « Suivant »),
+# puis le bouton retour d'Android : il ferme le clavier, puis l'écran.
+appId: fr.zone2.app
+---
+- launchApp:
+    clearState: true
+- tapOn: "Réglages"
+- tapOn: "(?i).*zone 2.*"
+- assertVisible: "Enregistrer"
+- tapOn: "Âge"
+- inputText: "45"
+- takeScreenshot: zone-clavier
+- pressKey: Enter
+- takeScreenshot: zone-suivant
+- back
+- takeScreenshot: zone-retour-1
+- back
+- assertVisible: "(?i).*capteur cardio.*"
+- takeScreenshot: zone-retour-2

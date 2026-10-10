@@ -21,9 +21,10 @@
 
 /* Cible de 44 px ; la marge négative aligne l'icône sur le bord du contenu. */
 .form__fermer {
-  width: 44px;
-  height: 44px;
-  margin: -12px 0 -12px -12px;
+  /* 48 dp : la cible minimale d'Android. La marge garde la croix à sa place. */
+  width: 48px;
+  height: 48px;
+  margin: -14px 0 -14px -14px;
   flex: none;
   display: flex;
   align-items: center;
@@ -110,12 +111,15 @@
 }
 
 .field {
+  position: relative;
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
   justify-content: space-between;
   gap: 16px;
-  padding: 19px 0;
+  /* La marge basse est la place réservée de l'erreur : quand elle paraît,
+     rien ne bouge — ni ce champ, ni celui où le curseur vient d'arriver. */
+  padding: 12px 0 22px;
   border-bottom: 1px solid var(--rule-2);
 }
 
@@ -127,7 +131,9 @@
 
 .field__num {
   width: 72px;
-  padding: 2px 4px;
+  /* 48 dp de haut : la cible minimale d'Android. */
+  height: 48px;
+  padding: 0 4px;
   border: 0;
   border-bottom: 1px solid var(--rule);
   background: none;
@@ -162,10 +168,12 @@
   color: var(--fg-4);
 }
 
-/* L'erreur prend toute la largeur pour passer sous le champ, jamais à côté. */
+/* L'erreur passe sous le champ, dans la marge qui lui est réservée. */
 .field__err {
-  width: 100%;
-  padding-top: 8px;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 6px;
   font-family: var(--font-mono);
   font-size: 9.5px;
   letter-spacing: 0.1em;

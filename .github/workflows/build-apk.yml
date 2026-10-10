@@ -109,12 +109,112 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
+  # Le banc d'essai (sujet 17) : l'app dans un Chromium au gabarit du S22,
+  # parcourue écran par écran. Un bouton qui saute, une cible trop petite, un
+  # toast qui recouvre font échouer la PR — avant que le PO ne sorte le téléphone.
+  e2e:
+    needs: secrets
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - run: npx playwright install --with-deps chromium
+
+      - run: npm run e2e
+
+      # Une capture par étape de chaque parcours : la planche que Claude relit
+      # avant d'annoncer « prêt », et que le PO peut ouvrir s'il le souhaite.
+      - uses: actions/upload-artifact@v7
+        if: ${{ !cancelled() }}
+        with:
+          name: banc-${{ github.sha }}
+          path: playwright-report/
+          retention-days: 14
+
+  # Étage 2 du banc (sujet 17) : l'APK réel sur un émulateur Android, piloté
+  # par Maestro. Il voit ce que le navigateur ne montre pas — clavier virtuel,
+  # bouton retour, WebView d'Android.
+  emulateur:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: zone2-${{ github.sha }}
+
+      # L'archive publiée, version figée : aucun script d'installation exécuté.
+      - name: Installer Maestro
+        run: |
+          curl -sSfL -o maestro.zip \
+            "https://github.com/mobile-dev-inc/maestro/releases/download/cli-2.10.0/maestro.zip"
+          unzip -q maestro.zip -d "$HOME"
+          echo "$HOME/maestro/bin" >> "$GITHUB_PATH"
+
+      - name: Activer KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      # Recette du README de l'action : l'émulateur démarré une fois est gardé
+      # en instantané, les runs suivants repartent de là au lieu de démarrer à froid.
+      - uses: actions/cache@v5
+        id: avd-cache
+        with:
+          path: |
+            ~/.android/avd/*
+            ~/.android/adb*
+          key: avd-34-x86_64-pixel_5 # gitleaks:allow — clé de cache, pas un secret
+
+      - name: Créer l'instantané de l'émulateur
+        if: steps.avd-cache.outputs.cache-hit != 'true'
+        uses: reactivecircus/android-emulator-runner@v2.38.0
+        with:
+          api-level: 34
+          arch: x86_64
+          profile: pixel_5
+          force-avd-creation: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: false
+          script: echo "Instantané créé pour le cache."
+
+      - uses: reactivecircus/android-emulator-runner@v2.38.0
+        with:
+          api-level: 34
+          arch: x86_64
+          profile: pixel_5
+          force-avd-creation: false
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
+          script: |
+            adb install app-release.apk
+            maestro test .maestro/ --test-output-dir=maestro
+
+      - uses: actions/upload-artifact@v7
+        if: ${{ !cancelled() }}
+        with:
+          name: emulateur-${{ github.sha }}
+          path: maestro/
+          retention-days: 14
+
   # Publie l'APK sous une adresse fixe, installable en un geste depuis le
   # téléphone. Un artefact d'Actions ne convient pas pour ça : il est livré dans
   # un ZIP et exige d'être authentifié — deux obstacles de trop quand on est
   # debout dans une salle de sport.
   publication:
-    needs: build
+    # Un banc rouge sur `main` ne publie rien.
+    needs: [build, e2e]
     # Uniquement sur `main` : une PR ne doit rien publier, et son jeton est en
     # lecture seule de toute façon.
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'

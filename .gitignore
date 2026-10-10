@@ -46,3 +46,5 @@ android/app/src/main/res/xml/config.xml
 
 # Artefacts de test Playwright
 .playwright-mcp/
+/playwright-report/
+/test-results/

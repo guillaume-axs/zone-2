@@ -1,0 +1,10 @@
+# Étage 2 du banc d'essai (sujet 17) : la vraie app, sur un émulateur Android.
+# Essai : Maestro lit-il le contenu du WebView de Capacitor ?
+appId: fr.zone2.app
+---
+- launchApp:
+    clearState: true
+- tapOn: "Réglages"
+# Un bouton expose tout son texte d'un bloc : l'expression doit couvrir le reste.
+- assertVisible: "(?i).*capteur cardio.*"
+- takeScreenshot: reglages
