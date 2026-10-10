@@ -1252,6 +1252,31 @@ Le test sur le S22 a montré une ligne figée sur le dernier bpm dans deux cas.
 Ce délai vaut pour les Réglages seulement. En séance, la règle du sujet 12 demeure : le
 chiffre s'atténue, la liaison n'est pas coupée.
 
+### Complément du 2026-10-10 — une ligne qui change de mots, pas de forme
+
+Le test sur le S22 : « les textes sautent ». À chaque état, le texte de droite changeait de
+longueur et poussait le mot orange ; à la connexion, l'intitulé remontait pour laisser passer
+le nom de l'appareil. La ligne changeait de forme à chaque appui.
+
+**Deux étages, toujours.** « Capteur cardio », puis l'état dessous, petit et pâle :
+
+| État | Sous l'intitulé | À droite |
+|---|---|---|
+| Rien de connecté, ou décrochage | Non connecté | **Connecter** |
+| Recherche | Recherche… (points animés) | **Annuler** |
+| Connecté | Polar H10 · 72 bpm | **Déconnecter** |
+| Aucun capteur | Aucun capteur trouvé | **Réessayer** |
+
+**À droite, l'action seule, dans une case fixe** de la largeur de « Déconnecter », calée à
+droite : le mot change, sa place non. La FC est à chasse fixe.
+
+**La FC passe sous l'intitulé**, avec le nom de l'appareil. Écarté : la FC à droite devant
+l'action, qui la gardait en grand — la droite ne doit porter qu'un mot. La règle « le constat
+en gris, l'action en orange » demeure ; le constat change seulement d'étage.
+
+Sources : Wahoo (« My devices », l'état sous le nom) et TrainerRoad (« Devices », la valeur
+dans une case réservée). Maquette : artefact « Ligne Capteur cardio v7 », option A.
+
 ---
 
 ## Qualité « portfolio » — les 4 axes validés
