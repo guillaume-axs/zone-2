@@ -1159,6 +1159,14 @@ de plus est accepté parce que l'export est rare et ne se fait jamais sur le vé
 Android 11 et plus, `@capacitor/filesystem` ne peut plus écrire dans le dossier public ; les deux voies
 demandaient donc du Kotlin dans le greffon existant, et c'est celle-ci qui couvre le besoin.
 
+**Précision du 2026-10-11 — un greffon à lui, et les séances supprimées partent aussi.** Le Kotlin vit
+dans un troisième greffon, `SauvegardePlugin.kt`, et non dans un existant : `SurviePlugin` démarre le
+service, `CapteurPlugin` tient le Bluetooth, et y greffer l'export aurait mêlé deux métiers. Le motif
+de la décision — aucune dépendance ajoutée — tient toujours. Le fichier emporte aussi les séances
+supprimées, avec leur `deletedAt` : une sauvegarde qui les écarterait perdrait de la donnée. Le
+compteur de la ligne, lui, ne compte que les séances visibles. Un fichier dont une seule séance est
+mal formée est refusé en entier, et l'import s'écrit en une transaction : tout ou rien.
+
 ---
 
 ## Sujet 16 — La ligne Ceinture ✅ *(décidé le 2026-09-29)*
