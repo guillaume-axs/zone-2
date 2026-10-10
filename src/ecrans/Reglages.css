@@ -28,6 +28,10 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  /* Une valeur ne casse jamais (« 188 / bpm ») : c'est le nom de l'appareil,
+     à gauche, qui passe à la ligne. */
+  flex: none;
+  white-space: nowrap;
 }
 
 /*
