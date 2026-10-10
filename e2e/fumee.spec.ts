@@ -1,5 +1,5 @@
-import { expect, test } from '@playwright/test'
-import { ouvrir, plein, uneSeance, zoneDefinie } from './donnees.ts'
+import { expect, ouvrir, test } from './banc.ts'
+import { plein, uneSeance, zoneDefinie } from './donnees.ts'
 
 test("l'Accueil s'ouvre vide", async ({ page }) => {
   await ouvrir(page)

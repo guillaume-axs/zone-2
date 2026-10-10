@@ -1276,7 +1276,10 @@ pas. Pas d'émulateur local : la machine ne le tient pas.
   Mesuré par la géométrie avant/après, pas par le CLS — la mesure standard ignore les 500 ms qui
   suivent une action, exactement là où nos sauts arrivent.
 - **Un élément interactif recouvert**, une cible sous **48 dp ou à moins de 8 dp** d'une autre
-  (règle d'accessibilité Android), un défilement horizontal, un texte coupé.
+  (règle d'accessibilité Android), un défilement horizontal, un texte coupé. Deux cibles qui se
+  touchent bord à bord — les lignes d'une liste, les onglets — sont le motif Material, pas un défaut.
+- **Un saut au premier affichage**, quand les données arrivent après le premier dessin. Hors
+  chargement de police : en `font-display: block`, le texte n'est pas encore visible.
 
 Pas de comparaison pixel à pixel : trop de fausses alertes. Les captures servent à la relecture.
 
