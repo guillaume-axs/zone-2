@@ -526,6 +526,34 @@ Pas une animation décorative en boucle : une pulsation **pilotée par les donn�
 - Née du domaine, aucun template ne l'a
 - **À ne pas perdre** — c'est l'élément de signature du produit
 
+
+### Précision du 2026-10-11 — les rôles typographiques
+
+**Constat.** Le sujet 7 fixe trois polices, pas leur emploi : le code a fini avec quatorze tailles,
+de 9 à 82 px. Sur les Réglages, l'étiquette mono servait d'intitulé à des lignes qu'on touche — le PO
+les a lues comme désactivées.
+
+**Règle : le mono nomme, le Grotesk donne la valeur, la braise agit.** Ce n'est pas le mono qui
+faisait croire à une ligne désactivée, c'est son gris pâle : l'intitulé garde ses capitales mono, qui
+le distinguent de sa valeur, mais en `fg-2`.
+
+| Rôle | Forme | Exemples |
+|---|---|---|
+| Chiffre héros | Instrument Serif, 80 px | efficience, durée de la saisie |
+| Intitulé d'une ligne | IBM Plex Mono 9,5 px, capitales, `fg-2` | « ZONE 2 », « CAPTEUR CARDIO », « EXPORTER MES SÉANCES » |
+| Valeur, texte lu | Space Grotesk 15 px, `fg-hero` | « 120 – 135 bpm », texte du toast |
+| Précision | Space Grotesk 12,5 px, `fg-3` | « Polar H10 · 72 bpm », « 34 séances » |
+| Titre, intertitre, unité | IBM Plex Mono 9,5 px, capitales, `fg-4` | « RÉGLAGES », « MES DONNÉES », axes |
+| Action | couleur `--accent` | « Connecter », icônes d'export et d'import |
+
+Le gris pâle (`fg-4`) sur un intitulé veut dire « inactif », et rien d'autre. **Un élément inactif
+garde sa forme** : il reste à sa place, icône comprise, et passe en `fg-4` — on ne le retire jamais.
+Le retirer décale la ligne quand il revient, et efface le repère qui montre où appuyer. Vaut pour
+toutes les fonctionnalités à venir.
+
+Appliqué d'abord aux
+Réglages (lot export + import) ; les autres écrans seront ramenés à ce barème dans un lot à part.
+
 ---
 
 ## Sujet 8 — Publication et posture de sécurité ✅ *(décidé le 2026-08-13)*
