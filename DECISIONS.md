@@ -1317,6 +1317,12 @@ angles morts du banc : le ressenti, les formulations, la vraie ceinture, les mar
 Écartés : Appium, Applitools et Percy, un studio sur mesure, Maestro Cloud. Maestro sur le S22 par
 câble reste une piste — il remet le PO dans la boucle.
 
+**Les critères avant le code, et deux murs** *(2026-10-11)*. Un banc ne vérifie que ce qu'on lui
+apprend, et une règle écrite s'oublie. Chaque feature a son tableau « critère → vérifié par »,
+validé par le PO avec l'approche, recopié dans la PR. Un hook refuse d'éditer un écran sans ce
+tableau ; le job `couverture` refuse une PR qui change un écran sans parcours, ou sans tableau.
+Limite assumée : aucune machine ne juge si les critères sont les bons — c'est la minute du PO.
+
 **Mesure de succès :** la feature suivante (export + import) ne coûte pas plus d'une PR de retours
 terrain.
 

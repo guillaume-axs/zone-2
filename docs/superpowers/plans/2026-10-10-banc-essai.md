@@ -127,6 +127,21 @@ le banc est donc jugé tout de suite sur un cas réel.
   passe S22
 - **Mesure de succès, à la feature suivante (export + import) :** au plus une PR de retours terrain
 
+## Critères
+
+| Critère | Vérifié par |
+|---|---|
+| Un élément qui saute fait échouer le banc | `e2e/banc.spec.ts` — page fautive |
+| Un bouton recouvert, une cible trop petite font échouer le banc | `e2e/banc.spec.ts` — page fautive |
+| Réglages : nom de capteur très long sans casse ni saut | `e2e/reglages.spec.ts` |
+| Zone 2 : pavé numérique, champ non masqué, touche Suivant | `.maestro/zone.yaml` + captures |
+| Bouton retour : clavier, puis écran, puis onglet de départ | `.maestro/zone.yaml` |
+| Une PR rouge ne peut pas être mergée | protection de main (secrets, build, e2e, emulateur, couverture) |
+| Un écran ne se modifie pas sans liste de critères | `.claude/hooks/criteres.py` |
+| Un écran modifié sans test, ou une PR sans tableau, est refusé | job `couverture` |
+| Le ressenti et les formulations de la ligne Capteur | **angle mort — S22** |
+| La vraie ceinture : connexion, décrochage en séance | **angle mort — S22** |
+
 ## Hors périmètre
 
 - Les parcours des autres écrans — ajoutés au fil de leurs prochaines modifications
