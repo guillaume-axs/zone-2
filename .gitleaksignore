@@ -1,0 +1,3 @@
+# Faux positifs de gitleaks, un par ligne, avec leur motif.
+# La clé de cache de l'émulateur (avd-34-x86_64-pixel_5) n'est pas un secret.
+73130e66a6549b78563813978705619bf2eb9314:.github/workflows/build-apk.yml:generic-api-key:178

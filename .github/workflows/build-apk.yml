@@ -175,7 +175,7 @@ jobs:
           path: |
             ~/.android/avd/*
             ~/.android/adb*
-          key: avd-34-x86_64-pixel_5
+          key: avd-34-x86_64-pixel_5 # gitleaks:allow — clé de cache, pas un secret
 
       - name: Créer l'instantané de l'émulateur
         if: steps.avd-cache.outputs.cache-hit != 'true'
