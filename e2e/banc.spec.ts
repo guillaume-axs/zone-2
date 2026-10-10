@@ -52,11 +52,12 @@ test('deux cibles trop proches sont signalées', async ({ page }) => {
   await expect(controler(page, 'proches')).rejects.toThrow(/cibles trop proches : A \/ B/)
 })
 
-test('un débordement et un texte coupé sont signalés', async ({ page }) => {
+test('un débordement, un texte coupé, une valeur cassée sont signalés', async ({ page }) => {
   await nue(page, `
     <p style="width:120px;overflow:hidden;white-space:nowrap">Un libellé beaucoup trop long</p>
+    <p style="width:40px">188 bpm</p>
     <div style="width:600px;height:10px">large</div>`)
-  await expect(controler(page, 'débordement')).rejects.toThrow(/défile en largeur[\s\S]*texte coupé/)
+  await expect(controler(page, 'débordement')).rejects.toThrow(/défile en largeur[\s\S]*texte coupé[\s\S]*valeur cassée sur 2 lignes : 188 bpm/)
 })
 
 test('un saut au chargement est signalé', async ({ page }) => {

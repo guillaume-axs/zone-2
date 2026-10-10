@@ -211,6 +211,16 @@ export async function controler(page: Page, etape: string) {
         if (r.right > vw + 1 || r.left < -1) fautes.push(`hors de l'écran : ${nom(el)}`)
         const st = getComputedStyle(el)
         if (st.overflowX !== 'visible' && el.scrollWidth > el.clientWidth + 1) fautes.push(`texte coupé : ${nom(el)}`)
+        // Une valeur courte (« 188 bpm », « Annuler ») ne se lit plus si elle
+        // casse en deux lignes. Un nom ou une phrase, eux, ont le droit.
+        // Mesuré sur l'élément entier : en JSX, `{bpm} bpm` fait deux nœuds texte.
+        const texte = el.textContent!.trim()
+        if (texte.length <= 12) {
+          const plage = document.createRange()
+          plage.selectNodeContents(el)
+          const lignes = new Set([...plage.getClientRects()].filter((r) => r.width).map((r) => Math.round(r.top)))
+          if (lignes.size > 1) fautes.push(`valeur cassée sur ${lignes.size} lignes : ${texte}`)
+        }
       }
       return fautes
     },

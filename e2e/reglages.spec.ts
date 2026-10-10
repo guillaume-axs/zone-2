@@ -101,3 +101,45 @@ test('zone : non définie puis définie', async ({ page }) => {
   await ouvrir(page, '/reglages', { zones: zoneDefinie })
   await expect(page.getByRole('link', { name: /Zone 2/ })).toContainText('120 – 135 bpm')
 })
+
+test('zone : premier réglage par l’âge, une faute, sa correction, puis enregistrer', async ({ page }) => {
+  await ouvrir(page, '/reglages')
+  await geste(page, 'ouvrir Zone 2', page.getByRole('link', { name: /Zone 2/ }))
+  await expect(page).toHaveURL(/reglages\/zone-2/)
+
+  const age = page.getByLabel('Âge')
+  const fin = page.getByLabel('Fin de zone en battements par minute')
+  const debut = page.getByLabel('Début de zone en battements par minute')
+  const enregistrer = page.getByRole('button', { name: 'Enregistrer' })
+  await expect(enregistrer).toBeDisabled()
+
+  await geste(page, 'appui sur Âge', age)
+  await geste(page, 'saisie de l’âge', age, (l) => l.pressSequentially('45'))
+  await expect(fin).not.toHaveValue('')
+  await expect(debut).not.toHaveValue('')
+
+  await geste(page, 'appui sur Fin de zone', fin)
+  await geste(page, 'fin hors bornes', fin, (l) => l.pressSequentially('250'))
+  // L'erreur paraît sous la fin au moment où le curseur arrive sur le début :
+  // ni l'un ni l'autre ne doit bouger.
+  await geste(page, 'Suivant', fin, (l) => l.press('Enter'))
+  await expect(debut).toBeFocused()
+  await geste(page, 'sortie du champ début', debut, (l) => l.blur())
+  await expect(page.getByRole('alert')).toBeVisible()
+
+  await geste(page, 'appui sur Fin de zone', fin)
+  await geste(page, 'correction', fin, (l) => l.pressSequentially('140'))
+  await expect(page.getByRole('alert')).toHaveCount(0)
+
+  await geste(page, 'Enregistrer', enregistrer)
+  await expect(page).toHaveURL(/\/reglages$/)
+  await expect(page.getByRole('link', { name: /Zone 2/ })).toContainText('140 bpm')
+})
+
+test('zone : fermer sans enregistrer', async ({ page }) => {
+  await ouvrir(page, '/reglages/zone-2', { zones: zoneDefinie })
+  await expect(page.getByLabel('Fin de zone en battements par minute')).toHaveValue('135')
+  await geste(page, 'saisie', page.getByLabel('Âge'), (l) => l.pressSequentially('30'))
+  await geste(page, 'fermer', page.getByRole('link', { name: 'Fermer sans enregistrer' }))
+  await expect(page.getByRole('link', { name: /Zone 2/ })).toContainText('120 – 135 bpm')
+})
