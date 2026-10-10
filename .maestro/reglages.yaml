@@ -5,5 +5,6 @@ appId: fr.zone2.app
 - launchApp:
     clearState: true
 - tapOn: "Réglages"
-- assertVisible: "(?i)capteur cardio"
+# Un bouton expose tout son texte d'un bloc : l'expression doit couvrir le reste.
+- assertVisible: "(?i).*capteur cardio.*"
 - takeScreenshot: reglages
