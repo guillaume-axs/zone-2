@@ -218,8 +218,16 @@ export async function controler(page: Page, etape: string) {
         if (texte.length <= 12) {
           const plage = document.createRange()
           plage.selectNodeContents(el)
-          const lignes = new Set([...plage.getClientRects()].filter((r) => r.width).map((r) => Math.round(r.top)))
-          if (lignes.size > 1) fautes.push(`valeur cassée sur ${lignes.size} lignes : ${texte}`)
+          // Une ligne de plus seulement si la boîte commence sous la précédente :
+          // un bout aligné autrement (points animés) chevauche, il ne casse pas.
+          const boites = [...plage.getClientRects()].filter((r) => r.width).sort((a, b) => a.top - b.top)
+          let lignes = 0
+          let bas = -Infinity
+          for (const r of boites) {
+            if (r.top >= bas - 1) lignes++
+            bas = Math.max(bas, r.bottom)
+          }
+          if (lignes > 1) fautes.push(`valeur cassée sur ${lignes} lignes : ${texte}`)
         }
       }
       return fautes
