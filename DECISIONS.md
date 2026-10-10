@@ -1237,6 +1237,21 @@ donc toujours de 3 secondes. Si le plus fort n'est pas le bon, la FC en direct l
 **Pas de reconnexion automatique hors séance.** Un décrochage dans les Réglages ramène à
 « Connecter » ; la reconnexion automatique reste réservée au service de séance.
 
+### Complément du 2026-10-10 — les pertes qu'Android ne signale pas
+
+Le test sur le S22 a montré une ligne figée sur le dernier bpm dans deux cas.
+
+- **Bluetooth coupé** : depuis Android 10, la connexion ne prévient plus de sa coupure
+  ([blessed-android #16](https://github.com/weliem/blessed-android/issues/16)). L'état du
+  Bluetooth est donc écouté directement ; sa coupure vaut décrochage.
+- **Capteur connecté mais muet** (sangle ôtée, encore humide) : **5 s sans battement valent un
+  décrochage** — on coupe, l'adresse est gardée, la ligne revient à « Connecter ». Même seuil
+  que la ceinture muette de l'écran de séance (sujet 12). Écarté : un état « Signal perdu »
+  qui attendrait le retour des battements — un cinquième état sur une ligne déjà trop chargée.
+
+Ce délai vaut pour les Réglages seulement. En séance, la règle du sujet 12 demeure : le
+chiffre s'atténue, la liaison n'est pas coupée.
+
 ---
 
 ## Qualité « portfolio » — les 4 axes validés
