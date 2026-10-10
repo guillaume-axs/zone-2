@@ -118,6 +118,24 @@
   outline: none;
 }
 
+/* Sans bouton « + », le toast descend à sa place : même écart au-dessus de
+   la barre d'onglets que le bouton lui-même. */
+.toasts--sans-fab {
+  bottom: calc(78px + env(safe-area-inset-bottom));
+}
+
+/* D'un onglet à l'autre, le toast glisse vers sa nouvelle place au lieu d'y
+   sauter. Lui seul bouge : Material 3 interdit d'animer le « + » avec lui. */
+.toasts {
+  transition: bottom 0.25s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toasts {
+    transition: none;
+  }
+}
+
 .toast {
   display: flex;
   align-items: center;
@@ -132,6 +150,21 @@
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
   outline: none;
   view-transition-class: toast;
+  /* Le geste horizontal revient au toast (balayage), le vertical à la page. */
+  touch-action: pan-y;
+  /* Lâché trop tôt, le toast revient en place. */
+  transition: translate 0.2s ease-out, opacity 0.2s ease-out;
+}
+
+/* Pendant le geste, il colle au doigt. */
+.toast[data-depart] {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast {
+    transition: none;
+  }
 }
 
 .toast .react-aria-ToastContent {

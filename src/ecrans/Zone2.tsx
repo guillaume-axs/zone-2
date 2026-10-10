@@ -184,7 +184,7 @@ export default function Zone2() {
               onKeyDown={(e) => {
                 if (e.key !== 'Enter') return
                 e.preventDefault()
-                debutRef.current?.focus()
+                finRef.current?.focus()
               }}
               onFocus={(e) => e.target.select()}
               className="field__num"
