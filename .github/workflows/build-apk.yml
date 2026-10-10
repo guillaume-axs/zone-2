@@ -139,6 +139,52 @@ jobs:
           path: playwright-report/
           retention-days: 14
 
+  # Étage 2 du banc (sujet 17) : l'APK réel sur un émulateur Android, piloté
+  # par Maestro. Il voit ce que le navigateur ne montre pas — clavier virtuel,
+  # bouton retour, WebView d'Android.
+  emulateur:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: zone2-${{ github.sha }}
+
+      # L'archive publiée, version figée : aucun script d'installation exécuté.
+      - name: Installer Maestro
+        run: |
+          curl -sSfL -o maestro.zip \
+            "https://github.com/mobile-dev-inc/maestro/releases/download/cli-2.10.0/maestro.zip"
+          unzip -q maestro.zip -d "$HOME"
+          echo "$HOME/maestro/bin" >> "$GITHUB_PATH"
+
+      - name: Activer KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - uses: reactivecircus/android-emulator-runner@v2.38.0
+        with:
+          api-level: 34
+          arch: x86_64
+          profile: pixel_5
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
+          script: |
+            adb install app-release.apk
+            maestro test .maestro/ --test-output-dir=maestro
+
+      - uses: actions/upload-artifact@v7
+        if: ${{ !cancelled() }}
+        with:
+          name: emulateur-${{ github.sha }}
+          path: maestro/
+          retention-days: 14
+
   # Publie l'APK sous une adresse fixe, installable en un geste depuis le
   # téléphone. Un artefact d'Actions ne convient pas pour ça : il est livré dans
   # un ZIP et exige d'être authentifié — deux obstacles de trop quand on est
