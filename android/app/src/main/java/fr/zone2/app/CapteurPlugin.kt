@@ -3,13 +3,17 @@ package fr.zone2.app
 import android.Manifest
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
 import androidx.activity.result.ActivityResult
+import androidx.core.content.ContextCompat
 import com.getcapacitor.JSObject
 import com.getcapacitor.PermissionState
 import com.getcapacitor.Plugin
@@ -34,6 +38,11 @@ import com.getcapacitor.annotation.PermissionCallback
  * Chaque méthode répond tout de suite ; c'est `etat` qui dit ce qui se passe.
  * `connecter` répond `{ lance: false }` quand l'utilisateur a refusé le
  * Bluetooth : rien n'a démarré, la ligne reste à « Connecter ».
+ *
+ * Deux pertes qu'Android ne signale pas, traitées ici comme un décrochage
+ * (sujet 16, complément du 2026-10-10) : le Bluetooth coupé — depuis
+ * Android 10, la connexion ne prévient plus — et un capteur resté connecté
+ * qui se tait plus de 5 s, sangle ôtée par exemple.
  */
 @CapacitorPlugin(
     name = "Capteur",
@@ -48,6 +57,31 @@ class CapteurPlugin : Plugin() {
 
     private val fil = Handler(Looper.getMainLooper())
     private var ceinture: Ceinture? = null
+
+    private val silence = Runnable { decrocher() }
+
+    private val radio = object : BroadcastReceiver() {
+        override fun onReceive(c: Context, i: Intent) {
+            val etat = i.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR)
+            if (etat == BluetoothAdapter.STATE_TURNING_OFF || etat == BluetoothAdapter.STATE_OFF) {
+                fil.post { decrocher() }
+            }
+        }
+    }
+
+    override fun load() {
+        ContextCompat.registerReceiver(
+            context,
+            radio,
+            IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED),
+            ContextCompat.RECEIVER_NOT_EXPORTED,
+        )
+    }
+
+    override fun handleOnDestroy() {
+        context.unregisterReceiver(radio)
+        super.handleOnDestroy()
+    }
 
     @PluginMethod
     fun connecter(call: PluginCall) {
@@ -110,21 +144,42 @@ class CapteurPlugin : Plugin() {
     /** Quitter l'application vaut décrochage (sujet 16). */
     override fun handleOnStop() {
         super.handleOnStop()
-        if (ceinture != null) {
-            couper()
-            notifyListeners("etat", JSObject().put("etat", Ceinture.Etat.DECROCHEE.name))
-        }
+        decrocher()
+    }
+
+    /** Coupe en gardant l'adresse, et l'annonce : la ligne revient à « Connecter ». */
+    private fun decrocher() {
+        if (ceinture == null) return
+        couper()
+        notifyListeners("etat", JSObject().put("etat", Ceinture.Etat.DECROCHEE.name))
     }
 
     private fun couper() {
+        fil.removeCallbacks(silence)
         ceinture?.arreter()
         ceinture = null
     }
 
+    /** Connecté, le capteur doit parler : chaque battement relance le délai. */
+    private fun guetter() {
+        fil.removeCallbacks(silence)
+        fil.postDelayed(silence, SILENCE_MS)
+    }
+
     private fun adaptateur() = context.getSystemService(BluetoothManager::class.java)?.adapter
 
-    private fun battement(b: Battement) = notifyListeners("fc", JSObject().put("bpm", b.bpm))
+    private fun battement(b: Battement) {
+        guetter()
+        notifyListeners("fc", JSObject().put("bpm", b.bpm))
+    }
 
-    private fun etat(e: Ceinture.Etat) =
+    private fun etat(e: Ceinture.Etat) {
+        if (e == Ceinture.Etat.CONNECTEE) guetter()
         notifyListeners("etat", JSObject().put("etat", e.name).put("nom", ceinture?.nom))
+    }
+
+    private companion object {
+        /** Le seuil de la ceinture muette, le même que sur l'écran de séance (sujet 12). */
+        const val SILENCE_MS = 5_000L
+    }
 }
