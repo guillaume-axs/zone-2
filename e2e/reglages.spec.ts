@@ -76,7 +76,7 @@ test("capteur : un nom d'appareil long ne casse pas la ligne", async ({ page }) 
   const ligne = ligneCapteur(page)
   await geste(page, 'appui sur Connecter', ligne)
   await geste(page, 'connecté, nom long', ligne, async () => {
-    await capteur.emettre('etat', { etat: 'CONNECTEE', nom: 'Polar Verity Sense 0A1B2C3D4E5F' })
+    await capteur.emettre('etat', { etat: 'CONNECTEE', nom: 'Polar Verity Sense 0A1B2C3D4E5F 6A7B8C9D0E1F' })
     await capteur.emettre('fc', { bpm: 188 })
   })
 })

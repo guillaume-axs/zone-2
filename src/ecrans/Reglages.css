@@ -74,9 +74,18 @@
   color: var(--fg-hero);
 }
 
+/* Le bloc intitulé + nom cède la place à la valeur, jamais l'inverse. */
+.reglages__ligne > div {
+  min-width: 0;
+}
+
 /* Le nom de l'appareil, sous l'intitulé : on le lit si on le cherche, la FC
-   suffit à prouver la liaison. */
+   suffit à prouver la liaison. Une seule ligne, comme dans les réglages
+   Bluetooth d'Android : sur deux, la ligne grandirait et l'intitulé sauterait. */
 .reglages__appareil {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   margin-top: 3px;
   font-size: 11px;
   line-height: 1.2;
