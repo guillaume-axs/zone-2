@@ -26,6 +26,7 @@ test('dev : charger le jeu de test remplit l’Accueil et l’Historique, deux f
   await geste(page, 'onglet Accueil', page.getByRole('link', { name: 'Accueil' }))
   await expect(page.locator('a.hero')).toBeVisible()
   await expect(page.locator('.ghost')).toHaveCount(0)
+  await expect(page.locator('a.hero .trend')).toHaveClass(/better/)
   await geste(page, 'onglet Historique', page.getByRole('link', { name: 'Historique' }))
   await expect(page.locator('.hist__item')).toHaveCount(36)
 })
