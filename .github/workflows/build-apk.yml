@@ -55,6 +55,9 @@ jobs:
         with:
           distribution: temurin
           java-version: 21
+          # Les dépendances Gradle restent d'un build à l'autre : moins de
+          # téléchargements depuis Maven Central, qui tombe parfois en panne.
+          cache: gradle
 
       # Les mêmes paquets que sur le poste de développement, pour que l'échec
       # d'un build en CI ne puisse jamais venir d'une version de SDK différente.

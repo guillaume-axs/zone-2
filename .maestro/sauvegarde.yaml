@@ -25,12 +25,21 @@ appId: fr.zone2.app
 # Importer le fichier déposé.
 - tapOn: "(?i).*importer une sauvegarde.*"
 # Le sélecteur s'ouvre sur le dernier dossier, ou sur « Récents » : on l'attend,
-# puis on va toujours dans Téléchargements.
+# puis on va toujours dans Téléchargements. L'entrée du menu est visée par son
+# id : le titre « Downloads » du dossier ouvert reste sous le menu, et un appui
+# sur lui tombait sur « Recent ». Le fil d'Ariane prouve qu'on y est.
 - extendedWaitUntil:
     visible: "Show roots"
     timeout: 10000
 - tapOn: "Show roots"
-- tapOn: "Downloads"
+- tapOn:
+    text: "Downloads"
+    id: "android:id/title"
+- extendedWaitUntil:
+    visible:
+      text: "Downloads"
+      id: "com.android.documentsui:id/breadcrumb_text"
+    timeout: 10000
 - tapOn: "sauvegarde-test.json"
 - extendedWaitUntil:
     visible: "3 séances importées"
@@ -61,12 +70,21 @@ appId: fr.zone2.app
 # Réimporter le même fichier n'ajoute rien.
 - tapOn: "(?i).*importer une sauvegarde.*"
 # Le sélecteur s'ouvre sur le dernier dossier, ou sur « Récents » : on l'attend,
-# puis on va toujours dans Téléchargements.
+# puis on va toujours dans Téléchargements. L'entrée du menu est visée par son
+# id : le titre « Downloads » du dossier ouvert reste sous le menu, et un appui
+# sur lui tombait sur « Recent ». Le fil d'Ariane prouve qu'on y est.
 - extendedWaitUntil:
     visible: "Show roots"
     timeout: 10000
 - tapOn: "Show roots"
-- tapOn: "Downloads"
+- tapOn:
+    text: "Downloads"
+    id: "android:id/title"
+- extendedWaitUntil:
+    visible:
+      text: "Downloads"
+      id: "com.android.documentsui:id/breadcrumb_text"
+    timeout: 10000
 - tapOn: "sauvegarde-test.json"
 - extendedWaitUntil:
     visible: "Aucune nouvelle séance"
