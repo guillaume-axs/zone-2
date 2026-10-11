@@ -1378,6 +1378,11 @@ pas. Pas d'émulateur local : la machine ne le tient pas.
   **Cure des toasts** *(2026-10-11)* : sur les huit toasts de l'app, seul celui de la Zone 2 redisait
   l'écran — la ligne des Réglages montre la nouvelle plage au retour. Il est retiré. Le glissement
   entre onglets dure 200 ms, la plus longue des durées courtes de Material, pour un trajet de 68 px.
+  **Le toast glisse seul, en CSS** *(2026-10-11, PR #35)* : jamais par transition de vue, l'exemple
+  de la documentation React Aria. Pendant qu'elle photographie l'écran, la norme envoie tout appui à
+  la page entière : sur l'émulateur, un appui sur « Exporter » ou « Importer » se perdait. Sonner et
+  Base UI animent le toast lui-même ; la sortie attend la fin de son glissement avant que React le
+  retire.
 
 Pas de comparaison pixel à pixel : trop de fausses alertes. Les captures servent à la relecture.
 
