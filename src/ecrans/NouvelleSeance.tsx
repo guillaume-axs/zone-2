@@ -1,7 +1,7 @@
 import { useLocation, useNavigate } from 'react-router'
 import SessionForm from '../forms/SessionForm'
 import type { SessionInput } from '../forms/sessionSchema'
-import { DUREE_TOAST_MS, annonces } from './toast'
+import { afficher } from './toast'
 
 /**
  * Saisie d'une séance. Une fois écrite, on revient à l'Accueil : un toast
@@ -16,7 +16,7 @@ export default function NouvelleSeance() {
     <SessionForm
       initial={brouillon}
       onSaved={(id, input) => {
-        annonces.add({ genre: 'seance', id, input }, { timeout: DUREE_TOAST_MS })
+        afficher({ genre: 'seance', id, input })
         navigate('/')
       }}
     />

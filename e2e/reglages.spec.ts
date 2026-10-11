@@ -282,9 +282,9 @@ async function parcoursDuToast(page: import('@playwright/test').Page) {
   await expect(toast(page)).toContainText('36 séances exportées')
   await geste(page, 'onglet Accueil, toast ouvert', page.getByRole('link', { name: 'Accueil' }))
   await geste(page, 'fermer le toast', page.getByRole('button', { name: 'Fermer' }))
-  // React Aria garde le premier en file : il revient, on le ferme aussi.
-  await expect(toast(page)).toContainText('36 séances exportées')
-  await geste(page, 'fermer le premier toast', page.getByRole('button', { name: 'Fermer' }))
+  // Le second a remplacé le premier : rien ne revient une fois fermé.
+  await expect(toast(page)).toHaveCount(0)
+  await page.waitForTimeout(500)
   await expect(toast(page)).toHaveCount(0)
   return suiviVu(page)
 }
