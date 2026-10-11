@@ -18,6 +18,6 @@ de sa vie, jamais sur le « + » ni la barre. Son glissement entre onglets passe
 | Le toast peut recouvrir le contenu de la page, jamais le « + » ni la barre | Banc `controler` + `banc.spec` |
 | Un élément recouvert par autre chose qu'un toast reste signalé | `banc.spec` (test existant) |
 | Après un import, l'Accueil est contrôlé toast ouvert, « Pourquoi ? » compris | Playwright `reglages.spec` (banc) |
-| Le glissement du toast entre onglets dure 200 ms, coupé en mouvement réduit | `Onglets.css` — relu au diff |
+| Le glissement du toast entre onglets dure 200 ms, coupé en mouvement réduit | Playwright `reglages.spec`, « toast : … » (ajouté le 2026-10-11, PR #35 : « relu au diff » n'est pas un test) |
 | Les sept autres toasts ne changent pas | Parcours existants de `reglages.spec` |
-| Glissement du toast entre deux onglets, à l'œil | angle mort — S22 |
+| Glissement du toast entre deux onglets | Playwright `reglages.spec` : transition `bottom` de 200 ms mesurée (PR #35 ; ce n'était pas un angle mort) |
