@@ -23,10 +23,16 @@ function commit() {
 }
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ command, mode }) => ({
   plugins: [react()],
-  define: { 'import.meta.env.VITE_COMMIT': JSON.stringify(commit()) },
+  define: {
+    'import.meta.env.VITE_COMMIT': JSON.stringify(commit()),
+    // L'app dev (sujet 9) : vrai au serveur de dev et au build `--mode dev`,
+    // faux au build de prod. La valeur est écrite en dur dans le code avant
+    // la minification, qui retire alors tout ce qu'elle garde.
+    'import.meta.env.VITE_DEV': JSON.stringify(command === 'serve' || mode === 'dev'),
+  },
   // Le module de métriques est du TypeScript pur : il n'a besoin
   // d'aucun DOM, et `node` démarre bien plus vite que `jsdom`.
   test: { environment: 'node', include: ['src/**/*.test.ts'] },
-})
+}))

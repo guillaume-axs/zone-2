@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!-- L'app dev (sujet 9, révisé le 2026-10-11) : ces valeurs remplacent celles
+     de `main` à la construction de la variante `dev`. Le schéma d'adresse a
+     le sien, sinon Android demanderait laquelle des deux apps ouvrir. -->
+<resources>
+    <string name="app_name">Zone 2 dev</string>
+    <string name="title_activity_main">Zone 2 dev</string>
+    <string name="custom_url_scheme">fr.zone2.app.dev</string>
+</resources>

@@ -5,6 +5,7 @@ import { useCapteur } from '../capteur/useCapteur'
 import { db } from '../db/db'
 import { importerSeances, lireFichier, nomDuFichier, toutesLesSeances, versFichier } from '../db/sauvegarde'
 import { bornesEnVigueur } from '../db/zones'
+import GroupeDev from '../dev/GroupeDev'
 import Marque from './Marque'
 import { annonces, DUREE_TOAST_MS } from './toast'
 import './Reglages.css'
@@ -76,6 +77,8 @@ export default function Reglages() {
           </Button>
         </li>
       </ul>
+
+      {import.meta.env.VITE_DEV && <GroupeDev />}
 
       {/* Le commit qui a produit l'APK, pas un numéro de version : `versionName`
           n'a jamais bougé, et un numéro qui ne bouge pas ne distingue pas deux
