@@ -604,6 +604,10 @@ utilisateurs authentifiés, il est inutilisable depuis un téléphone, c'est-à-
 souhaite installer l'application. La clé de signature reste celle de debug : une future version signée pour
 publication exigera une désinstallation préalable.
 
+**Révision** *(2026-10-11, voir sujet 9)* : deux adresses. `releases/download/latest/zone2-dev.apk`, l'app
+dev, republiée à chaque merge. `releases/download/prod/zone2.apk`, l'app prod, publiée seulement quand une
+étiquette `v…` est posée, sur demande du PO. La prod ne change jamais sans son accord.
+
 ---
 
 ## Sujet 9 — Cas d'usage et ordonnancement ✅ *(décidé le 2026-08-14)*
@@ -640,6 +644,15 @@ réinstaller vide les données locales et repart sur une base propre. Pas de cha
 de mode démo : ce serait de la complexité permanente pour un problème qui dure trois semaines. Le risque
 réel n'est pas technique — c'est qu'une intention humaine de « ne pas en tenir compte » ne suffit pas :
 l'application, elle, moyennerait le vrai et le faux sans faire la différence.
+
+**Révision** *(choix du PO, 2026-10-11)* : **sur l'app dev seulement**, deux lignes dans les Réglages,
+« Vider la base » et « Charger le jeu de test ». Le problème n'a pas duré trois semaines : chaque
+lot se vérifie sur un téléphone qui porte aussi les vraies séances. La réponse n'est pas un mode démo
+dans l'app, c'est une seconde app — **Zone 2 dev** (`fr.zone2.app.dev`), installée à côté de **Zone 2**,
+avec sa propre base. Le vrai et le faux ne se mélangent donc jamais.
+**Exemption** : « Vider la base » efface physiquement, sans confirmation — sur la dev seulement, où rien
+n'est réel. **Mur** : le code dev vit dans `src/dev/`, retiré du paquet prod au build, et la CI fait
+échouer le build si un de ses textes y apparaît.
 
 ### Ordre des itérations
 
@@ -1349,8 +1362,27 @@ pas. Pas d'émulateur local : la machine ne le tient pas.
 - **Un élément interactif recouvert**, une cible sous **48 dp ou à moins de 8 dp** d'une autre
   (règle d'accessibilité Android), un défilement horizontal, un texte coupé. Deux cibles qui se
   touchent bord à bord — les lignes d'une liste, les onglets — sont le motif Material, pas un défaut.
+  **Exemption** *(choix du PO, 2026-10-11)* : le toast peut recouvrir le contenu de la page, jamais
+  le « + » ni la barre. C'est le modèle Material : il passe le temps de sa vie et se balaie. Sans
+  elle, « Séance enregistrée » sur l'Accueil plein recouvre « Pourquoi ? » ; l'autre voie — un
+  vide d’environ 200 px sous le contenu — aurait sans doute fait défiler l’Accueil.
 - **Un saut au premier affichage**, quand les données arrivent après le premier dessin. Hors
   chargement de police : en `font-display: block`, le texte n'est pas encore visible.
+- **Un toast hors de sa place** *(ajouté le 2026-10-11)* : il se pose au plus 16 px au-dessus de
+  son ancre — le « + », ou la barre d'onglets sur un écran sans « + » — sans jamais la recouvrir.
+  Il ne bouge pas dans un même écran ; au changement d'onglet, il glisse vers l'ancre du nouvel
+  écran. C'est le modèle Material (`setAnchorView`, le « + » jamais animé avec lui). Apple n'a pas
+  de toast et garde une place fixe, mais n'a pas non plus de bouton flottant : son modèle ne se
+  transpose pas. Benchmark du 2026-10-11 ; sa conclusion — le standard actuel n'emploie le toast
+  que pour une annulation ou un résultat invisible à l'écran — ouvre le lot « cure des toasts ».
+  **Cure des toasts** *(2026-10-11)* : sur les huit toasts de l'app, seul celui de la Zone 2 redisait
+  l'écran — la ligne des Réglages montre la nouvelle plage au retour. Il est retiré. Le glissement
+  entre onglets dure 200 ms, la plus longue des durées courtes de Material, pour un trajet de 68 px.
+  **Le toast glisse seul, en CSS** *(2026-10-11, PR #35)* : jamais par transition de vue, l'exemple
+  de la documentation React Aria. Pendant qu'elle photographie l'écran, la norme envoie tout appui à
+  la page entière : sur l'émulateur, un appui sur « Exporter » ou « Importer » se perdait. Sonner et
+  Base UI animent le toast lui-même ; la sortie attend la fin de son glissement avant que React le
+  retire.
 
 Pas de comparaison pixel à pixel : trop de fausses alertes. Les captures servent à la relecture.
 

@@ -9,7 +9,8 @@ import { fauxSauvegarde } from './sauvegarde.ts'
  * - Capteur cardio : rien, recherche (sans puis avec nom), connecté (nom et
  *   FC), décroché, aucun capteur, annulé, déconnecté ; nom d'appareil long ;
  * - Mes données (sujet 15) : base vide, base pleine, export, import, fusion,
- *   fenêtre fermée, échec d'écriture ou de lecture, fichier étranger.
+ *   fenêtre fermée, échec d'écriture ou de lecture, fichier étranger ;
+ *   séances importées visibles aussitôt sur l'Accueil et l'Historique.
  */
 
 const ligneCapteur = (page: import('@playwright/test').Page) =>
@@ -137,6 +138,8 @@ test('zone : premier réglage par l’âge, une faute, sa correction, puis enreg
   await geste(page, 'Enregistrer', enregistrer)
   await expect(page).toHaveURL(/\/reglages$/)
   await expect(page.getByRole('link', { name: /Zone 2/ })).toContainText('140 bpm')
+  // La ligne montre la nouvelle plage : aucun toast ne la redit.
+  await expect(page.locator('.toast')).toHaveCount(0)
 })
 
 test('zone : fermer sans enregistrer', async ({ page }) => {
@@ -223,4 +226,84 @@ test('données : le téléphone refuse d’écrire ou de lire', async ({ page })
   await geste(page, 'import refusé', ligneImport(page))
   await expect(toast(page).filter({ hasText: 'Import impossible' })).toBeVisible()
   await expect(ligneExport(page)).toContainText('36 séances')
+})
+
+test('données : les séances importées paraissent aussitôt sur l’Accueil et l’Historique', async ({ page }) => {
+  const sauvegarde = await fauxSauvegarde(page)
+  await ouvrir(page, '/reglages')
+  await sauvegarde.choisir(fichier(plein))
+  await geste(page, 'appui sur Importer', ligneImport(page), undefined, { bouge: ['li'] })
+  await expect(toast(page)).toContainText('36 séances importées')
+  // Il reste ouvert : l'Accueil est contrôlé toast par-dessus (sujet 17).
+
+  // Sans rechargement : seuls les écrans branchés sur la base peuvent suivre.
+  await geste(page, 'onglet Accueil', page.getByRole('link', { name: 'Accueil' }))
+  await expect(page.locator('a.hero')).toBeVisible()
+  await expect(page.locator('.ghost')).toHaveCount(0)
+
+  await geste(page, 'onglet Historique', page.getByRole('link', { name: 'Historique' }))
+  await expect(page.locator('.hist__item')).toHaveCount(36)
+})
+
+/**
+ * Note, image par image, chaque animation en cours — « élément nom durée » — et
+ * le plus grand nombre de toasts vus à la fois.
+ */
+const noterAnimations = (page: import('@playwright/test').Page) =>
+  page.addInitScript(() => {
+    const suivi = { vues: new Set<string>(), toasts: 0 }
+    ;(window as unknown as { suivi: typeof suivi }).suivi = suivi
+    const noter = () => {
+      for (const a of document.getAnimations()) {
+        const effet = a.effect as KeyframeEffect | null
+        const cible = effet?.target?.classList[0] ?? ''
+        const nom = (a as CSSAnimation).animationName ?? (a as CSSTransition).transitionProperty
+        suivi.vues.add(`${cible}${effet?.pseudoElement ?? ''} ${nom} ${effet?.getTiming().duration}`)
+      }
+      suivi.toasts = Math.max(suivi.toasts, document.querySelectorAll('.toast').length)
+      requestAnimationFrame(noter)
+    }
+    requestAnimationFrame(noter)
+  })
+const suiviVu = (page: import('@playwright/test').Page) =>
+  page.evaluate(() => {
+    const { vues, toasts } = (window as unknown as { suivi: { vues: Set<string>; toasts: number } }).suivi
+    return { vues: [...vues], toasts }
+  })
+
+/** Exporte deux fois, toast ouvert, change d'onglet, puis ferme le toast. */
+async function parcoursDuToast(page: import('@playwright/test').Page) {
+  await noterAnimations(page)
+  await fauxSauvegarde(page)
+  await ouvrir(page, '/reglages', { sessions: plein })
+  await geste(page, 'appui sur Exporter', ligneExport(page))
+  await expect(toast(page)).toContainText('36 séances exportées')
+  await geste(page, 'exporter à nouveau, toast ouvert', ligneExport(page))
+  await expect(toast(page)).toContainText('36 séances exportées')
+  await geste(page, 'onglet Accueil, toast ouvert', page.getByRole('link', { name: 'Accueil' }))
+  await geste(page, 'fermer le toast', page.getByRole('button', { name: 'Fermer' }))
+  // React Aria garde le premier en file : il revient, on le ferme aussi.
+  await expect(toast(page)).toContainText('36 séances exportées')
+  await geste(page, 'fermer le premier toast', page.getByRole('button', { name: 'Fermer' }))
+  await expect(toast(page)).toHaveCount(0)
+  return suiviVu(page)
+}
+
+test('toast : il glisse seul, sans transition de vue, et attend que le précédent soit sorti', async ({ page }) => {
+  const { vues, toasts } = await parcoursDuToast(page)
+  expect(vues).toContain('toast toast-entree 320')
+  expect(vues).toContain('toast toast-sortie 220')
+  // Pendant une transition de vue, un appui allait à la page entière et se perdait.
+  expect(vues.filter((v) => v.includes('::view-transition'))).toEqual([])
+  expect(toasts).toBe(1)
+  // Entre deux onglets, il rejoint la place du nouvel écran (cure des toasts).
+  expect(vues).toContain('toasts bottom 200')
+})
+
+test('toast : mouvement réduit, rien ne glisse', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  const { vues, toasts } = await parcoursDuToast(page)
+  // L'anneau du minuteur continue de tourner : il dit le temps, il ne bouge pas.
+  expect(vues.filter((v) => !v.startsWith('toast__anneau '))).toEqual([])
+  expect(toasts).toBe(1)
 })

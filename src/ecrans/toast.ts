@@ -1,4 +1,3 @@
-import { flushSync } from 'react-dom'
 import { UNSTABLE_ToastQueue as ToastQueue } from 'react-aria-components'
 import type { SessionInput } from '../forms/sessionSchema'
 
@@ -30,14 +29,16 @@ export type Annonce = Enregistrement | Reglage
  */
 export const annonces = new ToastQueue<Annonce>({
   maxVisibleToasts: 1,
-  // Entrée et sortie animées par l'API View Transitions (mécanisme prévu par
-  // React Aria) ; les glissements sont dans Onglets.css.
+  // Avant tout changement, le toast affiché sort, puis seulement React le
+  // retire : React Aria l'ôterait d'un coup. L'entrée est une animation CSS du
+  // toast lui-même (Onglets.css). Pas de transition de vue : pendant qu'elle
+  // photographie l'écran, un appui va à la page entière et se perd.
   wrapUpdate(fn) {
-    if ('startViewTransition' in document) {
-      document.startViewTransition(() => flushSync(fn))
-    } else {
-      fn()
-    }
+    const affiche = document.querySelector<HTMLElement>('.toast:not([data-sortie])')
+    if (!affiche) return fn()
+    affiche.dataset.sortie = ''
+    // Mouvement réduit : aucune animation, le retrait suit aussitôt.
+    void Promise.all(affiche.getAnimations().map((a) => a.finished)).then(fn, fn)
   },
 })
 export const DUREE_TOAST_MS = 8000

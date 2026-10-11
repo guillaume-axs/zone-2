@@ -5,6 +5,8 @@ name: APK
 on:
   push:
     branches: [main]
+    # Une étiquette `v…` publie l'app prod — posée seulement à la demande du PO.
+    tags: ['v*']
   pull_request:
   workflow_dispatch:
 
@@ -36,6 +38,9 @@ jobs:
   build:
     needs: secrets
     runs-on: ubuntu-latest
+    env:
+      # Les textes du groupe « Dev » et l'identifiant du jeu de test (`src/dev/`).
+      TRACES_DEV: 'Vider la base|Charger le jeu de test|jeu-de-test'
 
     steps:
       - uses: actions/checkout@v7
@@ -50,6 +55,9 @@ jobs:
         with:
           distribution: temurin
           java-version: 21
+          # Les dépendances Gradle restent d'un build à l'autre : moins de
+          # téléchargements depuis Maven Central, qui tombe parfois en panne.
+          cache: gradle
 
       # Les mêmes paquets que sur le poste de développement, pour que l'échec
       # d'un build en CI ne puisse jamais venir d'une version de SDK différente.
@@ -65,7 +73,18 @@ jobs:
       # contrairement à un bouton mal placé.
       - run: npm test
 
+      # Deux apps (sujet 9, révisé le 2026-10-11) : la prod, puis la dev. Elles
+      # partagent les fichiers web du projet Android, d'où deux passages.
       - run: npm run build
+
+      # Le mur de la prod : le code de l'app dev n'y entre jamais. Le paquet
+      # fouillé est celui-là même qui part dans l'APK.
+      - name: La prod ne contient rien de l'app dev
+        run: |
+          if grep -rlE "$TRACES_DEV" dist; then
+            echo "::error::Du code de l'app dev est dans le paquet de prod."
+            exit 1
+          fi
 
       # Recopie `dist/` dans les ressources Android. Ces fichiers sont ignorés
       # par git, donc cette étape n'est pas optionnelle.
@@ -75,7 +94,7 @@ jobs:
       # sans téléphone et sans capteur. C'est la seule pièce de la capture BLE
       # qu'on puisse éprouver ailleurs que sur le vélo — elle ne passera donc
       # jamais sans avoir été testée.
-      - run: ./gradlew testDebugUnitTest --no-daemon
+      - run: ./gradlew testProdDebugUnitTest --no-daemon
         working-directory: android
 
       # La clé de signature vient des secrets du dépôt, jamais du dépôt
@@ -94,18 +113,41 @@ jobs:
       # Release et non debug : un APK de debug est extractible au câble, et
       # celui-ci contient des données de santé. Signé par une clé stable, il
       # s'installe par-dessus le précédent sans effacer la base.
-      - run: ./gradlew assembleRelease --no-daemon
+      - run: ./gradlew assembleProdRelease --no-daemon
         working-directory: android
         env:
           ANDROID_KEYSTORE_FILE: ${{ runner.temp }}/zone2.keystore
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
 
-      # Sans signature, Gradle produit `app-release-unsigned.apk` : l'absence
+      - run: npm run build:dev
+
+      # L'autre sens : un mur qui ne trouve jamais rien ne prouve rien.
+      - name: La dev contient bien son code
+        run: grep -rqE "$TRACES_DEV" dist
+
+      - run: npx cap sync android
+
+      - run: ./gradlew assembleDevRelease --no-daemon
+        working-directory: android
+        env:
+          ANDROID_KEYSTORE_FILE: ${{ runner.temp }}/zone2.keystore
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+
+      # Sans signature, Gradle produit `app-*-release-unsigned.apk` : l'absence
       # du fichier attendu fait donc échouer le build, ce qui est voulu.
+      - name: Nommer les deux APK et vérifier leur nom d'app
+        run: |
+          mkdir apk
+          mv android/app/build/outputs/apk/prod/release/app-prod-release.apk apk/zone2.apk
+          mv android/app/build/outputs/apk/dev/release/app-dev-release.apk apk/zone2-dev.apk
+          aapt2="$ANDROID_HOME/build-tools/36.0.0/aapt2"
+          "$aapt2" dump badging apk/zone2.apk | grep -qx "application-label:'Zone 2'"
+          "$aapt2" dump badging apk/zone2-dev.apk | grep -qx "application-label:'Zone 2 dev'"
+
       - uses: actions/upload-artifact@v7
         with:
           name: zone2-${{ github.sha }}
-          path: android/app/build/outputs/apk/release/app-release.apk
+          path: apk/
           if-no-files-found: error
           retention-days: 30
 
@@ -198,10 +240,13 @@ jobs:
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
           script: |
-            adb install app-release.apk
+            adb install zone2.apk
+            adb install zone2-dev.apk
+            # Les deux apps côte à côte : l'une n'a pas remplacé l'autre.
+            test "$(adb shell pm list packages fr.zone2.app | tr -d '\r' | grep -cxE 'package:fr\.zone2\.app(\.dev)?')" = 2
             adb push .maestro/sauvegarde-test.json /sdcard/Download/sauvegarde-test.json
             adb shell am broadcast -a android.intent.action.MEDIA_SCANNER_SCAN_FILE -d file:///sdcard/Download/sauvegarde-test.json
-            maestro test .maestro/ --test-output-dir=maestro
+            bash .maestro/lancer.sh
 
       - uses: actions/upload-artifact@v7
         if: ${{ !cancelled() }}
@@ -210,16 +255,19 @@ jobs:
           path: maestro/
           retention-days: 14
 
-  # Publie l'APK sous une adresse fixe, installable en un geste depuis le
+  # Publie les APK sous des adresses fixes, installables en un geste depuis le
   # téléphone. Un artefact d'Actions ne convient pas pour ça : il est livré dans
   # un ZIP et exige d'être authentifié — deux obstacles de trop quand on est
   # debout dans une salle de sport.
+  #
+  # Deux adresses (sujet 9, révisé le 2026-10-11) : `latest` porte l'app dev,
+  # republiée à chaque merge ; `prod` porte l'app prod, publiée seulement sur
+  # une étiquette `v…`. La prod ne change jamais sans l'accord du PO.
   publication:
-    # Un banc rouge sur `main` ne publie rien.
+    # Un banc rouge ne publie rien.
     needs: [build, e2e]
-    # Uniquement sur `main` : une PR ne doit rien publier, et son jeton est en
-    # lecture seule de toute façon.
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    # Une PR ne doit rien publier, et son jeton est en lecture seule de toute façon.
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -229,22 +277,40 @@ jobs:
         with:
           name: zone2-${{ github.sha }}
 
-      - name: Republier la release « latest »
+      # La release est recréée plutôt que modifiée : c'est le seul moyen de
+      # faire suivre son étiquette jusqu'au commit publié.
+      - name: Republier la release « latest » (app dev)
+        if: github.ref == 'refs/heads/main'
         env:
           GH_TOKEN: ${{ github.token }}
           DEPOT: ${{ github.repository }}
           REVISION: ${{ github.sha }}
         run: |
-          mv app-release.apk zone2.apk
-          # La release est recréée plutôt que modifiée : c'est le seul moyen de
-          # faire suivre l'étiquette `latest` jusqu'au dernier commit.
           gh release delete latest --yes --cleanup-tag --repo "$DEPOT" || true
-          gh release create latest zone2.apk \
+          gh release create latest zone2-dev.apk \
             --repo "$DEPOT" \
             --target "$REVISION" \
-            --title "Dernier build" \
-            --notes "APK de développement construit automatiquement depuis \`main\`.
+            --prerelease \
+            --title "Zone 2 dev" \
+            --notes "L'app dev, construite automatiquement depuis \`main\`. Elle s'installe à côté de Zone 2, avec sa propre base.
 
-          Signé avec la clé de release du projet : il s'installe par-dessus la version précédente sans effacer les données.
+          Révision : \`${REVISION}\`"
+
+      - name: Republier la release « prod » (app prod)
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DEPOT: ${{ github.repository }}
+          REVISION: ${{ github.sha }}
+          VERSION: ${{ github.ref_name }}
+        run: |
+          gh release delete prod --yes --cleanup-tag --repo "$DEPOT" || true
+          gh release create prod zone2.apk \
+            --repo "$DEPOT" \
+            --target "$REVISION" \
+            --title "Zone 2 ${VERSION}" \
+            --notes "L'app prod, version ${VERSION}.
+
+          Signée avec la clé de release du projet : elle s'installe par-dessus la version précédente sans effacer les données.
 
           Révision : \`${REVISION}\`"

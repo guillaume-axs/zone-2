@@ -40,6 +40,22 @@ android {
             }
         }
     }
+    // Deux apps côte à côte sur le téléphone (sujet 9, révisé le 2026-10-11).
+    // `prod` garde l'identifiant d'origine : elle s'installe par-dessus l'app
+    // déjà là, base comprise. `dev` a le sien, donc sa propre base, et son nom
+    // vient de `src/dev/res`. Un identifiant complet plutôt qu'un suffixe :
+    // `applicationIdSuffix` est signalé parfois ignoré par les greffons.
+    flavorDimensions = ["app"]
+    productFlavors {
+        prod {
+            dimension "app"
+            applicationId "fr.zone2.app"
+        }
+        dev {
+            dimension "app"
+            applicationId "fr.zone2.app.dev"
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false

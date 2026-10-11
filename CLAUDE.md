@@ -98,6 +98,9 @@ Une release `latest` est republiée à chaque push sur `main`.
 - **Le banc d'essai passe avant le S22** (sujet 17). Un écran modifié ne part pas au PO tant que
   `npm run e2e` et l'émulateur CI ne sont pas verts. Le PO fait une seule passe, sur la liste des
   angles morts que la PR lui donne.
+- **Un test qui échoue sans changement de code est un bug**, jamais une PR à relancer. On en cherche
+  la cause dans ses traces, et la correction reçoit sa preuve : le même test, dix fois de suite. Le
+  2026-10-11, un échec Maestro mis sur le dos de l'émulateur et relancé cachait un appui perdu par l'app.
 
 - **Chaque feature naît avec sa liste de critères** (sujet 17). Avant de coder : un tableau
   « Critère | Vérifié par » dans `## Critères` du plan de la branche, bâti depuis la demande,

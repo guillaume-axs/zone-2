@@ -13,6 +13,8 @@ import type { Session, ZoneConfig } from '../src/db/schema.ts'
 /** Taille minimale d'une cible tactile et écart entre deux cibles, en px CSS (= dp). */
 const CIBLE = 48
 const ECART = 8
+/** Le toast se pose juste au-dessus de son ancre — le « + », sinon la barre (Material, sujet 17). */
+const ANCRE = 16
 
 declare global {
   interface Window {
@@ -112,7 +114,9 @@ export async function premierAffichage(page: Page, nom: string) {
  * action, exactement là où nos sauts arrivent.
  *
  * `bouge` liste les sélecteurs dont le contenu a le droit de se déplacer
- * (une ligne qui change d'état, une liste qui s'allonge).
+ * (une ligne qui change d'état, une liste qui s'allonge). Quand le geste
+ * change d'écran, le toast y est ajouté : il rejoint l'ancre du nouvel écran,
+ * et `controler` vérifie qu'il s'y pose.
  */
 export async function geste(
   page: Page,
@@ -125,9 +129,11 @@ export async function geste(
     await cible.scrollIntoViewIfNeeded()
     await stabiliser(page)
     const avant = await releve(page)
+    const adresse = page.url()
     await faire(cible)
     await stabiliser(page)
     const apres = await releve(page)
+    if (page.url() !== adresse) bouge = [...bouge, '.toasts']
     const sauts = await page.evaluate(
       ({ avant, apres, bouge }) =>
         Object.entries(apres)
@@ -150,7 +156,7 @@ export async function geste(
 /** Les contrôles qui valent pour n'importe quel état d'écran. */
 export async function controler(page: Page, etape: string) {
   const fautes = await page.evaluate(
-    ({ CIBLE, ECART }) => {
+    ({ CIBLE, ECART, ANCRE }) => {
       const fautes: string[] = []
       const vw = document.documentElement.clientWidth
       const nom = (el: Element) =>
@@ -194,16 +200,31 @@ export async function controler(page: Page, etape: string) {
         }
 
       // Recouvrement : l'élément est amené à l'écran ; s'il reste caché, rien
-      // ne permet à l'utilisateur de l'atteindre.
+      // ne permet à l'utilisateur de l'atteindre. Seule exemption, le toast sur
+      // le contenu (Material, sujet 17) : il passe le temps de sa vie et se
+      // balaie. Sur le « + » ou la barre, c'est le contrôle de sa place qui juge.
       const defiles = [...document.querySelectorAll('*')].map((el) => [el, el.scrollTop] as const)
       for (const el of cibles) {
         el.scrollIntoView({ block: 'center', inline: 'center' })
         const r = el.getBoundingClientRect()
         const dessus = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2)
+        if (dessus?.closest('.toasts') && !el.closest('.fab, .nav')) continue
         if (dessus && !el.contains(dessus) && !dessus.contains(el))
           fautes.push(`recouvert : ${nom(el)} sous ${nom(dessus)}`)
       }
       for (const [el, top] of defiles) el.scrollTop = top
+
+      // Le toast au-dessus de son ancre, jamais dessus ni flottant loin d'elle :
+      // le « + » quand l'écran en a un, la barre d'onglets sinon.
+      const ancre = [...document.querySelectorAll('.fab, .nav')]
+        .filter(visible)
+        .sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top)[0]
+      for (const t of document.querySelectorAll('.toast')) {
+        if (!ancre || !visible(t)) continue
+        const ecart = ancre.getBoundingClientRect().top - t.getBoundingClientRect().bottom
+        if (ecart < -0.5 || ecart > ANCRE + 0.5)
+          fautes.push(`toast hors de sa place : ${nom(t)} (${Math.round(ecart)} px au-dessus de ${nom(ancre)})`)
+      }
 
       for (const el of document.querySelectorAll('body *')) {
         if (!visible(el) || ![...el.childNodes].some((n) => n.nodeType === 3 && n.textContent!.trim())) continue
@@ -232,7 +253,7 @@ export async function controler(page: Page, etape: string) {
       }
       return fautes
     },
-    { CIBLE, ECART },
+    { CIBLE, ECART, ANCRE },
   )
   expect(fautes, `${etape} : défauts visibles`).toEqual([])
   await test.info().attach(etape, { body: await page.screenshot(), contentType: 'image/png' })

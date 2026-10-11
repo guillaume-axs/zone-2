@@ -127,7 +127,6 @@ export default function Onglets() {
           <Toast
             toast={toast}
             className="toast"
-            style={{ viewTransitionName: toast.key }}
             {...balayage(() => annonces.close(toast.key))}
           >
             <ToastContent>
