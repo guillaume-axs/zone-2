@@ -1370,7 +1370,7 @@ tableau ; le job `couverture` refuse une PR qui change un écran sans parcours, 
 Limite assumée : aucune machine ne juge si les critères sont les bons — c'est la minute du PO.
 
 **Mesure de succès :** la feature suivante (export + import) ne coûte pas plus d'une PR de retours
-terrain.
+terrain. Le compteur, feature par feature, vit dans `docs/mesure-banc.md`.
 
 ---
 
