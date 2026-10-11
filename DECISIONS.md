@@ -604,6 +604,10 @@ utilisateurs authentifiés, il est inutilisable depuis un téléphone, c'est-à-
 souhaite installer l'application. La clé de signature reste celle de debug : une future version signée pour
 publication exigera une désinstallation préalable.
 
+**Révision** *(2026-10-11, voir sujet 9)* : deux adresses. `releases/download/latest/zone2-dev.apk`, l'app
+dev, republiée à chaque merge. `releases/download/prod/zone2.apk`, l'app prod, publiée seulement quand une
+étiquette `v…` est posée, sur demande du PO. La prod ne change jamais sans son accord.
+
 ---
 
 ## Sujet 9 — Cas d'usage et ordonnancement ✅ *(décidé le 2026-08-14)*
@@ -640,6 +644,15 @@ réinstaller vide les données locales et repart sur une base propre. Pas de cha
 de mode démo : ce serait de la complexité permanente pour un problème qui dure trois semaines. Le risque
 réel n'est pas technique — c'est qu'une intention humaine de « ne pas en tenir compte » ne suffit pas :
 l'application, elle, moyennerait le vrai et le faux sans faire la différence.
+
+**Révision** *(choix du PO, 2026-10-11)* : **sur l'app dev seulement**, deux lignes dans les Réglages,
+« Vider la base » et « Charger le jeu de test ». Le problème n'a pas duré trois semaines : chaque
+lot se vérifie sur un téléphone qui porte aussi les vraies séances. La réponse n'est pas un mode démo
+dans l'app, c'est une seconde app — **Zone 2 dev** (`fr.zone2.app.dev`), installée à côté de **Zone 2**,
+avec sa propre base. Le vrai et le faux ne se mélangent donc jamais.
+**Exemption** : « Vider la base » efface physiquement, sans confirmation — sur la dev seulement, où rien
+n'est réel. **Mur** : le code dev vit dans `src/dev/`, retiré du paquet prod au build, et la CI fait
+échouer le build si un de ses textes y apparaît.
 
 ### Ordre des itérations
 
