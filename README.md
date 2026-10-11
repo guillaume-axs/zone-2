@@ -8,10 +8,14 @@ stationnaire et la construction de base aérobie en endurance longue distance.
 
 ## Installer
 
-**[⬇ Télécharger le dernier APK](https://github.com/guillaume-axs/zone-2/releases/download/latest/zone2.apk)**
-— reconstruit à chaque modification de `main`, adresse invariable.
+Deux applications, installables côte à côte, chacune avec ses propres données :
 
-Signé avec la clé de debug : Android demandera d'autoriser l'installation depuis une source inconnue.
+- **[⬇ Zone 2](https://github.com/guillaume-axs/zone-2/releases/download/prod/zone2.apk)** — l'application
+  du quotidien. Mise à jour seulement quand une version est publiée.
+- **[⬇ Zone 2 dev](https://github.com/guillaume-axs/zone-2/releases/download/latest/zone2-dev.apk)** — le
+  bac à sable : reconstruite à chaque modification de `main`, avec un jeu de test et de quoi vider la base.
+
+Android demandera d'autoriser l'installation depuis une source inconnue.
 
 ## Le problème
 
