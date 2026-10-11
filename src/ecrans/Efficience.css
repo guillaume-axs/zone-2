@@ -13,9 +13,11 @@
 }
 
 .back__arrow {
-  width: 44px;
-  height: 44px;
-  margin-left: -13px;
+  width: 48px;
+  height: 48px;
+  /* 48 px à toucher, mais la place d'un carré de 44 : ni la flèche ni le titre
+     ne bougent. */
+  margin: -2px -2px -2px -15px;
   flex: none;
   display: flex;
   align-items: center;
