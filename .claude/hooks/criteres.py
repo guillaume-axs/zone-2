@@ -13,6 +13,10 @@ où <nom> est le nom de la branche sans son préfixe (feat/export-import →
 « critère | vérifié par » : une ligne au moins.
 
 Seuls les écrans sont gardés (src/ecrans, src/forms) — ce que le banc parcourt.
+
+Les commandes shell aussi (2026-10-11) : `sed -i`, une redirection, `tee`, `cp`,
+`mv`, `perl -i` ou un `open(..., "w")` qui visent un écran passent par le même
+contrôle. Une lecture (`grep`, `cat`) n'est pas gardée.
 """
 import glob
 import json
@@ -22,6 +26,14 @@ import subprocess
 import sys
 
 ECRANS = re.compile(r"/src/(ecrans|forms)/[^/]+\.(tsx|css)$")
+CHEMIN = r"([\w./-]*src/(?:ecrans|forms)/[\w.-]+\.(?:tsx|css))"
+ECRITURES = [
+    re.compile(r"\b(?:sed|perl)\s+(?:-\w+\s+)*-\w*i[^|;&]*?" + CHEMIN),
+    re.compile(r">>?\s*['\"]?" + CHEMIN),
+    re.compile(r"\btee\s+(?:-\w+\s+)*['\"]?" + CHEMIN),
+    re.compile(r"\b(?:cp|mv)\s[^|;&]*?" + CHEMIN + r"['\"]?\s*(?:$|[|;&])", re.M),
+    re.compile(r"open\(\s*['\"]" + CHEMIN + r"['\"]\s*,\s*['\"][wa]"),
+]
 
 
 def refuser(message):
@@ -40,9 +52,18 @@ try:
 except Exception:
     sys.exit(0)
 
-chemin = (charge.get("tool_input") or {}).get("file_path") or ""
-if not ECRANS.search(chemin):
+entree = charge.get("tool_input") or {}
+if charge.get("tool_name") == "Bash":
+    commande = entree.get("command") or ""
+    vises = [m.group(1) for r in ECRITURES for m in r.finditer(commande)]
+    if not vises:
+        sys.exit(0)
+    chemin = os.path.join(charge.get("cwd") or os.getcwd(), vises[0])
+else:
+    chemin = entree.get("file_path") or ""
+if not ECRANS.search(os.path.abspath(chemin)):
     sys.exit(0)
+chemin = os.path.abspath(chemin)
 
 dossier = os.path.dirname(chemin)
 racine = git(dossier, "rev-parse", "--show-toplevel")
