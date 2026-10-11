@@ -244,3 +244,48 @@ test('données : les séances importées paraissent aussitôt sur l’Accueil et
   await geste(page, 'onglet Historique', page.getByRole('link', { name: 'Historique' }))
   await expect(page.locator('.hist__item')).toHaveCount(36)
 })
+
+/** Note, image par image, chaque animation en cours : « pseudo-élément animation ». */
+const noterAnimations = (page: import('@playwright/test').Page) =>
+  page.addInitScript(() => {
+    const vues = new Set<string>()
+    ;(window as unknown as { animations: Set<string> }).animations = vues
+    const noter = () => {
+      for (const a of document.getAnimations()) {
+        const effet = a.effect as KeyframeEffect | null
+        vues.add(`${effet?.pseudoElement ?? ''} ${(a as CSSAnimation).animationName ?? ''}`)
+      }
+      requestAnimationFrame(noter)
+    }
+    requestAnimationFrame(noter)
+  })
+const animationsVues = (page: import('@playwright/test').Page) =>
+  page.evaluate(() => [...(window as unknown as { animations: Set<string> }).animations])
+
+test('toast : seul le toast glisse, à l’entrée comme à la sortie', async ({ page }) => {
+  await noterAnimations(page)
+  await fauxSauvegarde(page)
+  await ouvrir(page, '/reglages', { sessions: plein })
+  await geste(page, 'appui sur Exporter', ligneExport(page))
+  await expect(toast(page)).toContainText('36 séances exportées')
+  await geste(page, 'fermer le toast', page.getByRole('button', { name: 'Fermer' }))
+  await expect(toast(page)).toHaveCount(0)
+
+  // Le nom du calque est généré par le navigateur : on reconnaît l'animation.
+  const vues = await animationsVues(page)
+  expect(vues).toContainEqual(expect.stringMatching(/^::view-transition-new\(.+\) toast-entree$/))
+  expect(vues).toContainEqual(expect.stringMatching(/^::view-transition-old\(.+\) toast-sortie$/))
+  // La page entière ne se photographie plus : son calque avalait les appuis.
+  expect(vues.filter((v) => v.includes('(root)'))).toEqual([])
+})
+
+test('toast : mouvement réduit, aucune animation', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await noterAnimations(page)
+  await fauxSauvegarde(page)
+  await ouvrir(page, '/reglages', { sessions: plein })
+  await geste(page, 'appui sur Exporter', ligneExport(page))
+  await expect(toast(page)).toContainText('36 séances exportées')
+  // L'anneau du minuteur continue de tourner : il dit le temps, il ne bouge pas.
+  expect((await animationsVues(page)).filter((v) => v.startsWith('::view-transition'))).toEqual([])
+})

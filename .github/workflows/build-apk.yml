@@ -243,7 +243,7 @@ jobs:
             test "$(adb shell pm list packages fr.zone2.app | tr -d '\r' | grep -cxE 'package:fr\.zone2\.app(\.dev)?')" = 2
             adb push .maestro/sauvegarde-test.json /sdcard/Download/sauvegarde-test.json
             adb shell am broadcast -a android.intent.action.MEDIA_SCANNER_SCAN_FILE -d file:///sdcard/Download/sauvegarde-test.json
-            maestro test .maestro/ --test-output-dir=maestro
+            bash .maestro/lancer.sh
 
       - uses: actions/upload-artifact@v7
         if: ${{ !cancelled() }}

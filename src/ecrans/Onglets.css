@@ -248,6 +248,17 @@
   animation: toast-sortie 220ms ease-in forwards;
 }
 
+/* Pendant la transition, un calque couvre l'écran et avale les appuis : un
+ * toucher tombé pendant l'entrée ou la sortie du toast était perdu. Seul le
+ * toast se photographie, et le calque laisse passer les doigts. */
+:root {
+  view-transition-name: none;
+}
+
+::view-transition {
+  pointer-events: none;
+}
+
 @keyframes toast-entree {
   from {
     translate: 0 24px;
@@ -265,7 +276,10 @@
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-group(*),
   ::view-transition-old(*),
-  ::view-transition-new(*) {
+  ::view-transition-new(*),
+  /* Plus précises que (*) : sans elles, le toast glissait quand même. */
+  ::view-transition-old(.toast):only-child,
+  ::view-transition-new(.toast):only-child {
     animation: none;
   }
 }
