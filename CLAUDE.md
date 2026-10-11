@@ -115,5 +115,10 @@ Une release `latest` est republiée à chaque push sur `main`.
 - **Un « go » couvre la chaîne mécanique** jusqu'à la livraison : commit, PR, CI, merge, publication.
   Mais **tout arbitrage l'interrompt** — deux options défendables, un écart à `DECISIONS.md`,
   un changement de périmètre.
+- **Une session, un dossier.** Deux sessions travaillent souvent en parallèle : chacune crée son
+  worktree (`git worktree add ../zone-2-<nom> -b <branche> origin/main`) et n'écrit jamais dans le
+  dossier d'une autre. Le dossier `zone-2` principal appartient à la session qui l'occupe. Le
+  2026-10-11, le banc et l'export-import ont avancé en même temps sans heurt grâce à ça — par
+  chance, rien ne l'imposait.
 - **Un changement de documentation seul ne se livre pas.** Il se commite localement tout de suite,
   et sa PR part groupée avec la feature suivante.
