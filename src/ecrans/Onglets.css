@@ -152,7 +152,6 @@
   font-size: 14px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
   outline: none;
-  view-transition-class: toast;
   /* Le geste horizontal revient au toast (balayage), le vertical à la page. */
   touch-action: pan-y;
   /* Lâché trop tôt, le toast revient en place. */
@@ -240,22 +239,15 @@
   }
 }
 
-::view-transition-new(.toast):only-child {
+/* Il glisse seul, sans transition de vue : pendant qu'elle photographie
+ * l'écran, un appui va à la page entière et se perd. La sortie est déclenchée
+ * par toast.ts, qui attend sa fin avant de laisser React retirer le toast. */
+.toast {
   animation: toast-entree 320ms cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
-::view-transition-old(.toast):only-child {
+.toast[data-sortie] {
   animation: toast-sortie 220ms ease-in forwards;
-}
-
-/* Pendant la transition, un calque couvre l'écran et avale les appuis : un
- * toucher tombé pendant l'entrée ou la sortie du toast était perdu. Seul le
- * toast se photographie, et le calque laisse passer les doigts. */
-:root {
-  view-transition-name: none;
-}
-
-::view-transition {
   pointer-events: none;
 }
 
@@ -274,12 +266,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  ::view-transition-group(*),
-  ::view-transition-old(*),
-  ::view-transition-new(*),
-  /* Plus précises que (*) : sans elles, le toast glissait quand même. */
-  ::view-transition-old(.toast):only-child,
-  ::view-transition-new(.toast):only-child {
+  .toast,
+  .toast[data-sortie] {
     animation: none;
   }
 }
