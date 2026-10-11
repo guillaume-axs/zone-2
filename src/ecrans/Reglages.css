@@ -73,16 +73,16 @@
 }
 
 /* L'état, sous l'intitulé et dans tous les états : l'intitulé ne bouge
-   jamais. Petit et pâle — c'est le constat, l'action est à droite. Une seule
+   jamais. C'est le constat, l'action est à droite. Une seule
    ligne : sur deux, la ligne grandirait et l'intitulé sauterait. */
 .reglages__etat {
   display: flex;
   align-items: baseline;
   white-space: nowrap;
   margin-top: 3px;
-  font-size: 11px;
+  font-size: 12.5px;
   line-height: 1.2;
-  color: var(--fg-4);
+  color: var(--fg-3);
 }
 
 /* La FC en direct : la teinte du héros, seule valeur vivante de la liste.
@@ -147,4 +147,50 @@
     animation: none;
     opacity: 1;
   }
+}
+
+/* ---------- Rôles typographiques (sujet 7, précision du 2026-10-11) ---------- */
+
+/* L'intitulé nomme : mono, mais clair. Le gris pâle veut dire « inactif ». */
+.reglages__intitule {
+  color: var(--fg-2);
+}
+
+/* La valeur se lit : Grotesk 15 px, la teinte du héros. */
+.reglages__droite .hist__value {
+  font-size: 15px;
+  color: var(--fg-hero);
+}
+
+.reglages__droite .reglages__vide {
+  color: var(--accent);
+}
+
+/* L'intertitre d'un groupe, décollé du groupe du dessus. */
+.reglages__groupe {
+  display: block;
+  margin-top: 30px;
+}
+
+/* ---------- Mes données (sujet 15) ---------- */
+
+/* L'icône d'action, en braise comme le mot « Connecter ». */
+.reglages__icone {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Rien à exporter : la ligne garde sa forme et son icône, en gris pâle. */
+.reglages__ligne[data-disabled] .reglages__intitule {
+  color: var(--fg-4);
+}
+
+.reglages__ligne[data-disabled] .reglages__icone {
+  stroke: var(--fg-4);
 }

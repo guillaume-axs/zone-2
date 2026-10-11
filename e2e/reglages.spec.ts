@@ -1,12 +1,15 @@
 import { fauxCapteur } from './capteur.ts'
 import { expect, geste, ouvrir, test } from './banc.ts'
-import { zoneDefinie } from './donnees.ts'
+import { plein, zoneDefinie } from './donnees.ts'
+import { fauxSauvegarde } from './sauvegarde.ts'
 
 /**
  * Écran Réglages (sujets 14 et 16). États couverts :
  * - Zone 2 : non définie, définie ;
  * - Capteur cardio : rien, recherche (sans puis avec nom), connecté (nom et
- *   FC), décroché, aucun capteur, annulé, déconnecté ; nom d'appareil long.
+ *   FC), décroché, aucun capteur, annulé, déconnecté ; nom d'appareil long ;
+ * - Mes données (sujet 15) : base vide, base pleine, export, import, fusion,
+ *   fenêtre fermée, échec d'écriture ou de lecture, fichier étranger.
  */
 
 const ligneCapteur = (page: import('@playwright/test').Page) =>
@@ -142,4 +145,82 @@ test('zone : fermer sans enregistrer', async ({ page }) => {
   await geste(page, 'saisie', page.getByLabel('Âge'), (l) => l.pressSequentially('30'))
   await geste(page, 'fermer', page.getByRole('link', { name: 'Fermer sans enregistrer' }))
   await expect(page.getByRole('link', { name: /Zone 2/ })).toContainText('120 – 135 bpm')
+})
+
+const ligneExport = (page: import('@playwright/test').Page) =>
+  page.getByRole('button', { name: /Exporter mes séances/ })
+const ligneImport = (page: import('@playwright/test').Page) =>
+  page.getByRole('button', { name: /Importer une sauvegarde/ })
+const toast = (page: import('@playwright/test').Page) => page.locator('.toast')
+
+const fichier = (sessions: unknown[]) =>
+  JSON.stringify({ app: 'zone2', version: 1, exportedAt: new Date().toISOString(), sessions })
+
+test('données : base vide, la ligne d’export est inactive', async ({ page }) => {
+  await fauxSauvegarde(page)
+  await ouvrir(page, '/reglages')
+  await expect(page.getByText('Mes données')).toBeVisible()
+  await expect(ligneExport(page)).toBeDisabled()
+  await expect(ligneExport(page)).toContainText('Aucune séance')
+  await expect(ligneExport(page).locator('svg')).toBeVisible()
+  await expect(ligneImport(page)).toBeEnabled()
+})
+
+test('données : exporter, supprimées comprises, le compteur ne montre que les visibles', async ({ page }) => {
+  const sauvegarde = await fauxSauvegarde(page)
+  const supprimee = { ...plein[0], id: 'supprimee', deletedAt: new Date().toISOString() }
+  await ouvrir(page, '/reglages', { sessions: [...plein, supprimee] })
+  await expect(ligneExport(page)).toContainText('36 séances')
+
+  await geste(page, 'appui sur Exporter', ligneExport(page))
+  await expect(toast(page)).toContainText('36 séances exportées')
+  const [ecrit] = await sauvegarde.exportes()
+  expect(ecrit.nom).toMatch(/^zone2-\d{4}-\d{2}-\d{2}\.json$/)
+  expect(JSON.parse(ecrit.contenu).sessions).toHaveLength(37)
+})
+
+test('données : importer, puis réimporter le même fichier n’ajoute rien', async ({ page }) => {
+  const sauvegarde = await fauxSauvegarde(page)
+  await ouvrir(page, '/reglages')
+  await sauvegarde.choisir(fichier(plein))
+
+  await geste(page, 'appui sur Importer', ligneImport(page), undefined, { bouge: ['li'] })
+  await expect(toast(page)).toContainText('36 séances importées')
+  await expect(ligneExport(page)).toContainText('36 séances')
+  await expect(ligneExport(page)).toBeEnabled()
+
+  await geste(page, 'réimport du même fichier', ligneImport(page))
+  await expect(toast(page).filter({ hasText: 'Aucune nouvelle séance' })).toBeVisible()
+  await expect(ligneExport(page)).toContainText('36 séances')
+})
+
+test('données : un fichier étranger est refusé en entier', async ({ page }) => {
+  const sauvegarde = await fauxSauvegarde(page)
+  await ouvrir(page, '/reglages')
+  await sauvegarde.choisir(JSON.stringify({ sessions: plein }))
+  await geste(page, 'appui sur Importer', ligneImport(page))
+  await expect(toast(page)).toContainText('Ce fichier ne contient aucune séance')
+  await expect(ligneExport(page)).toContainText('Aucune séance')
+})
+
+test('données : fermer la fenêtre sans choisir ne dit rien', async ({ page }) => {
+  const sauvegarde = await fauxSauvegarde(page)
+  await ouvrir(page, '/reglages', { sessions: plein })
+  await sauvegarde.repondre('export', 'ferme')
+  await sauvegarde.repondre('import', 'ferme')
+  await geste(page, 'export, fenêtre fermée', ligneExport(page))
+  await geste(page, 'import, fenêtre fermée', ligneImport(page))
+  await expect(toast(page)).toHaveCount(0)
+})
+
+test('données : le téléphone refuse d’écrire ou de lire', async ({ page }) => {
+  const sauvegarde = await fauxSauvegarde(page)
+  await ouvrir(page, '/reglages', { sessions: plein })
+  await sauvegarde.repondre('export', 'echec')
+  await sauvegarde.repondre('import', 'echec')
+  await geste(page, 'export refusé', ligneExport(page))
+  await expect(toast(page)).toContainText('Export impossible')
+  await geste(page, 'import refusé', ligneImport(page))
+  await expect(toast(page).filter({ hasText: 'Import impossible' })).toBeVisible()
+  await expect(ligneExport(page)).toContainText('36 séances')
 })

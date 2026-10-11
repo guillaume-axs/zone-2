@@ -1,19 +1,26 @@
+import { Capacitor, registerPlugin } from '@capacitor/core'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { Button, Link } from 'react-aria-components'
 import { useCapteur } from '../capteur/useCapteur'
+import { db } from '../db/db'
+import { importerSeances, lireFichier, nomDuFichier, toutesLesSeances, versFichier } from '../db/sauvegarde'
 import { bornesEnVigueur } from '../db/zones'
 import Marque from './Marque'
+import { annonces, DUREE_TOAST_MS } from './toast'
 import './Reglages.css'
 
 /**
  * Onglet Réglages — sujet 14.
  *
  * Une liste de lignes : intitulé à gauche, **valeur actuelle à droite**. On lit
- * son réglage sans entrer dedans, comme le fait Strava. Pas d'icônes — la charte
- * du sujet 7 ne laisse rien décorer.
+ * son réglage sans entrer dedans, comme le fait Strava.
  *
  * La marque à droite de chaque ligne dit ce qu'elle promet : chevron, un écran
- * s'ouvre ; un mot en braise, l'appui fait ce que dit le mot.
+ * s'ouvre ; un mot ou une icône en braise, l'appui fait l'action.
+ *
+ * Les rôles typographiques du sujet 7 : l'intitulé en mono clair, la valeur en
+ * Grotesk, l'action en braise. Une ligne inactive garde sa forme et passe en
+ * gris pâle, icône comprise.
  *
  * Toutes les lignes ont la hauteur de la ligne du capteur connecté : la liste
  * ne bouge pas quand le nom de l'appareil apparaît (sujet 16).
@@ -32,7 +39,7 @@ export default function Reglages() {
       <ul className="hist">
         <li>
           <Link href="/reglages/zone-2" className="hist__item reglages__ligne">
-            <span className="label">Zone 2</span>
+            <span className="label reglages__intitule">Zone 2</span>
             <span className="reglages__droite">
               {bornes === undefined ? null : bornes === null ? (
                 <span className="hist__value reglages__vide">Non définie</span>
@@ -49,6 +56,24 @@ export default function Reglages() {
         </li>
         <li>
           <LigneCapteur />
+        </li>
+      </ul>
+
+      <span className="label reglages__groupe">Mes données</span>
+      <ul className="hist">
+        <li>
+          <LigneExport />
+        </li>
+        <li>
+          <Button className="hist__item reglages__ligne" onPress={importer}>
+            <div>
+              <div className="label reglages__intitule">Importer une sauvegarde</div>
+              <div className="reglages__etat">Récupère les séances d’un export</div>
+            </div>
+            <svg className="reglages__icone" viewBox="0 0 20 20" aria-hidden="true">
+              <path d="M10 12.5V3M6 7l4-4 4 4M3.5 13.5v3h13v-3" />
+            </svg>
+          </Button>
         </li>
       </ul>
 
@@ -76,7 +101,7 @@ function LigneCapteur() {
   return (
     <Button className="hist__item reglages__ligne" onPress={action}>
       <div>
-        <div className="label">Capteur cardio</div>
+        <div className="label reglages__intitule">Capteur cardio</div>
         <div className="reglages__etat">
           {ligne.etat === 'rien' && 'Non connecté'}
           {ligne.etat === 'recherche' && (
@@ -121,3 +146,72 @@ const ACTIONS = [
   ['connecte', 'Déconnecter'],
   ['aucun', 'Réessayer'],
 ] as const
+
+/** Le greffon natif `SauvegardePlugin.kt` : les fenêtres « Enregistrer sous » et « Ouvrir » du système. */
+interface SauvegardePlugin {
+  exporter(o: { nom: string; contenu: string }): Promise<{ fait: boolean }>
+  importer(): Promise<{ fait: boolean; contenu?: string }>
+}
+
+const Sauvegarde = registerPlugin<SauvegardePlugin>('Sauvegarde')
+
+/*
+ * Dans le navigateur (`npm run dev`), le greffon n'existe pas : les lignes
+ * restent visibles et l'appui ne fait rien. On n'exporte pas depuis le poste.
+ */
+const natif = Capacitor.isPluginAvailable('Sauvegarde')
+
+const seances = (n: number) => (n === 1 ? '1 séance' : `${n} séances`)
+
+function annoncer(texte: string) {
+  annonces.add({ genre: 'reglage', texte }, { timeout: DUREE_TOAST_MS })
+}
+
+/**
+ * Le compteur ne montre que les séances visibles ; le fichier, lui, emporte
+ * aussi les supprimées (sujet 15). À zéro séance, la ligne garde sa forme et
+ * son icône, en gris pâle (sujet 7).
+ */
+function LigneExport() {
+  const n = useLiveQuery(() => db.sessions.filter((s) => !s.deletedAt).count())
+
+  async function exporter() {
+    if (!natif || !n) return
+    try {
+      const { fait } = await Sauvegarde.exporter({
+        nom: nomDuFichier(),
+        contenu: versFichier(await toutesLesSeances()),
+      })
+      if (fait) annoncer(`${seances(n)} ${n === 1 ? 'exportée' : 'exportées'}`)
+    } catch {
+      annoncer('Export impossible')
+    }
+  }
+
+  return (
+    <Button className="hist__item reglages__ligne" isDisabled={n === 0} onPress={exporter}>
+      <div>
+        <div className="label reglages__intitule">Exporter mes séances</div>
+        <div className="reglages__etat">{n === undefined ? '\u00a0' : n ? seances(n) : 'Aucune séance'}</div>
+      </div>
+      <svg className="reglages__icone" viewBox="0 0 20 20" aria-hidden="true">
+        <path d="M10 3v9.5M6 8.5l4 4 4-4M3.5 13.5v3h13v-3" />
+      </svg>
+    </Button>
+  )
+}
+
+/** Fusion par identifiant : rien n'est jamais remplacé, tout ou rien est écrit. */
+async function importer() {
+  if (!natif) return
+  try {
+    const { fait, contenu } = await Sauvegarde.importer()
+    if (!fait) return
+    const sessions = contenu === undefined ? null : lireFichier(contenu)
+    if (!sessions?.length) return annoncer('Ce fichier ne contient aucune séance')
+    const n = await importerSeances(sessions)
+    annoncer(n ? `${seances(n)} ${n === 1 ? 'importée' : 'importées'}` : 'Aucune nouvelle séance')
+  } catch {
+    annoncer('Import impossible')
+  }
+}
