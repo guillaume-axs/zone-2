@@ -7,7 +7,6 @@ import { bornesSchema, type BornesInput } from '../forms/bornesSchema'
 import { bornesEnVigueur, enregistrerBornes } from '../db/zones'
 import { bornesZone2 } from '../metrics/zone'
 import Marque from './Marque'
-import { DUREE_TOAST_MS, annonces } from './toast'
 import '../forms/SessionForm.css'
 
 /** Nombre de chiffres d'un âge plausible (15 à 99 ans, sujet 13). */
@@ -146,16 +145,10 @@ export default function Zone2() {
    *
    * L'écriture ajoute une ligne, elle n'en corrige aucune : l'historique garde
    * ses bornes d'époque. Retour aux Réglages, où la ligne « Zone 2 » affiche la
-   * nouvelle plage — et un toast dit ce qui vient d'être écrit, parce que deux
-   * chiffres qui changent sur place se remarquent moins qu'une séance qui
-   * apparaît dans l'historique.
+   * nouvelle plage : l'écran montre le résultat, aucun toast ne le redit.
    */
   async function onSubmit({ z2MinBpm, z2MaxBpm }: BornesInput) {
     await enregistrerBornes(z2MinBpm, z2MaxBpm)
-    annonces.add(
-      { genre: 'reglage', texte: `Zone 2 · ${z2MinBpm} – ${z2MaxBpm} bpm` },
-      { timeout: DUREE_TOAST_MS },
-    )
     navigate('/reglages')
   }
 

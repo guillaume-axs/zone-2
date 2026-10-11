@@ -125,9 +125,11 @@
 }
 
 /* D'un onglet à l'autre, le toast glisse vers sa nouvelle place au lieu d'y
-   sauter. Lui seul bouge : Material 3 interdit d'animer le « + » avec lui. */
+   sauter. Lui seul bouge : Material 3 interdit d'animer le « + » avec lui.
+   200 ms, la plus longue des durées courtes de Material : le trajet ne fait
+   que 68 px, et c'est le rythme de son entrée et de sa sortie. */
 .toasts {
-  transition: bottom 0.25s ease-out;
+  transition: bottom 0.2s ease-out;
 }
 
 @media (prefers-reduced-motion: reduce) {

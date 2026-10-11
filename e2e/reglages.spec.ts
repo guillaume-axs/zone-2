@@ -138,6 +138,8 @@ test('zone : premier réglage par l’âge, une faute, sa correction, puis enreg
   await geste(page, 'Enregistrer', enregistrer)
   await expect(page).toHaveURL(/\/reglages$/)
   await expect(page.getByRole('link', { name: /Zone 2/ })).toContainText('140 bpm')
+  // La ligne montre la nouvelle plage : aucun toast ne la redit.
+  await expect(page.locator('.toast')).toHaveCount(0)
 })
 
 test('zone : fermer sans enregistrer', async ({ page }) => {
@@ -232,10 +234,7 @@ test('données : les séances importées paraissent aussitôt sur l’Accueil et
   await sauvegarde.choisir(fichier(plein))
   await geste(page, 'appui sur Importer', ligneImport(page), undefined, { bouge: ['li'] })
   await expect(toast(page)).toContainText('36 séances importées')
-  // Ouvert, il recouvre « Pourquoi ? » sur l'Accueil : défaut connu, laissé au
-  // lot « cure des toasts » (2026-10-11). Le changement d'onglet toast ouvert
-  // reste couvert par `banc.spec`.
-  await geste(page, 'fermer le toast', page.getByRole('button', { name: 'Fermer' }))
+  // Il reste ouvert : l'Accueil est contrôlé toast par-dessus (sujet 17).
 
   // Sans rechargement : seuls les écrans branchés sur la base peuvent suivre.
   await geste(page, 'onglet Accueil', page.getByRole('link', { name: 'Accueil' }))

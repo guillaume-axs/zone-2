@@ -1349,6 +1349,10 @@ pas. Pas d'émulateur local : la machine ne le tient pas.
 - **Un élément interactif recouvert**, une cible sous **48 dp ou à moins de 8 dp** d'une autre
   (règle d'accessibilité Android), un défilement horizontal, un texte coupé. Deux cibles qui se
   touchent bord à bord — les lignes d'une liste, les onglets — sont le motif Material, pas un défaut.
+  **Exemption** *(choix du PO, 2026-10-11)* : le toast peut recouvrir le contenu de la page, jamais
+  le « + » ni la barre. C'est le modèle Material : il passe le temps de sa vie et se balaie. Sans
+  elle, « Séance enregistrée » sur l'Accueil plein recouvre « Pourquoi ? » ; l'autre voie — un
+  vide d’environ 200 px sous le contenu — aurait sans doute fait défiler l’Accueil.
 - **Un saut au premier affichage**, quand les données arrivent après le premier dessin. Hors
   chargement de police : en `font-display: block`, le texte n'est pas encore visible.
 - **Un toast hors de sa place** *(ajouté le 2026-10-11)* : il se pose au plus 16 px au-dessus de
@@ -1358,6 +1362,9 @@ pas. Pas d'émulateur local : la machine ne le tient pas.
   de toast et garde une place fixe, mais n'a pas non plus de bouton flottant : son modèle ne se
   transpose pas. Benchmark du 2026-10-11 ; sa conclusion — le standard actuel n'emploie le toast
   que pour une annulation ou un résultat invisible à l'écran — ouvre le lot « cure des toasts ».
+  **Cure des toasts** *(2026-10-11)* : sur les huit toasts de l'app, seul celui de la Zone 2 redisait
+  l'écran — la ligne des Réglages montre la nouvelle plage au retour. Il est retiré. Le glissement
+  entre onglets dure 200 ms, la plus longue des durées courtes de Material, pour un trajet de 68 px.
 
 Pas de comparaison pixel à pixel : trop de fausses alertes. Les captures servent à la relecture.
 
