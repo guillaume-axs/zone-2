@@ -88,6 +88,14 @@ test('un toast qui bouge sans changement d’écran est un saut', async ({ page 
   await expect(geste(page, 'appui', page.getByText('Aller'))).rejects.toThrow(/Séance enregistrée/)
 })
 
+test('un toast sur le contenu est permis', async ({ page }) => {
+  await nue(page, gabarit(146, '').replace(
+    `<button ${BOUTON} onclick="">Aller</button>`,
+    `<button style="position:fixed;left:16px;bottom:150px;width:120px;height:48px">Pourquoi ?</button>`,
+  ))
+  await controler(page, 'toast sur le contenu')
+})
+
 test('un toast loin de son ancre, ou posé dessus, est signalé', async ({ page }) => {
   await nue(page, gabarit(200, ''))
   await expect(controler(page, 'loin')).rejects.toThrow(/toast hors de sa place : Séance enregistrée \(66 px au-dessus de \+\)/)

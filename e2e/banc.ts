@@ -200,12 +200,15 @@ export async function controler(page: Page, etape: string) {
         }
 
       // Recouvrement : l'élément est amené à l'écran ; s'il reste caché, rien
-      // ne permet à l'utilisateur de l'atteindre.
+      // ne permet à l'utilisateur de l'atteindre. Seule exemption, le toast sur
+      // le contenu (Material, sujet 17) : il passe le temps de sa vie et se
+      // balaie. Sur le « + » ou la barre, c'est le contrôle de sa place qui juge.
       const defiles = [...document.querySelectorAll('*')].map((el) => [el, el.scrollTop] as const)
       for (const el of cibles) {
         el.scrollIntoView({ block: 'center', inline: 'center' })
         const r = el.getBoundingClientRect()
         const dessus = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2)
+        if (dessus?.closest('.toasts') && !el.closest('.fab, .nav')) continue
         if (dessus && !el.contains(dessus) && !dessus.contains(el))
           fautes.push(`recouvert : ${nom(el)} sous ${nom(dessus)}`)
       }
