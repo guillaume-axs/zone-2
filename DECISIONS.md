@@ -1325,6 +1325,55 @@ dans une case réservée). Maquette : artefact « Ligne Capteur cardio v7 », op
 
 ---
 
+## Sujet 17 — Le banc d'essai ✅ *(décidé le 2026-10-10)*
+
+Chaque feature coûtait 2 à 3 PR « retours terrain » (#15→#17, #23→#24, #26) : le PO installait
+l'APK, testait, notait, revenait. La plupart de ces retours étaient mécaniques — un bouton qui
+saute, un toast qui recouvre, un champ masqué. **Ils se détectent sans le PO.**
+
+**Deux étages, tous deux bloquants en CI.**
+
+| Étage | Où | Voit |
+|---|---|---|
+| Playwright, gabarit S22 (360×780, tactile) | local + CI, en secondes | sauts, chevauchements, zones tactiles, débordements, logique des parcours |
+| Maestro sur émulateur Android | CI seulement | la vraie app : clavier virtuel, bouton retour, gestes, WebView |
+
+Le premier est la boucle d'itération de Claude ; le second rattrape ce que le navigateur ne montre
+pas. Pas d'émulateur local : la machine ne le tient pas.
+
+**Ce qui fait échouer le banc, à chaque étape de chaque parcours.**
+
+- **Un saut** : un élément qui bouge après une action sans que le test l'ait déclaré attendu.
+  Mesuré par la géométrie avant/après, pas par le CLS — la mesure standard ignore les 500 ms qui
+  suivent une action, exactement là où nos sauts arrivent.
+- **Un élément interactif recouvert**, une cible sous **48 dp ou à moins de 8 dp** d'une autre
+  (règle d'accessibilité Android), un défilement horizontal, un texte coupé. Deux cibles qui se
+  touchent bord à bord — les lignes d'une liste, les onglets — sont le motif Material, pas un défaut.
+- **Un saut au premier affichage**, quand les données arrivent après le premier dessin. Hors
+  chargement de police : en `font-display: block`, le texte n'est pas encore visible.
+
+Pas de comparaison pixel à pixel : trop de fausses alertes. Les captures servent à la relecture.
+
+**Chaque maquette liste les états de son écran** — vide, chargement, partiel, erreur, nominal, et
+les transitoires (toast, clavier ouvert, texte long). Les parcours les traversent tous.
+
+**Le PO ne fait plus qu'une passe sur le S22**, quand tout est vert. La PR lui donne la liste des
+angles morts du banc : le ressenti, les formulations, la vraie ceinture, les marges système.
+
+Écartés : Appium, Applitools et Percy, un studio sur mesure, Maestro Cloud. Maestro sur le S22 par
+câble reste une piste — il remet le PO dans la boucle.
+
+**Les critères avant le code, et deux murs** *(2026-10-11)*. Un banc ne vérifie que ce qu'on lui
+apprend, et une règle écrite s'oublie. Chaque feature a son tableau « critère → vérifié par »,
+validé par le PO avec l'approche, recopié dans la PR. Un hook refuse d'éditer un écran sans ce
+tableau ; le job `couverture` refuse une PR qui change un écran sans parcours, ou sans tableau.
+Limite assumée : aucune machine ne juge si les critères sont les bons — c'est la minute du PO.
+
+**Mesure de succès :** la feature suivante (export + import) ne coûte pas plus d'une PR de retours
+terrain.
+
+---
+
 ## Qualité « portfolio » — les 4 axes validés
 
 1. **Moteur de métriques testé** — module TypeScript pur : EF, découplage, comparaisons glissantes.

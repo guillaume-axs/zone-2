@@ -1,0 +1,30 @@
+# Étage 2 du banc d'essai (sujet 17) : ce que le navigateur ne montre pas.
+# Le vrai clavier sur la saisie de zone (champ masqué ? touche « Suivant »),
+# puis le bouton retour d'Android : il ferme le clavier, puis l'écran.
+appId: fr.zone2.app
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "Réglages"
+    timeout: 30000
+- tapOn: "Réglages"
+- tapOn: "(?i).*zone 2.*"
+- assertVisible: "Enregistrer"
+# Le champ, pas son libellé : seul son nom accessible est unique. Chrome
+# l'expose avec l'indication du champ : l'expression doit couvrir le reste.
+- tapOn: "(?i).*fin de zone en battements.*"
+- inputText: "140"
+- takeScreenshot: zone-clavier
+- pressKey: Enter
+- takeScreenshot: zone-suivant
+# Premier retour : le clavier se ferme, l'écran reste.
+- back
+- assertVisible: "Enregistrer"
+- takeScreenshot: zone-retour-1
+- back
+- assertVisible: "(?i).*capteur cardio.*"
+# Retour depuis un onglet : l'onglet de départ, convention Android.
+- back
+- assertVisible: "(?i)efficience"
+- takeScreenshot: zone-retour-2

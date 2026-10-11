@@ -95,6 +95,18 @@ Une release `latest` est republiée à chaque push sur `main`.
   déclarée inexistante alors qu'elle vit dans `SessionForm.tsx`. **Reprendre un composant veut dire
   le reprendre entier**, sous-classes comprises.
 
+- **Le banc d'essai passe avant le S22** (sujet 17). Un écran modifié ne part pas au PO tant que
+  `npm run e2e` et l'émulateur CI ne sont pas verts. Le PO fait une seule passe, sur la liste des
+  angles morts que la PR lui donne.
+
+- **Chaque feature naît avec sa liste de critères** (sujet 17). Avant de coder : un tableau
+  « Critère | Vérifié par » dans `## Critères` du plan de la branche, bâti depuis la demande,
+  `DECISIONS.md` et les états fixes (vide, chargement, erreur, texte long, clavier, retour, hors
+  ligne), **soumis au PO avec l'approche**. Chaque ligne reçoit un test, ou « angle mort — S22 ».
+  Le tableau est recopié dans la PR ; le PO ne teste sur le S22 que les angles morts. Deux murs :
+  `.claude/hooks/criteres.py` refuse d'éditer un écran sans ce tableau, le job `couverture`
+  refuse une PR dont l'écran change sans parcours ou dont le tableau est vide. Un bug trouvé sur le
+  S22 devient un critère et son test.
 - **Chercher en ligne plutôt que dans sa mémoire** dès qu'il s'agit d'un standard, d'une version ou
   d'une pratique. L'état actuel du projet ne décide jamais d'une question d'architecture à sa place.
 - **Un « go » couvre la chaîne mécanique** jusqu'à la livraison : commit, PR, CI, merge, publication.
