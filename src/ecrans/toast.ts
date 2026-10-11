@@ -27,6 +27,9 @@ export type Annonce = Enregistrement | Reglage
  * haut de la fourchette recommandée quand le toast porte une action, et le
  * toucher suspend le minuteur.
  */
+/** La sortie du toast en cours : tout changement de la file l'attend. */
+let sortie = Promise.resolve()
+
 export const annonces = new ToastQueue<Annonce>({
   maxVisibleToasts: 1,
   // Avant tout changement, le toast affiché sort, puis seulement React le
@@ -35,10 +38,26 @@ export const annonces = new ToastQueue<Annonce>({
   // photographie l'écran, un appui va à la page entière et se perd.
   wrapUpdate(fn) {
     const affiche = document.querySelector<HTMLElement>('.toast:not([data-sortie])')
-    if (!affiche) return fn()
-    affiche.dataset.sortie = ''
-    // Mouvement réduit : aucune animation, le retrait suit aussitôt.
-    void Promise.all(affiche.getAnimations().map((a) => a.finished)).then(fn, fn)
+    if (affiche) {
+      affiche.dataset.sortie = ''
+      // Mouvement réduit : aucune animation, le retrait suit aussitôt.
+      sortie = Promise.all(affiche.getAnimations().map((a) => a.finished)).then(
+        () => {},
+        () => {},
+      )
+    }
+    // Un changement qui arrive pendant une sortie l'attend aussi.
+    void sortie.then(fn)
   },
 })
 export const DUREE_TOAST_MS = 8000
+
+/**
+ * Affiche un toast à la place de celui qui est à l'écran, comme le snackbar
+ * Material : l'ancien sort, le nouveau entre. Sans fermeture, React Aria
+ * garderait l'ancien en file, et il reviendrait une fois le nouveau fermé.
+ */
+export function afficher(annonce: Annonce) {
+  for (const { key } of annonces.visibleToasts) annonces.close(key)
+  annonces.add(annonce, { timeout: DUREE_TOAST_MS })
+}

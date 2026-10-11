@@ -7,7 +7,7 @@ import { importerSeances, lireFichier, nomDuFichier, toutesLesSeances, versFichi
 import { bornesEnVigueur } from '../db/zones'
 import GroupeDev from '../dev/GroupeDev'
 import Marque from './Marque'
-import { annonces, DUREE_TOAST_MS } from './toast'
+import { afficher } from './toast'
 import './Reglages.css'
 
 /**
@@ -167,7 +167,7 @@ const natif = Capacitor.isPluginAvailable('Sauvegarde')
 const seances = (n: number) => (n === 1 ? '1 séance' : `${n} séances`)
 
 function annoncer(texte: string) {
-  annonces.add({ genre: 'reglage', texte }, { timeout: DUREE_TOAST_MS })
+  afficher({ genre: 'reglage', texte })
 }
 
 /**
