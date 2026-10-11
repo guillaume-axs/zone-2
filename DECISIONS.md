@@ -526,6 +526,34 @@ Pas une animation décorative en boucle : une pulsation **pilotée par les donn�
 - Née du domaine, aucun template ne l'a
 - **À ne pas perdre** — c'est l'élément de signature du produit
 
+
+### Précision du 2026-10-11 — les rôles typographiques
+
+**Constat.** Le sujet 7 fixe trois polices, pas leur emploi : le code a fini avec quatorze tailles,
+de 9 à 82 px. Sur les Réglages, l'étiquette mono servait d'intitulé à des lignes qu'on touche — le PO
+les a lues comme désactivées.
+
+**Règle : le mono nomme, le Grotesk donne la valeur, la braise agit.** Ce n'est pas le mono qui
+faisait croire à une ligne désactivée, c'est son gris pâle : l'intitulé garde ses capitales mono, qui
+le distinguent de sa valeur, mais en `fg-2`.
+
+| Rôle | Forme | Exemples |
+|---|---|---|
+| Chiffre héros | Instrument Serif, 80 px | efficience, durée de la saisie |
+| Intitulé d'une ligne | IBM Plex Mono 9,5 px, capitales, `fg-2` | « ZONE 2 », « CAPTEUR CARDIO », « EXPORTER MES SÉANCES » |
+| Valeur, texte lu | Space Grotesk 15 px, `fg-hero` | « 120 – 135 bpm », texte du toast |
+| Précision | Space Grotesk 12,5 px, `fg-3` | « Polar H10 · 72 bpm », « 34 séances » |
+| Titre, intertitre, unité | IBM Plex Mono 9,5 px, capitales, `fg-4` | « RÉGLAGES », « MES DONNÉES », axes |
+| Action | couleur `--accent` | « Connecter », icônes d'export et d'import |
+
+Le gris pâle (`fg-4`) sur un intitulé veut dire « inactif », et rien d'autre. **Un élément inactif
+garde sa forme** : il reste à sa place, icône comprise, et passe en `fg-4` — on ne le retire jamais.
+Le retirer décale la ligne quand il revient, et efface le repère qui montre où appuyer. Vaut pour
+toutes les fonctionnalités à venir.
+
+Appliqué d'abord aux
+Réglages (lot export + import) ; les autres écrans seront ramenés à ce barème dans un lot à part.
+
 ---
 
 ## Sujet 8 — Publication et posture de sécurité ✅ *(décidé le 2026-08-13)*
@@ -1115,11 +1143,29 @@ supprime le risque au lieu de le gérer.
 
 **L'import fusionne, il n'écrase jamais.** Sélecteur de fichiers du système, puis chaque séance est
 reconnue à son identifiant : un identifiant déjà présent est ignoré, jamais remplacé. Le compte-rendu
-est un toast — « 12 ajoutées, 34 déjà là ». La ligne vit dans les Réglages et non sur l'Accueil parce
+est un toast — « 12 séances importées », ou « Aucune nouvelle séance » *(texte précisé le 2026-10-11 :
+le nombre de séances déjà présentes n'apprend rien à l'usager)*. La ligne vit dans les Réglages et non sur l'Accueil parce
 que le moment où on en a besoin est le lendemain d'une réinstallation, pas au quotidien.
 
 **Le fichier produit contient des séances réelles.** Il atterrit dans les Téléchargements du
 téléphone, jamais dans le dépôt (sujet 8). Les données de développement, elles, restent inventées.
+
+**Précision du 2026-10-10 — « Enregistrer sous », pas Téléchargements d'office.** Écrire en silence dans
+les Téléchargements laisse la sauvegarde sur le téléphone : elle meurt avec lui, et le changement de
+téléphone, l'un des deux cas que l'export doit couvrir, n'est protégé que si l'on pense à copier le
+fichier ailleurs. L'export ouvre donc la fenêtre « Enregistrer sous » du système (Storage Access
+Framework, `ACTION_CREATE_DOCUMENT`) : Téléchargements reste à un toucher, Google Drive aussi. Le geste
+de plus est accepté parce que l'export est rare et ne se fait jamais sur le vélo. Second motif : sur
+Android 11 et plus, `@capacitor/filesystem` ne peut plus écrire dans le dossier public ; les deux voies
+demandaient donc du Kotlin dans le greffon existant, et c'est celle-ci qui couvre le besoin.
+
+**Précision du 2026-10-11 — un greffon à lui, et les séances supprimées partent aussi.** Le Kotlin vit
+dans un troisième greffon, `SauvegardePlugin.kt`, et non dans un existant : `SurviePlugin` démarre le
+service, `CapteurPlugin` tient le Bluetooth, et y greffer l'export aurait mêlé deux métiers. Le motif
+de la décision — aucune dépendance ajoutée — tient toujours. Le fichier emporte aussi les séances
+supprimées, avec leur `deletedAt` : une sauvegarde qui les écarterait perdrait de la donnée. Le
+compteur de la ligne, lui, ne compte que les séances visibles. Un fichier dont une seule séance est
+mal formée est refusé en entier, et l'import s'écrit en une transaction : tout ou rien.
 
 ---
 

@@ -199,6 +199,8 @@ jobs:
           disable-animations: true
           script: |
             adb install app-release.apk
+            adb push .maestro/sauvegarde-test.json /sdcard/Download/sauvegarde-test.json
+            adb shell am broadcast -a android.intent.action.MEDIA_SCANNER_SCAN_FILE -d file:///sdcard/Download/sauvegarde-test.json
             maestro test .maestro/ --test-output-dir=maestro
 
       - uses: actions/upload-artifact@v7

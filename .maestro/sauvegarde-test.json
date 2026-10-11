@@ -1,0 +1,37 @@
+{
+  "app": "zone2",
+  "version": 1,
+  "exportedAt": "2026-09-28T08:00:00.000Z",
+  "sessions": [
+    {
+      "id": "maestro-1",
+      "startedAt": "2026-09-22T07:00:00.000Z",
+      "durationS": 3600,
+      "avgPowerW": 138,
+      "avgHrBpm": 127,
+      "source": "manual",
+      "createdAt": "2026-09-22T07:00:00.000Z",
+      "updatedAt": "2026-09-22T07:00:00.000Z"
+    },
+    {
+      "id": "maestro-2",
+      "startedAt": "2026-09-24T07:00:00.000Z",
+      "durationS": 3600,
+      "avgPowerW": 142,
+      "avgHrBpm": 129,
+      "source": "manual",
+      "createdAt": "2026-09-24T07:00:00.000Z",
+      "updatedAt": "2026-09-24T07:00:00.000Z"
+    },
+    {
+      "id": "maestro-3",
+      "startedAt": "2026-09-27T07:00:00.000Z",
+      "durationS": 3600,
+      "avgPowerW": 145,
+      "avgHrBpm": 128,
+      "source": "manual",
+      "createdAt": "2026-09-27T07:00:00.000Z",
+      "updatedAt": "2026-09-27T07:00:00.000Z"
+    }
+  ]
+}

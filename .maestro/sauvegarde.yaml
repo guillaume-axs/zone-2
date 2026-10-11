@@ -1,0 +1,72 @@
+# Export et import (sujet 15) sur la vraie app : les fenêtres du système, que
+# le navigateur ne montre pas. La CI a déposé `sauvegarde-test.json` (trois
+# séances inventées) dans les Téléchargements de l'émulateur.
+# L'émulateur est en anglais : les boutons du système aussi.
+appId: fr.zone2.app
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "Réglages"
+    timeout: 30000
+- tapOn: "Réglages"
+- assertVisible: "(?i)mes données"
+- assertVisible: "(?i).*aucune séance.*"
+
+# Fermer le sélecteur sans choisir : rien ne se passe.
+- tapOn: "(?i).*importer une sauvegarde.*"
+- extendedWaitUntil:
+    visible: "(?i).*(recent|downloads|files).*"
+    timeout: 10000
+- back
+- assertVisible: "(?i)mes données"
+- assertNotVisible: "(?i).*(importée|impossible|ne contient).*"
+
+# Importer le fichier déposé.
+- tapOn: "(?i).*importer une sauvegarde.*"
+- runFlow:
+    when:
+      notVisible: "sauvegarde-test.json"
+    commands:
+      - tapOn: "Show roots"
+      - tapOn: "Downloads"
+- tapOn: "sauvegarde-test.json"
+- extendedWaitUntil:
+    visible: "3 séances importées"
+    timeout: 10000
+- takeScreenshot: import
+- assertVisible: "(?i).*3 séances.*"
+
+# « Enregistrer sous » : le nom est pré-rempli. Fermer sans enregistrer.
+- tapOn: "(?i).*exporter mes séances.*"
+- extendedWaitUntil:
+    visible: "zone2-\\d{4}-\\d{2}-\\d{2}\\.json"
+    timeout: 10000
+- takeScreenshot: enregistrer-sous
+- back
+- assertNotVisible: "(?i).*exportées.*"
+
+# Exporter pour de bon.
+- tapOn: "(?i).*exporter mes séances.*"
+- extendedWaitUntil:
+    visible: "zone2-\\d{4}-\\d{2}-\\d{2}\\.json"
+    timeout: 10000
+- tapOn: "(?i)save"
+- extendedWaitUntil:
+    visible: "3 séances exportées"
+    timeout: 10000
+- takeScreenshot: export
+
+# Réimporter le même fichier n'ajoute rien.
+- tapOn: "(?i).*importer une sauvegarde.*"
+- runFlow:
+    when:
+      notVisible: "sauvegarde-test.json"
+    commands:
+      - tapOn: "Show roots"
+      - tapOn: "Downloads"
+- tapOn: "sauvegarde-test.json"
+- extendedWaitUntil:
+    visible: "Aucune nouvelle séance"
+    timeout: 10000
+- assertVisible: "(?i).*3 séances.*"
