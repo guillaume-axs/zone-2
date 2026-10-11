@@ -2,9 +2,10 @@
 
 /* ---------- Sélecteur de période : segmenté, 48 px ---------- */
 
+/* 48 px dans la bordure : c'est la cible du doigt, pas la boîte, qui compte. */
 .window {
   display: flex;
-  height: 48px;
+  height: 50px;
   border: 1px solid var(--rule);
   margin-bottom: 26px;
   flex: none;
@@ -122,12 +123,13 @@
   font-size: 12px;
 }
 
-/* ---------- Bouton d'aide : cible 40 px, glyphe 16 px ---------- */
+/* ---------- Bouton d'aide : cible 48 px, glyphe 16 px ---------- */
 
+/* Les marges négatives rendent la place prise : la ligne ne bouge pas. */
 .help {
-  width: 40px;
-  height: 40px;
-  margin: -13px -12px;
+  width: 48px;
+  height: 48px;
+  margin: -17px -16px;
   flex: none;
   display: inline-flex;
   align-items: center;
