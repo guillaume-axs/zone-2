@@ -9,7 +9,8 @@ import { fauxSauvegarde } from './sauvegarde.ts'
  * - Capteur cardio : rien, recherche (sans puis avec nom), connecté (nom et
  *   FC), décroché, aucun capteur, annulé, déconnecté ; nom d'appareil long ;
  * - Mes données (sujet 15) : base vide, base pleine, export, import, fusion,
- *   fenêtre fermée, échec d'écriture ou de lecture, fichier étranger.
+ *   fenêtre fermée, échec d'écriture ou de lecture, fichier étranger ;
+ *   séances importées visibles aussitôt sur l'Accueil et l'Historique.
  */
 
 const ligneCapteur = (page: import('@playwright/test').Page) =>
@@ -223,4 +224,24 @@ test('données : le téléphone refuse d’écrire ou de lire', async ({ page })
   await geste(page, 'import refusé', ligneImport(page))
   await expect(toast(page).filter({ hasText: 'Import impossible' })).toBeVisible()
   await expect(ligneExport(page)).toContainText('36 séances')
+})
+
+test('données : les séances importées paraissent aussitôt sur l’Accueil et l’Historique', async ({ page }) => {
+  const sauvegarde = await fauxSauvegarde(page)
+  await ouvrir(page, '/reglages')
+  await sauvegarde.choisir(fichier(plein))
+  await geste(page, 'appui sur Importer', ligneImport(page), undefined, { bouge: ['li'] })
+  await expect(toast(page)).toContainText('36 séances importées')
+  // Ouvert, il recouvre « Pourquoi ? » sur l'Accueil : défaut connu, laissé au
+  // lot « cure des toasts » (2026-10-11). Le changement d'onglet toast ouvert
+  // reste couvert par `banc.spec`.
+  await geste(page, 'fermer le toast', page.getByRole('button', { name: 'Fermer' }))
+
+  // Sans rechargement : seuls les écrans branchés sur la base peuvent suivre.
+  await geste(page, 'onglet Accueil', page.getByRole('link', { name: 'Accueil' }))
+  await expect(page.locator('a.hero')).toBeVisible()
+  await expect(page.locator('.ghost')).toHaveCount(0)
+
+  await geste(page, 'onglet Historique', page.getByRole('link', { name: 'Historique' }))
+  await expect(page.locator('.hist__item')).toHaveCount(36)
 })

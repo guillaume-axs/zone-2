@@ -1351,6 +1351,13 @@ pas. Pas d'émulateur local : la machine ne le tient pas.
   touchent bord à bord — les lignes d'une liste, les onglets — sont le motif Material, pas un défaut.
 - **Un saut au premier affichage**, quand les données arrivent après le premier dessin. Hors
   chargement de police : en `font-display: block`, le texte n'est pas encore visible.
+- **Un toast hors de sa place** *(ajouté le 2026-10-11)* : il se pose au plus 16 px au-dessus de
+  son ancre — le « + », ou la barre d'onglets sur un écran sans « + » — sans jamais la recouvrir.
+  Il ne bouge pas dans un même écran ; au changement d'onglet, il glisse vers l'ancre du nouvel
+  écran. C'est le modèle Material (`setAnchorView`, le « + » jamais animé avec lui). Apple n'a pas
+  de toast et garde une place fixe, mais n'a pas non plus de bouton flottant : son modèle ne se
+  transpose pas. Benchmark du 2026-10-11 ; sa conclusion — le standard actuel n'emploie le toast
+  que pour une annulation ou un résultat invisible à l'écran — ouvre le lot « cure des toasts ».
 
 Pas de comparaison pixel à pixel : trop de fausses alertes. Les captures servent à la relecture.
 
