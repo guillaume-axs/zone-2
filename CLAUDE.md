@@ -101,6 +101,9 @@ Une release `latest` est republiée à chaque push sur `main`.
 - **Un test qui échoue sans changement de code est un bug**, jamais une PR à relancer. On en cherche
   la cause dans ses traces, et la correction reçoit sa preuve : le même test, dix fois de suite. Le
   2026-10-11, un échec Maestro mis sur le dos de l'émulateur et relancé cachait un appui perdu par l'app.
+  **Comparer d'abord un passage vert et un passage rouge**, trace contre trace : le même jour, des
+  passages « verts » appuyaient déjà au mauvais endroit, et trois preuves ont été lancées pour rien.
+  Après deux correctifs ratés, proposer un sous-agent de debug à contexte vide, nourri des faits bruts.
 
 - **Chaque feature naît avec sa liste de critères** (sujet 17). Avant de coder : un tableau
   « Critère | Vérifié par » dans `## Critères` du plan de la branche, bâti depuis la demande,
@@ -120,5 +123,8 @@ Une release `latest` est republiée à chaque push sur `main`.
   dossier d'une autre. Le dossier `zone-2` principal appartient à la session qui l'occupe. Le
   2026-10-11, le banc et l'export-import ont avancé en même temps sans heurt grâce à ça — par
   chance, rien ne l'imposait.
+  Le banc tourne alors sur un autre port : `PORT_BANC=5299 npm run e2e`. CI verte, la session range
+  son dossier : `git worktree remove` **sans `--force`** (si git refuse, il reste du travail non
+  commité : s'arrêter et demander), puis `gh pr merge --squash --delete-branch` merge et efface la branche.
 - **Un changement de documentation seul ne se livre pas.** Il se commite localement tout de suite,
   et sa PR part groupée avec la feature suivante.
