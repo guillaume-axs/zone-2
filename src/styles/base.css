@@ -99,8 +99,10 @@ button {
  * à rien.
  */
 
-/* Retour tactile par défaut, hérité par tout bouton qui n'en définit pas. */
-button:active {
+/* Retour tactile par défaut, hérité par tout bouton qui n'en définit pas.
+   Chromium applique `:active` même à un bouton `disabled` : on l'en exclut,
+   une commande inactive ne répond pas au doigt. */
+button:active:not(:disabled) {
   opacity: 0.72;
 }
 

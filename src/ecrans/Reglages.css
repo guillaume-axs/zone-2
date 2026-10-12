@@ -186,8 +186,10 @@
   stroke-linejoin: round;
 }
 
-/* Rien à exporter : la ligne garde sa forme et son icône, en gris pâle. */
-.reglages__ligne[data-disabled] .reglages__intitule {
+/* Rien à exporter : la ligne garde sa forme et son icône, en gris pâle — toute
+   la ligne, état compris : un état resté en `fg-3` la faisait lire active. */
+.reglages__ligne[data-disabled] .reglages__intitule,
+.reglages__ligne[data-disabled] .reglages__etat {
   color: var(--fg-4);
 }
 

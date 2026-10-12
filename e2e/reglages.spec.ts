@@ -169,6 +169,77 @@ test('données : base vide, la ligne d’export est inactive', async ({ page }) 
   await expect(ligneImport(page)).toBeEnabled()
 })
 
+/** Toute la ligne inactive pâlit, et l'appui n'y change rien ; la ligne active, elle, répond. */
+test('données : la ligne inactive est pâle en entier et ne répond pas à l’appui', async ({ page }) => {
+  await ouvrir(page, '/reglages')
+  const couleur = (l: import('@playwright/test').Locator, propriete: 'color' | 'stroke') =>
+    l.evaluate((e, p) => getComputedStyle(e)[p], propriete)
+  const fg4 = await page.evaluate(() => {
+    const e = document.createElement('i')
+    e.style.color = 'var(--fg-4)'
+    document.body.append(e)
+    const c = getComputedStyle(e).color
+    e.remove()
+    return c
+  })
+  const ligne = ligneExport(page)
+  expect(await couleur(ligne.locator('.reglages__intitule'), 'color')).toBe(fg4)
+  expect(await couleur(ligne.locator('.reglages__etat'), 'color')).toBe(fg4)
+  expect(await couleur(ligne.locator('.reglages__icone'), 'stroke')).toBe(fg4)
+
+  const opaciteSousLeDoigt = async (l: import('@playwright/test').Locator) => {
+    const b = (await l.boundingBox())!
+    await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2)
+    await page.mouse.down()
+    const o = await l.evaluate((e) => getComputedStyle(e).opacity)
+    await page.mouse.up()
+    return o
+  }
+  expect(await opaciteSousLeDoigt(ligne)).toBe('1')
+  expect(await opaciteSousLeDoigt(ligneImport(page))).toBe('0.72')
+})
+
+/**
+ * Relève l'état de la ligne d'export et de la valeur Zone 2 à chaque rendu :
+ * un état intermédiaire ne dure qu'une image, aucune attente ne le verrait.
+ */
+async function releverLesRendus(page: import('@playwright/test').Page) {
+  await page.evaluate(() => {
+    const w = window as unknown as { __rendus: unknown[] }
+    w.__rendus = []
+    new MutationObserver(() => {
+      const ligne = [...document.querySelectorAll('button')].find((b) => b.textContent?.includes('Exporter mes séances'))
+      if (!ligne) return
+      w.__rendus.push({
+        inactive: ligne.disabled,
+        etat: ligne.querySelector('.reglages__etat')?.textContent,
+        zone: document.querySelector('a[href="/reglages/zone-2"] .reglages__droite')?.textContent,
+      })
+    }).observe(document.body, { subtree: true, childList: true, characterData: true, attributes: true })
+  })
+  return () => page.evaluate(() => (window as unknown as { __rendus: unknown[] }).__rendus)
+}
+
+test('données : au retour du formulaire, l’export sans séance n’est jamais rendu actif', async ({ page }) => {
+  await ouvrir(page, '/reglages/zone-2', { zones: zoneDefinie })
+  const rendus = await releverLesRendus(page)
+  await geste(page, 'fermer', page.getByRole('link', { name: 'Fermer sans enregistrer' }))
+  await expect(ligneExport(page)).toBeDisabled()
+  const vus = await rendus()
+  expect(vus.length).toBeGreaterThan(0)
+  expect(vus).toEqual(vus.map(() => ({ inactive: true, etat: 'Aucune séance', zone: '120 – 135 bpm' })))
+})
+
+test('données : à l’arrivée sur l’onglet, le compte et la zone sont là dès le premier rendu', async ({ page }) => {
+  await ouvrir(page, '/', { sessions: plein, zones: zoneDefinie })
+  const rendus = await releverLesRendus(page)
+  await geste(page, 'onglet Réglages', page.getByRole('link', { name: 'Réglages' }))
+  await expect(ligneExport(page)).toContainText(`${plein.length} séances`)
+  const vus = await rendus()
+  expect(vus.length).toBeGreaterThan(0)
+  expect(vus).toEqual(vus.map(() => ({ inactive: false, etat: `${plein.length} séances`, zone: '120 – 135 bpm' })))
+})
+
 test('données : exporter, supprimées comprises, le compteur ne montre que les visibles', async ({ page }) => {
   const sauvegarde = await fauxSauvegarde(page)
   const supprimee = { ...plein[0], id: 'supprimee', deletedAt: new Date().toISOString() }

@@ -30,6 +30,11 @@ export default function Reglages() {
   // `?? null` distingue « pas encore lu » (undefined) de « jamais réglé » (null) :
   // sans lui, la ligne afficherait « Non définie » le temps d'une image.
   const bornes = useLiveQuery(async () => (await bornesEnVigueur()) ?? null)
+  const n = useLiveQuery(() => db.sessions.filter((s) => !s.deletedAt).count())
+
+  // L'écran attend ses deux lectures : sans elles, la ligne d'export se
+  // dessinait active puis pâlissait, et les valeurs paraissaient dans un blanc.
+  if (bornes === undefined || n === undefined) return null
 
   return (
     <div className="reglages">
@@ -42,7 +47,7 @@ export default function Reglages() {
           <Link href="/reglages/zone-2" className="hist__item reglages__ligne">
             <span className="label reglages__intitule">Zone 2</span>
             <span className="reglages__droite">
-              {bornes === undefined ? null : bornes === null ? (
+              {bornes === null ? (
                 <span className="hist__value reglages__vide">Non définie</span>
               ) : (
                 <span className="hist__value">
@@ -63,7 +68,7 @@ export default function Reglages() {
       <span className="label reglages__groupe">Mes données</span>
       <ul className="hist">
         <li>
-          <LigneExport />
+          <LigneExport n={n} />
         </li>
         <li>
           <Button className="hist__item reglages__ligne" onPress={importer}>
@@ -175,11 +180,9 @@ function annoncer(texte: string) {
  * aussi les supprimées (sujet 15). À zéro séance, la ligne garde sa forme et
  * son icône, en gris pâle (sujet 7).
  */
-function LigneExport() {
-  const n = useLiveQuery(() => db.sessions.filter((s) => !s.deletedAt).count())
-
+function LigneExport({ n }: { n: number }) {
   async function exporter() {
-    if (!natif || !n) return
+    if (!natif) return
     try {
       const { fait } = await Sauvegarde.exporter({
         nom: nomDuFichier(),
@@ -195,7 +198,7 @@ function LigneExport() {
     <Button className="hist__item reglages__ligne" isDisabled={n === 0} onPress={exporter}>
       <div>
         <div className="label reglages__intitule">Exporter mes séances</div>
-        <div className="reglages__etat">{n === undefined ? '\u00a0' : n ? seances(n) : 'Aucune séance'}</div>
+        <div className="reglages__etat">{n ? seances(n) : 'Aucune séance'}</div>
       </div>
       <svg className="reglages__icone" viewBox="0 0 20 20" aria-hidden="true">
         <path d="M10 3v9.5M6 8.5l4 4 4-4M3.5 13.5v3h13v-3" />
