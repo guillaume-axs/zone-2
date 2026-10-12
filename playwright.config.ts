@@ -10,6 +10,9 @@ import { defineConfig } from '@playwright/test'
  * L'app dev parce que le groupe « Dev » des Réglages a ses parcours ; la prod
  * n'en diffère que par ce groupe, dont l'absence se vérifie sur le paquet.
  */
+/** Deux sessions en parallèle : `PORT_BANC=5299 npm run e2e` dans l'une, le port par défaut dans l'autre. */
+const port = Number(process.env.PORT_BANC ?? 5199)
+
 export default defineConfig({
   testDir: 'e2e',
   // Un seul navigateur : à deux, la machine de dev (2 Go) s'étouffe et les
@@ -18,7 +21,7 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   reporter: [['list'], ['html', { open: 'never' }]],
   use: {
-    baseURL: 'http://localhost:5199',
+    baseURL: `http://localhost:${port}`,
     viewport: { width: 360, height: 780 },
     deviceScaleFactor: 3,
     isMobile: true,
@@ -29,9 +32,9 @@ export default defineConfig({
   },
   webServer: {
     command: process.env.CI
-      ? 'npm run build:dev && npm run preview -- --port 5199 --strictPort'
-      : 'npm run dev -- --port 5199 --strictPort',
-    url: 'http://localhost:5199',
+      ? `npm run build:dev && npm run preview -- --port ${port} --strictPort`
+      : `npm run dev -- --port ${port} --strictPort`,
+    url: `http://localhost:${port}`,
     // Jamais un serveur qu'il n'a pas lancé : le 2026-10-11, un `vite preview`
     // oublié dans une autre copie du dépôt a fait passer les parcours sur une
     // ancienne app. Port déjà pris → échec franc, au lieu d'un faux vert.
