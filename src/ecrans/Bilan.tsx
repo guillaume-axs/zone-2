@@ -39,13 +39,12 @@ export function Valeur({ texte, tendance, depuis }: { texte: string; tendance: T
   return (
     <>
       <div className="value">{texte}</div>
-      {tendance && (
-        <div className={`trend${tendance.sens === 'hausse' ? ' better' : ''}`}>
-          {tendance.sens === 'stable'
-            ? `stable ${depuis}`
-            : `${tendance.sens === 'hausse' ? '↑' : '↓'} ${fr(Math.abs(tendance.variation) * 100, 1)} % ${depuis}`}
-        </div>
-      )}
+      {/* Toujours rendue, vide sans comparaison : changer de fenêtre ne fait rien sauter. */}
+      <div className={`trend${tendance?.sens === 'hausse' ? ' better' : ''}`}>
+        {tendance && (tendance.sens === 'stable'
+          ? `stable ${depuis}`
+          : `${tendance.sens === 'hausse' ? '↑' : '↓'} ${fr(Math.abs(tendance.variation) * 100, 1)} % ${depuis}`)}
+      </div>
     </>
   )
 }
