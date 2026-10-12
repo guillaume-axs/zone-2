@@ -30,6 +30,7 @@ Un écart à une décision écrite est un arbitrage — il se soumet **avant**, 
 | 8 | Dépôt **public** — rien d'identifiant n'y entre |
 | 9 | Ordre : saisie → graphiques → BLE. Séances factices en attendant la ceinture, purgées par réinstallation |
 | 11 | Données live : le service natif écrit un journal, le JS l'importe en base à la fin. L'affichage live ne passe **jamais** par la base |
+| 18 | **Cap** : J0 saisir chaque séance · J1 capture live de la série FC · J2 synchro durable · J3 vitrine. **Gel jusqu'à J1** du banc, du polish et des règles. Le produit est un test conditionnel, pas un chantier |
 
 ---
 
