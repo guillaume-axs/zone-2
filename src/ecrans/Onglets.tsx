@@ -70,9 +70,11 @@ function balayage(fermer: () => void) {
     onPointerUp(e: React.PointerEvent<HTMLDivElement>) {
       const el = e.currentTarget
       if (el.dataset.depart === undefined) return
-      const loin = Math.abs(ecart(e)) > el.offsetWidth * SEUIL_BALAYAGE
-      if (loin) fermer()
-      else relacher(el)
+      const dx = ecart(e)
+      if (Math.abs(dx) <= el.offsetWidth * SEUIL_BALAYAGE) return relacher(el)
+      // Il finit sa course hors de l'écran, du côté où le doigt l'a lancé.
+      el.style.setProperty('--sortie', `calc(${Math.sign(dx)} * (100% + 8px)) 0`)
+      fermer()
     },
     onPointerCancel(e: React.PointerEvent<HTMLDivElement>) {
       relacher(e.currentTarget)

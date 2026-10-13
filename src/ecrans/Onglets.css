@@ -258,9 +258,10 @@
   }
 }
 
+/* Il descend, sauf balayé : il file alors de côté (`--sortie`, posé au lâcher). */
 @keyframes toast-sortie {
   to {
-    translate: 0 24px;
+    translate: var(--sortie, 0 24px);
     opacity: 0;
   }
 }

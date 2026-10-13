@@ -371,6 +371,61 @@ test('toast : il glisse seul, sans transition de vue, et attend que le précéde
   expect(vues).toContain('toasts bottom 200')
 })
 
+/**
+ * Balaye le toast de `dx` pixels et relève sa position à chaque image jusqu'à ce
+ * qu'il quitte l'écran (ou 600 ms s'il reste) : un écart ne dure qu'une image.
+ */
+async function balayer(page: import('@playwright/test').Page, dx: number) {
+  await fauxSauvegarde(page)
+  await ouvrir(page, '/reglages', { sessions: plein })
+  await geste(page, 'appui sur Exporter', ligneExport(page))
+  const b = (await toast(page).boundingBox())!
+  // Sur le texte, hors des boutons (un geste parti d'un bouton n'est pas un
+  // balayage), et du côté opposé au sens : le doigt reste dans l'écran.
+  const x = dx > 0 ? b.x + 24 : b.x + b.width - 80
+  const y = b.y + b.height / 2
+  await page.mouse.move(x, y)
+  await page.mouse.down()
+  await page.mouse.move(x + dx, y, { steps: 8 })
+  const releve = page.evaluate(
+    (repos) =>
+      new Promise<{ x: number; y: number }[]>((ok) => {
+        const positions: { x: number; y: number }[] = []
+        const debut = performance.now()
+        const image = () => {
+          const el = document.querySelector('.toast')
+          if (!el || performance.now() - debut > 600) return ok(positions)
+          // La place à l'écran, pas `translate` : il se lit `calc(100% + 8px)` en route.
+          const r = el.getBoundingClientRect()
+          positions.push({ x: Math.round(r.x - repos.x), y: Math.round(r.y - repos.y) })
+          requestAnimationFrame(image)
+        }
+        image()
+      }),
+    { x: b.x, y: b.y },
+  )
+  await page.mouse.up()
+  return releve
+}
+
+for (const sens of [1, -1]) {
+  test(`toast : balayé ${sens > 0 ? 'à droite' : 'à gauche'}, il sort de ce côté`, async ({ page }) => {
+    const positions = await balayer(page, sens * 200)
+    await expect(toast(page)).toHaveCount(0)
+    // Il ne descend jamais, et chaque image l'emmène plus loin dans le sens du geste.
+    expect(positions.filter((p) => p.y !== 0)).toEqual([])
+    const xs = positions.map((p) => sens * p.x)
+    expect(xs).toEqual([...xs].sort((a, b) => a - b))
+    expect(xs.at(-1)).toBeGreaterThan(200)
+  })
+}
+
+test('toast : lâché avant le seuil, il revient en place et reste', async ({ page }) => {
+  await balayer(page, 40)
+  await expect(toast(page)).toBeVisible()
+  await expect.poll(() => toast(page).evaluate((e) => getComputedStyle(e).translate)).toBe('none')
+})
+
 test('toast : mouvement réduit, rien ne glisse', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
   const { vues, toasts } = await parcoursDuToast(page)
