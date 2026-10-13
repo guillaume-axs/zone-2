@@ -22,7 +22,7 @@ export default function GroupeDev() {
           <Button className="hist__item reglages__ligne" onPress={() => importerSeances(jeuDeTest())}>
             <div>
               <div className="t-intitule reglages__intitule">Charger le jeu de test</div>
-              <div className="reglages__etat">36 séances inventées</div>
+              <div className="reglages__etat t-precision">36 séances inventées</div>
             </div>
             <span className="t-valeur reglages__vide">Charger</span>
           </Button>
@@ -33,7 +33,7 @@ export default function GroupeDev() {
           <Button className="hist__item reglages__ligne" onPress={vider}>
             <div>
               <div className="t-intitule reglages__intitule">Vider la base</div>
-              <div className="reglages__etat">Séances et zone, sans retour</div>
+              <div className="reglages__etat t-precision">Séances et zone, sans retour</div>
             </div>
             <span className="t-valeur reglages__vide">Vider</span>
           </Button>
