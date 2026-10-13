@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "build:dev": "tsc -b && vite build --mode dev",
-    "lint": "oxlint",
+    "lint": "oxlint && stylelint \"src/**/*.css\"",
     "test": "vitest run",
     "test:watch": "vitest",
     "preview": "vite preview",
@@ -36,6 +36,7 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.4",
     "oxlint": "^1.75.0",
+    "stylelint": "17.15.0",
     "typescript": "~6.0.2",
     "vite": "^8.2.0",
     "vitest": "^4.1.10"

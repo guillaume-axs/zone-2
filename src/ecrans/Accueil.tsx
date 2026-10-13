@@ -33,7 +33,7 @@ export default function Accueil() {
     <div className="accueil">
       <div className="tete">
         <Marque />
-        <span className="label">Accueil</span>
+        <span className="t-titre">Accueil</span>
       </div>
       <SelecteurFenetre fenetre={fenetre} onChange={setFenetre} />
       {ef === null ? (
@@ -43,12 +43,12 @@ export default function Accueil() {
           {/* Le héros entier ouvre le détail : un seul chiffre mis en avant, une seule porte. */}
           <Link href={`/efficience?f=${fenetre}`} className="hero">
             <div className="hero-titre">
-              <span className="eyebrow">Efficience</span>
+              <span className="t-intitule">Efficience</span>
               <svg className="chevron" viewBox="0 0 8 14" aria-hidden="true">
                 <path d="M1 1l6 6-6 6" />
               </svg>
             </div>
-            <div className="gloss">watts produits par battement de cœur</div>
+            <div className="gloss t-precision">watts produits par battement de cœur</div>
             <Valeur
               texte={fr(ef, 2)}
               tendance={tendance(ef, efficienceMoyenne(fenetrePrecedente(sessions, fenetre, now)))}
@@ -58,9 +58,9 @@ export default function Accueil() {
           </Link>
           <div className="rows">
             <div className="row">
-              <span className="lab">Volume</span>
+              <span className="lab t-intitule">Volume</span>
               <span className="fill" />
-              <span className="val">{duree(volumeS(actuelles))}</span>
+              <span className="val t-valeur">{duree(volumeS(actuelles))}</span>
             </div>
             <Puissance sessions={actuelles} />
             <Decouplage />
@@ -112,10 +112,10 @@ function SansFrequenceCardiaque({
   const plafond = Math.max(...semaines, 1)
   return (
     <>
-      <div className="eyebrow">Volume hebdomadaire</div>
-      <div className="gloss">temps passé sur le vélo cette semaine</div>
-      <div className="value">{duree(courante)}</div>
-      <div className={`trend${ecartS > 0 ? ' better' : ''}`}>
+      <div className="t-intitule">Volume hebdomadaire</div>
+      <div className="gloss t-precision">temps passé sur le vélo cette semaine</div>
+      <div className="value t-hero">{duree(courante)}</div>
+      <div className={`trend t-precision${ecartS > 0 ? ' better' : ''}`}>
         {Math.abs(ecartS) < 30
           ? 'stable depuis la semaine passée'
           : `${ecartS > 0 ? '↑' : '↓'} ${duree(Math.abs(ecartS))} depuis la semaine passée`}
@@ -125,19 +125,19 @@ function SansFrequenceCardiaque({
           <div key={i} className={`bar${i === 3 ? ' now' : ''}`} style={{ height: `${(v / plafond) * 100}%` }} />
         ))}
       </div>
-      <div className="barlabels" aria-hidden="true">
+      <div className="barlabels t-titre" aria-hidden="true">
         <span>S-3</span><span>S-2</span><span>S-1</span><span>S</span>
       </div>
       <div className="rows">
         <Puissance sessions={actuelles} />
         <div className="row off">
-          <span className="lab">Efficience</span>
+          <span className="lab t-intitule">Efficience</span>
           <Aide>
             Aucune séance de cette période ne porte de fréquence cardiaque. Renseigne-la à la
             saisie et l’efficience apparaîtra ici.
           </Aide>
           <span className="fill" />
-          <span className="val">indisponible</span>
+          <span className="val t-precision">indisponible</span>
         </div>
         <Decouplage />
       </div>
@@ -149,10 +149,10 @@ function Puissance({ sessions }: { sessions: Session[] }) {
   const puissance = puissanceMoyenne(sessions)
   return (
     <div className="row">
-      <span className="lab">Puissance moyenne</span>
+      <span className="lab t-intitule">Puissance moyenne</span>
       <span className="fill" />
-      <span className="val">
-        {puissance === null ? '—' : <>{Math.round(puissance)}<em>W</em></>}
+      <span className="val t-valeur">
+        {puissance === null ? '—' : <>{Math.round(puissance)}<em className="t-titre">W</em></>}
       </span>
     </div>
   )
@@ -161,13 +161,13 @@ function Puissance({ sessions }: { sessions: Session[] }) {
 function Decouplage() {
   return (
     <div className="row off">
-      <span className="lab">Découplage cardiaque</span>
+      <span className="lab t-intitule">Découplage cardiaque</span>
       <Aide>
         Le découplage compare l’efficience de la première et de la seconde moitié de séance.
         Il demande la fréquence cardiaque en continu — elle arrive avec la ceinture.
       </Aide>
       <span className="fill" />
-      <span className="val">indisponible</span>
+      <span className="val t-precision">indisponible</span>
     </div>
   )
 }
@@ -179,11 +179,11 @@ function PremierLancement() {
     <div className="accueil">
       <div className="tete">
         <Marque />
-        <span className="label">Accueil</span>
+        <span className="t-titre">Accueil</span>
       </div>
-      <div className="eyebrow">Efficience</div>
-      <div className="gloss">watts produits par battement de cœur</div>
-      <div className="value ghost"><i /></div>
+      <div className="t-intitule">Efficience</div>
+      <div className="gloss t-precision">watts produits par battement de cœur</div>
+      <div className="value t-hero ghost"><i /></div>
       <svg className="spark" viewBox="0 0 316 96" fill="none" aria-hidden="true">
         <g className="draw">
           <path
@@ -198,14 +198,14 @@ function PremierLancement() {
       <div className="rows">
         {['Volume', 'Puissance moyenne', 'Découplage cardiaque'].map((lab) => (
           <div key={lab} className="row ghost">
-            <span className="lab">{lab}</span>
+            <span className="lab t-intitule">{lab}</span>
             <span className="fill" />
-            <span className="val">—</span>
+            <span className="val t-valeur">—</span>
           </div>
         ))}
       </div>
       {/* Hors du flux : ancré au bouton « + », qui est lui-même fixe. */}
-      <div className="point">
+      <div className="point t-precision">
         <span>↓</span>
         <span>Enregistre ta première séance</span>
       </div>

@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router'
 import './styles/fonts.css'
 import './styles/tokens.css'
 import './styles/base.css'
+import './styles/typo.css'
 import App from './App.tsx'
 
 createRoot(document.getElementById('root')!).render(

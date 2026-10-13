@@ -64,9 +64,6 @@
   display: flex;
   gap: 12px;
   margin-top: 9px;
-  font-family: var(--font-mono);
-  font-size: 9.5px;
-  color: var(--fg-3);
 }
 
 .barlabels span {

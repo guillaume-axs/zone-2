@@ -554,6 +554,25 @@ toutes les fonctionnalités à venir.
 Appliqué d'abord aux
 Réglages (lot export + import) ; les autres écrans seront ramenés à ce barème dans un lot à part.
 
+### Précision du 2026-10-12 — un rôle de plus, et un mur
+
+**Constat.** Le héros de l'Accueil était en Space Grotesk depuis la PR #11, contre la charte qui
+réserve Instrument Serif aux chiffres héros. Une règle écrite n'a pas suffi à l'empêcher.
+
+- **Le héros est en Instrument Serif**, sur l'Accueil, le détail Efficience et la saisie.
+- **Un rôle de plus, « Commande »** : IBM Plex Mono 10,5 px, capitales, pour une commande en texte —
+  sélecteur de fenêtre, « ANNULER » du toast. Sa couleur suit son état.
+- **Les onglets du bas restent une exception assumée** : Space Grotesk 10,5 px sous l'icône.
+- **Les rôles vivent dans `src/styles/typo.css`, nulle part ailleurs.** Police, taille, graisse,
+  espacement de lettres et capitales ne se fixent que là, par classe `.t-*`. Le test
+  `src/styles/typo.test.ts` (stylelint) le vérifie dans la CI : une taille inventée bloque la PR.
+  Un rôle nouveau se soumet au PO et s'écrit ici avant d'entrer dans `typo.css`.
+- **Ce que le mur ne voit pas** : qu'un texte porte le *bon* rôle. Ça reste aux captures et au PO.
+
+Ramené au barème par lots : Accueil et Efficience (lot 1), Historique, Réglages, toasts et onglets
+(lot 2), saisie et Zone 2 (lot 3). Les feuilles pas encore ramenées sont listées dans
+`stylelint.config.mjs`, et la liste se vide lot après lot.
+
 ---
 
 ## Sujet 8 — Publication et posture de sécurité ✅ *(décidé le 2026-08-13)*

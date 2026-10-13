@@ -43,7 +43,7 @@ export default function Efficience() {
             <path d="M16 10H4M9 5l-5 5 5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </Link>
-        <span className="back__title">Efficience</span>
+        <span className="back__title t-titre">Efficience</span>
         <Aide>
           Puissance moyenne divisée par fréquence cardiaque moyenne : les watts produits par
           battement de cœur. Progresser, c’est produire plus à fréquence égale.
@@ -56,19 +56,19 @@ export default function Efficience() {
         depuis={FENETRES.find((f) => f.id === fenetre)!.depuis}
       />
       {points.length === 0 ? (
-        <p className="detail__vide">Aucune séance avec fréquence cardiaque sur cette période.</p>
+        <p className="detail__vide t-precision">Aucune séance avec fréquence cardiaque sur cette période.</p>
       ) : (
         <>
           <Courbe key={fenetre} points={points} />
-          <div className="listhead">Dernières séances</div>
+          <div className="listhead t-titre">Dernières séances</div>
           <div className="recent">
             {points.slice(-5).reverse().map(({ session: s, ef }) => (
               <div key={s.id} className="row">
-                <span className="date">{date(s.startedAt)}</span>
-                <span className="meta">
+                <span className="date t-intitule">{date(s.startedAt)}</span>
+                <span className="meta t-precision">
                   {duree(s.durationS)} · {s.avgPowerW} W · {s.avgHrBpm} bpm
                 </span>
-                <span className="num">{fr(ef, 2)}</span>
+                <span className="t-valeur">{fr(ef, 2)}</span>
               </div>
             ))}
           </div>
@@ -78,8 +78,8 @@ export default function Efficience() {
   )
 }
 
-/* Géométrie de la maquette : 316 × 170, tracé entre x 40–306 et y 10–140. */
-const X0 = 40
+/* Géométrie de la maquette : 316 × 170, tracé entre x 48–306 (axe élargi par l’espacement du rôle Titre) et y 10–140. */
+const X0 = 48
 const X1 = 306
 const Y0 = 10
 const Y1 = 140
@@ -121,15 +121,15 @@ function Courbe({ points }: { points: Point[] }) {
           <path key={i} d={`M${X0 - 6} ${Y0 + (i * (Y1 - Y0)) / 4}h${X1 - X0 + 6 + 10}`} />
         ))}
       </g>
-      <g className="chart__axe" textAnchor="end">
-        <text x="26" y={Y0 + 3.5}>{fr(haut, 2)}</text>
-        <text x="26" y={(Y0 + Y1) / 2 + 3.5}>{fr((haut + bas) / 2, 2)}</text>
-        <text x="26" y={Y1 + 3.5}>{fr(bas, 2)}</text>
+      <g className="t-titre" textAnchor="end">
+        <text x="38" y={Y0 + 3.5}>{fr(haut, 2)}</text>
+        <text x="38" y={(Y0 + Y1) / 2 + 3.5}>{fr((haut + bas) / 2, 2)}</text>
+        <text x="38" y={Y1 + 3.5}>{fr(bas, 2)}</text>
       </g>
 
       <path d={`M${sx} ${Y0}v${Y1 - Y0}`} stroke="var(--fg-4)" strokeWidth="1" strokeDasharray="2 3" />
       <text
-        className="chart__choisi"
+        className="t-valeur"
         x={sx > 200 ? sx - 7 : sx + 7}
         y={Y0 + 11}
         textAnchor={sx > 200 ? 'end' : 'start'}
@@ -149,7 +149,7 @@ function Courbe({ points }: { points: Point[] }) {
       </g>
       <circle cx={sx} cy={y(p.ef)} r="4" fill="var(--accent)" />
 
-      <g className="chart__axe">
+      <g className="t-titre">
         <text x={X0} y="163">{date(points[0].session.startedAt)}</text>
         {dernier >= 2 && (
           <text x={x(milieu)} y="163" textAnchor="middle">{date(points[milieu].session.startedAt)}</text>

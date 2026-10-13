@@ -26,7 +26,7 @@ export function SelecteurFenetre({ fenetre, onChange }: { fenetre: Fenetre; onCh
       onSelectionChange={(keys) => onChange([...keys][0] as Fenetre)}
     >
       {FENETRES.map((f) => (
-        <ToggleButton key={f.id} id={f.id} className="seg">
+        <ToggleButton key={f.id} id={f.id} className="seg t-commande">
           {f.libelle}
         </ToggleButton>
       ))}
@@ -38,9 +38,9 @@ export function SelecteurFenetre({ fenetre, onChange }: { fenetre: Fenetre; onCh
 export function Valeur({ texte, tendance, depuis }: { texte: string; tendance: Tendance | null; depuis: string }) {
   return (
     <>
-      <div className="value">{texte}</div>
+      <div className="value t-hero">{texte}</div>
       {/* Toujours rendue, vide sans comparaison : changer de fenêtre ne fait rien sauter. */}
-      <div className={`trend${tendance?.sens === 'hausse' ? ' better' : ''}`}>
+      <div className={`trend t-precision${tendance?.sens === 'hausse' ? ' better' : ''}`}>
         {tendance && (tendance.sens === 'stable'
           ? `stable ${depuis}`
           : `${tendance.sens === 'hausse' ? '↑' : '↓'} ${fr(Math.abs(tendance.variation) * 100, 1)} % ${depuis}`)}
@@ -54,9 +54,9 @@ export function Aide({ children }: { children: ReactNode }) {
   return (
     <DialogTrigger>
       <Button className="help" aria-label="Pourquoi ?">
-        <i>?</i>
+        <i className="t-titre">?</i>
       </Button>
-      <Popover className="pop" placement="top" offset={10} containerPadding={22}>
+      <Popover className="pop t-valeur" placement="top" offset={10} containerPadding={22}>
         <OverlayArrow className="pop__arrow">
           <svg width="12" height="12" viewBox="0 0 12 12"><path d="M0 0 L6 6 L12 0" /></svg>
         </OverlayArrow>
