@@ -1406,6 +1406,55 @@ terrain. Le compteur, feature par feature, vit dans `docs/mesure-banc.md`.
 
 ---
 
+## Sujet 18 — Cap et jalons ✅ *(décidé le 2026-10-12)*
+
+Deux mois de développement, et la raison d'être n'existait toujours pas : aucun écran ne servait
+pendant l'effort, aucune séance réelle n'était enregistrée. Le dernier mois était allé à l'outil —
+banc d'essai, toasts, règles de méthode. Ce sujet remet le cap au-dessus du code.
+
+### L'ambition
+
+**Outil perso + vitrine + la donnée pour toujours.** L'application sert les séances ; le dépôt sert
+de vitrine ; les données d'entraînement sont gardées dans une base durable, réutilisables par
+d'autres projets.
+
+**Ce que l'étape 2 apporte vraiment.** La ceinture est déjà appairée au vélo, dont la console
+affiche la FC en direct (la H10 tient deux connexions à la fois). L'affichage n'est donc pas la
+valeur : la valeur est la **série FC seconde par seconde**, enregistrée et conservée — la console,
+elle, ne garde rien.
+
+### Les jalons
+
+| Jalon | Contenu | Critère |
+|---|---|---|
+| **J0** — tout de suite, zéro dev | Chaque séance saisie à la main dans l'app prod | 2 séances par semaine, sans trou |
+| **J1** — capture live | L'écran de séance du sujet 12, dont la raison d'être est d'enregistrer la série FC complète | Une vraie séance capturée de bout en bout sur le S22 |
+| **J2** — la donnée pour toujours | Synchro vers la base durable (Supabase, sujet 2) | Téléphone perdu : séances et séries intactes |
+| **J3** — vitrine | README, GIF, décisions d'architecture | Un lecteur comprend le projet en 2 minutes |
+
+**Gel jusqu'à J1** : banc d'essai, polish d'écrans existants, règles de méthode. Seul un bug qui
+gêne l'usage réel passe devant.
+
+### Le produit : un test, pas un chantier
+
+Transformer l'application en produit n'est pas un objectif. C'est une hypothèse, testée à bas coût,
+avec un critère d'arrêt — rien n'est construit pour elle d'ici là.
+
+Motifs : aucune preuve d'usage, pas même celle de l'auteur ; une niche minuscule (Android, ceinture,
+vélo de salle) où des apps existent déjà ; une valeur médiane d'installation santé-sport d'environ
+1 $ par an, deux fois plus faible sur Android ; des verrous (pas de comptes, Android seul, local
+d'abord) justes pour un outil perso et faux pour un produit.
+
+**Le test**, seulement si J0 a tenu trois mois :
+1. Un article — trois mois de séances zone 2, seconde par seconde, ce que la donnée montre — publié
+   dans les communautés vélo en ligne, l'application en lien.
+2. **Moins de 20 demandes : clos, rien n'est publié.** Au-delà, publication gratuite sur le Play
+   Store ; moins de 10 utilisateurs encore actifs au bout d'un mois : clos.
+
+Comment recueillir les demandes et toucher la niche : à trancher le moment venu, pas avant.
+
+---
+
 ## Qualité « portfolio » — les 4 axes validés
 
 1. **Moteur de métriques testé** — module TypeScript pur : EF, découplage, comparaisons glissantes.
