@@ -53,8 +53,8 @@ function ListeSeances() {
     <ul className="hist">
       {sessions?.map((s) => (
         <li key={s.id} className="hist__item">
-          <span className="label">{jour(s.startedAt)}</span>
-          <span className="hist__value">{resume(s)}</span>
+          <span className="t-intitule">{jour(s.startedAt)}</span>
+          <span className="t-valeur">{resume(s)}</span>
         </li>
       ))}
     </ul>
@@ -67,7 +67,7 @@ export default function Historique() {
     <>
       <div className="tete">
         <Marque />
-        <span className="label">Historique</span>
+        <span className="t-titre">Historique</span>
       </div>
       <ListeSeances />
     </>

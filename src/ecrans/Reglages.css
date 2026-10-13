@@ -59,8 +59,6 @@
      d'onglets, il ne participe pas à la mise en page de la liste. */
   margin-bottom: -8px;
   padding-top: 24px;
-  font-family: var(--font-mono);
-  font-size: 9px;
   text-align: center;
   color: var(--fg-5);
 }
@@ -80,9 +78,7 @@
   align-items: baseline;
   white-space: nowrap;
   margin-top: 3px;
-  font-size: 12.5px;
   line-height: 1.2;
-  color: var(--fg-3);
 }
 
 /* La FC en direct : la teinte du héros, seule valeur vivante de la liste.
@@ -149,18 +145,7 @@
   }
 }
 
-/* ---------- Rôles typographiques (sujet 7, précision du 2026-10-11) ---------- */
-
-/* L'intitulé nomme : mono, mais clair. Le gris pâle veut dire « inactif ». */
-.reglages__intitule {
-  color: var(--fg-2);
-}
-
-/* La valeur se lit : Grotesk 15 px, la teinte du héros. */
-.reglages__droite .hist__value {
-  font-size: 15px;
-  color: var(--fg-hero);
-}
+/* Les rôles typographiques vivent dans src/styles/typo.css. */
 
 .reglages__droite .reglages__vide {
   color: var(--accent);

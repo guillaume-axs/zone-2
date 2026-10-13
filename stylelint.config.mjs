@@ -5,16 +5,6 @@
  * donc par la CI.
  */
 
-// Feuilles pas encore ramenées au barème. La liste se vide aux lots 2 et 3 ;
-// n'y ajouter aucune feuille.
-const PAS_ENCORE = [
-  'src/styles/base.css',
-  'src/ecrans/Historique.css',
-  'src/ecrans/Onglets.css',
-  'src/ecrans/Reglages.css',
-  'src/forms/SessionForm.css',
-]
-
 export default {
   rules: {
     'property-disallowed-list': [
@@ -30,6 +20,6 @@ export default {
         'selector-class-pattern': ['^t-[a-z]+$', { message: 'typo.css ne porte que des rôles .t-*' }],
       },
     },
-    { files: ['src/styles/fonts.css', ...PAS_ENCORE], rules: { 'property-disallowed-list': null } },
+    { files: ['src/styles/fonts.css'], rules: { 'property-disallowed-list': null } },
   ],
 }

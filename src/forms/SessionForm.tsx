@@ -186,7 +186,7 @@ export default function SessionForm({ onSaved, initial }: Props) {
           </svg>
         </Link>
         <Marque />
-        <span className="label">Nouvelle séance</span>
+        <span className="t-titre">Nouvelle séance</span>
       </header>
 
       {/* Règle 3 — la durée est seule en haut, en grand : la hiérarchie dit
@@ -199,11 +199,14 @@ export default function SessionForm({ onSaved, initial }: Props) {
             aria-label="Cinq minutes de moins"
             onClick={() => pas(-PAS)}
           >
-            –
+            {/* Tracés plutôt que « – » et « + » : ce sont des icônes, pas du texte. */}
+            <svg width="18" height="18" viewBox="0 0 21 21" fill="none" aria-hidden="true">
+              <path d="M3.6 10.5h13.8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            </svg>
           </button>
           <input
             {...numeric('durationMin', { champ: dureeRef, suivant: puissanceRef })}
-            className="stepper__value"
+            className="stepper__value t-hero"
             type="text"
             inputMode="numeric"
             enterKeyHint="next"
@@ -216,12 +219,14 @@ export default function SessionForm({ onSaved, initial }: Props) {
             aria-label="Cinq minutes de plus"
             onClick={() => pas(PAS)}
           >
-            +
+            <svg width="18" height="18" viewBox="0 0 21 21" fill="none" aria-hidden="true">
+              <path d="M10.5 3.6v13.8M3.6 10.5h13.8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            </svg>
           </button>
         </div>
-        <span className="hero-unit">Minutes</span>
+        <span className="hero-unit t-titre">Minutes</span>
         {errors.durationMin && (
-          <p className="field__err" role="alert">
+          <p className="field__err t-titre" role="alert">
             {errors.durationMin.message}
           </p>
         )}
@@ -229,7 +234,7 @@ export default function SessionForm({ onSaved, initial }: Props) {
 
       <section className="form__rest">
         <div className={`field${errors.avgPowerW ? ' field--bad' : ''}`}>
-          <span className="label">Puissance moy.</span>
+          <span className="t-intitule">Puissance moy.</span>
           <span className="field__in">
             <input
               {...numeric('avgPowerW', {
@@ -241,7 +246,7 @@ export default function SessionForm({ onSaved, initial }: Props) {
                 // ne coûte rien de plus qu'avant, le cas fréquent gagne un geste.
                 avanceA: 3,
               })}
-              className="field__num"
+              className="field__num t-valeur"
               type="text"
               inputMode="numeric"
               enterKeyHint="next"
@@ -249,21 +254,21 @@ export default function SessionForm({ onSaved, initial }: Props) {
               aria-label="Puissance moyenne en watts"
               aria-invalid={errors.avgPowerW ? true : undefined}
             />
-            <span className="unit">W</span>
+            <span className="unit t-titre">W</span>
           </span>
           {errors.avgPowerW && (
-            <p className="field__err" role="alert">
+            <p className="field__err t-titre" role="alert">
               {errors.avgPowerW.message}
             </p>
           )}
         </div>
 
         <div className={`field${errors.avgHrBpm ? ' field--bad' : ''}`}>
-          <span className="label">FC moyenne</span>
+          <span className="t-intitule">FC moyenne</span>
           <span className="field__in">
             <input
               {...numeric('avgHrBpm', { champ: fcRef })}
-              className="field__num"
+              className="field__num t-valeur"
               type="text"
               inputMode="numeric"
               enterKeyHint="done"
@@ -271,10 +276,10 @@ export default function SessionForm({ onSaved, initial }: Props) {
               aria-label="Fréquence cardiaque moyenne"
               aria-invalid={errors.avgHrBpm ? true : undefined}
             />
-            <span className="unit">bpm</span>
+            <span className="unit t-titre">bpm</span>
           </span>
           {errors.avgHrBpm && (
-            <p className="field__err" role="alert">
+            <p className="field__err t-titre" role="alert">
               {errors.avgHrBpm.message}
             </p>
           )}
@@ -285,7 +290,7 @@ export default function SessionForm({ onSaved, initial }: Props) {
             <button
               key={value}
               type="button"
-              className="tag"
+              className="tag t-commande"
               aria-pressed={context.includes(value)}
               onClick={() => toggleContext(value)}
             >
@@ -298,7 +303,7 @@ export default function SessionForm({ onSaved, initial }: Props) {
       {/* Règle 5 — l'action est en bas, pleine largeur, et se relève au-dessus
           du clavier au lieu d'être recouverte par lui. */}
       <div className="form__bottom">
-        <button type="submit" className="save" disabled={isSubmitting}>
+        <button type="submit" className="save t-commande" disabled={isSubmitting}>
           Enregistrer
         </button>
       </div>

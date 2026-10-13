@@ -15,16 +15,16 @@ import { jeuDeTest } from './jeu'
 export default function GroupeDev() {
   return (
     <>
-      <span className="label reglages__groupe">Dev</span>
+      <span className="t-titre reglages__groupe">Dev</span>
       <ul className="hist">
         <li>
           {/* Fusion par identifiant : charger deux fois n'ajoute rien. */}
           <Button className="hist__item reglages__ligne" onPress={() => importerSeances(jeuDeTest())}>
             <div>
-              <div className="label reglages__intitule">Charger le jeu de test</div>
+              <div className="t-intitule reglages__intitule">Charger le jeu de test</div>
               <div className="reglages__etat">36 séances inventées</div>
             </div>
-            <span className="hist__value reglages__vide">Charger</span>
+            <span className="t-valeur reglages__vide">Charger</span>
           </Button>
         </li>
         <li>
@@ -32,10 +32,10 @@ export default function GroupeDev() {
               sur la dev seulement, où rien n'est réel. */}
           <Button className="hist__item reglages__ligne" onPress={vider}>
             <div>
-              <div className="label reglages__intitule">Vider la base</div>
+              <div className="t-intitule reglages__intitule">Vider la base</div>
               <div className="reglages__etat">Séances et zone, sans retour</div>
             </div>
-            <span className="hist__value reglages__vide">Vider</span>
+            <span className="t-valeur reglages__vide">Vider</span>
           </Button>
         </li>
       </ul>

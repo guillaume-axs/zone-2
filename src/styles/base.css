@@ -116,16 +116,6 @@ button:active:not(:disabled) {
   gap: 10px;
 }
 
-/* Étiquette : petites capitales espacées, en monospace. Remplacée par le rôle
-   `.t-titre` de typo.css au lot 3 du barème, puis supprimée. */
-.label {
-  font-family: var(--font-mono);
-  font-size: 9.5px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--fg-4);
-}
-
 /*
  * Chevron : le signe mobile pour « un niveau en dessous ». Partagé par le héros
  * de l'Accueil et les lignes des Réglages, d'où sa place ici.

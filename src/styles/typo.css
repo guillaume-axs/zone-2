@@ -80,4 +80,11 @@
     letter-spacing: 0.11em;
     text-transform: uppercase;
   }
+
+  /* Onglets du bas, sous l'icône : l'exception assumée de la charte. */
+  .t-onglet {
+    font-family: var(--font-ui);
+    font-size: 10.5px;
+    letter-spacing: 0.03em;
+  }
 }

@@ -126,7 +126,7 @@ export default function Onglets() {
           return (
           <Toast
             toast={toast}
-            className="toast"
+            className="toast t-valeur"
             {...balayage(() => annonces.close(toast.key))}
           >
             <ToastContent>
@@ -137,7 +137,7 @@ export default function Onglets() {
             {/* Annuler n'a de sens que pour une séance : un réglage se corrige en
                 rouvrant son écran, et l'annuler demanderait d'écrire une ligne de plus. */}
             {annonce.genre === 'seance' && (
-              <Button className="toast__annuler" onPress={() => annuler(toast.key, annonce)}>
+              <Button className="toast__annuler t-commande" onPress={() => annuler(toast.key, annonce)}>
                 Annuler
               </Button>
             )}
@@ -167,7 +167,7 @@ export default function Onglets() {
           <Link
             key={o.href}
             href={o.href}
-            className="nav__item"
+            className="nav__item t-onglet"
             aria-current={pathname === o.href || (detail && o.href === '/') ? 'page' : undefined}
           >
             <svg width="21" height="21" viewBox="0 0 22 22" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">
