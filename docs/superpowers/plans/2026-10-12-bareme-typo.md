@@ -51,5 +51,6 @@ voulait dire « inactif ») ; états des Réglages en Précision ; toast en Vale
 | Accueil plein, sans fréquence cardiaque, premier lancement, Efficience et bulle : rendu relu avant / après | captures Playwright relues par Claude, montrées au PO |
 | Historique, Réglages, Zone 2, saisie avec erreur : rendu relu avant / après | captures Playwright relues par Claude, montrées au PO |
 | Étiquettes chaleur / fatigue / à jeun / malade à 48 px (44 px sur `main`, défaut antérieur) | contrôle du banc à l'ouverture de la saisie |
+| Le chiffre de la durée garde sa hauteur que sa police soit chargée ou non (sinon −, + et « MINUTES » sautent de 13 px) | Playwright `fumee.spec` |
 | Lisibilité des 9,5 px pendant l'effort | angle mort — S22 |
 | « Enregistrer » en Commande, plus discret, reste repérable mains moites | angle mort — S22 |

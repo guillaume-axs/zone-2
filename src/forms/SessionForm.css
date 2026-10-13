@@ -79,6 +79,9 @@
   background: none;
   text-align: center;
   line-height: 0.9;
+  /* Un champ ne descend pas sous l'interligne de sa police : sans hauteur
+     fixe, il grandit de 13 px quand Instrument Serif arrive, et tout saute. */
+  height: 1.3em;
 }
 
 /* Le champ actif vire à la braise : c'est de l'information (« tu écris ici »),
