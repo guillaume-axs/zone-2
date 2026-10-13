@@ -393,6 +393,18 @@ C'est le module testé qui sert de pièce vitrine, et ça élimine toute désync
 **Série FC : pas de 5 secondes, en lignes SQL** (~540 points/séance). Interrogeable en SQL, branchable sur
 dbt/Metabase/notebook — c'est l'usage qui justifie d'avoir choisi Postgres.
 
+**Révision** *(choix du PO, 2026-10-13)* : **chaque battement est gardé, pas une moyenne sur 5 s.**
+La ceinture envoie l'intervalle entre deux battements (RR, en millisecondes) ; le journal natif les
+reçoit déjà un par un. Les moyenner à l'import détruisait la donnée la plus riche, sans retour
+possible — or le cap (sujet 18) est de garder les données pour toujours, et la variabilité
+cardiaque (DFA α1, piste citée plus haut) n'existe qu'à partir des RR bruts. La moyenne sur 5 s était
+aussi une valeur dérivée stockée, ce que ce sujet interdit : la courbe 5 s se calcule à la lecture.
+Le motif du pas de 5 s était le quota gratuit de Supabase (500 Mo). Recalculé : ~3 500 battements
+par séance, ~0,35 Mo index compris, ~35 Mo par an à deux séances par semaine — quatorze ans de quota.
+Si un jour la place manque, les battements d'une séance tiennent dans une seule ligne (~1 Mo/an).
+`hr_sample` devient donc une ligne par battement : `session_id`, `t_ms` (depuis le début), `rr_ms`.
+Reste ouvert : `power_w` dans la série, tant que le scan nRF Connect ci-dessous n'est pas fait.
+
 ### Vélo de salle
 
 **Technogym — ne diffuse pas en FTMS.** Protocole BLE propriétaire intégré au cas par cas par Zwift ;
