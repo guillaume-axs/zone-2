@@ -89,7 +89,7 @@ export default function Reglages() {
           n'a jamais bougé, et un numéro qui ne bouge pas ne distingue pas deux
           builds installés à une semaine d'écart (sujet 14). */}
       {import.meta.env.VITE_COMMIT && (
-        <footer className="reglages__pied t-titre">{import.meta.env.VITE_COMMIT}</footer>
+        <footer className="reglages__pied t-note">{import.meta.env.VITE_COMMIT}</footer>
       )}
     </div>
   )

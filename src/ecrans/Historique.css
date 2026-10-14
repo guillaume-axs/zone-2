@@ -11,3 +11,8 @@
   padding: 17px 0;
   border-bottom: 1px solid var(--rule-2);
 }
+
+/* La valeur se lit après la date, sans l'écraser : un cran sous le blanc du héros. */
+.hist__value {
+  color: var(--fg-2);
+}

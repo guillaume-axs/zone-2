@@ -28,17 +28,18 @@ test('la saisie s’ouvre sans saut, que la police du chiffre soit là ou non', 
 
 // Sans son fichier, une graisse 500 ou 600 serait simulée par le navigateur :
 // un faux gras qui épaissit le dessin au lieu d'employer celui de la police.
+// Seul Space Grotesk, variable, porte ces graisses : le mono reste en 400.
 test('les graisses du barème viennent de leurs fichiers', async ({ page }) => {
   await ouvrir(page, '/seance/nouvelle')
   const chargees = await page.evaluate(async () => {
     await document.fonts.ready
     return [...document.fonts].filter((f) => f.status === 'loaded').map((f) => `${f.family} ${f.weight}`)
   })
-  expect(chargees).toEqual(expect.arrayContaining(['IBM Plex Mono 500', 'Space Grotesk 300 700']))
+  expect(chargees).toEqual(expect.arrayContaining(['IBM Plex Mono 400', 'Space Grotesk 300 700']))
 })
 
 // Le message d'erreur passe dans la marge réservée sous le champ : à 11 px, il
-// venait buter contre le trait de la saisie.
+// venait buter contre le trait de la saisie. Le PO la veut bien décollée (2026-10-15).
 test('l’erreur d’un champ garde son écart avec le trait du champ', async ({ page }) => {
   await ouvrir(page, '/seance/nouvelle')
   const champ = page.locator('.field', { hasText: 'Puissance moy.' })
@@ -48,5 +49,32 @@ test('l’erreur d’un champ garde son écart avec le trait du champ', async ({
     champ.locator('.field__num').evaluate((e) => e.getBoundingClientRect().bottom),
     champ.locator('.field__err').evaluate((e) => e.getBoundingClientRect().top),
   ])
-  expect(erreur - trait).toBeGreaterThanOrEqual(6)
+  expect(erreur - trait).toBeGreaterThanOrEqual(12)
+})
+
+// Barème allégé (2026-10-15) : le PO trouvait les capitales mono « bourrines ».
+// Tous les rôles en capitales mono restent en 400, espacés de 0,12 em, sur chaque écran.
+test('les capitales mono sont en 400, peu espacées, partout', async ({ page }) => {
+  const forme = (sel: string) =>
+    page.locator(sel).first().evaluate((e) => {
+      const s = getComputedStyle(e)
+      return `${s.fontWeight} ${(parseFloat(s.letterSpacing) / parseFloat(s.fontSize)).toFixed(2)}`
+    })
+  await ouvrir(page, '/', { sessions: plein, zones: zoneDefinie })
+  for (const sel of ['.t-intitule', '.t-titre', '.t-commande']) expect(await forme(sel), sel).toBe('400 0.12')
+})
+
+// Une date de liste a le même rôle partout, et ne se confond plus avec la valeur.
+test('une date de liste : même rôle sur l’Historique et l’Efficience, autre couleur que la valeur', async ({ page }) => {
+  const style = (sel: string) =>
+    page.locator(sel).first().evaluate((e) => {
+      const s = getComputedStyle(e)
+      return { police: `${s.fontFamily} ${s.fontSize} ${s.fontWeight}`, couleur: s.color }
+    })
+  await ouvrir(page, '/historique', { sessions: plein, zones: zoneDefinie })
+  const date = await style('.hist__item > :first-child')
+  const valeur = await style('.hist__value')
+  expect(date.couleur).not.toBe(valeur.couleur)
+  await ouvrir(page, '/efficience', { sessions: plein, zones: zoneDefinie })
+  expect(await style('.recent .date, .row .date')).toEqual(date)
 })

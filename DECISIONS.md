@@ -609,6 +609,25 @@ IBM Plex Mono 500 revient en fichier.
 de ses parents. Le mur de stylelint ne voyait que les propriétés écrites, pas un texte oublié : le
 2026-10-12, le bloc Dev des Réglages est sorti sans rôle, et rien ne l'a arrêté.
 
+### Précision du 2026-10-15 — un barème plus discret *(choix du PO, option A)*
+
+**Constat du PO** sur le barème de la veille : « trop intense et bourrin ». Les capitales mono en 500,
+très espacées, pesaient autant que les valeurs : l'Historique ne distinguait plus la date de la
+séance, et le pied des Réglages était devenu énorme. Critère n°1 maintenu : aucune incohérence d'un
+écran à l'autre, ce que garantit le seul fichier `typo.css`.
+
+- **Capitales mono (Intitulé, Titre, Commande) : 11 px, 400, espacement 0,12 em.** La graisse 500
+  et l'espacement 0,2 em de la précision du 2026-10-14 sont abandonnés. Le plancher de 11 px reste ;
+  le PO a écarté des libellés de champ à 10 px, vus sur captures.
+- **Rôle nouveau « Note »** : IBM Plex Mono 9 px, 400, `fg-5`. Le pied des Réglages seulement, qu'on
+  cherche après une installation sans le lire. **Seule exception au plancher de 11 px.**
+- **Une date de liste prend le rôle Titre**, sur l'Historique comme sur l'Efficience. La valeur de
+  l'Historique passe en `fg-2` : plus claire que la date, plus sobre que le blanc du héros.
+- **Le détail du point choisi du graphe Efficience** passe en Précision.
+- **L'erreur d'un champ reste sous le champ, à 12 px au moins de son trait.** Écarté : l'erreur à la
+  place du libellé (jugée « crado » par le PO) et des messages raccourcis.
+- IBM Plex Mono 500 n'est plus employé : son fichier est retiré.
+
 ---
 
 ## Sujet 8 — Publication et posture de sécurité ✅ *(décidé le 2026-08-13)*
