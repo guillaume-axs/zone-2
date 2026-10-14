@@ -40,17 +40,17 @@ export default function Reglages() {
     <div className="reglages">
       <div className="tete">
         <Marque />
-        <span className="label">Réglages</span>
+        <span className="t-titre">Réglages</span>
       </div>
       <ul className="hist">
         <li>
           <Link href="/reglages/zone-2" className="hist__item reglages__ligne">
-            <span className="label reglages__intitule">Zone 2</span>
+            <span className="t-intitule reglages__intitule">Zone 2</span>
             <span className="reglages__droite">
               {bornes === null ? (
-                <span className="hist__value reglages__vide">Non définie</span>
+                <span className="t-valeur reglages__vide">Non définie</span>
               ) : (
-                <span className="hist__value">
+                <span className="t-valeur">
                   {bornes.z2MinBpm} – {bornes.z2MaxBpm} bpm
                 </span>
               )}
@@ -65,7 +65,7 @@ export default function Reglages() {
         </li>
       </ul>
 
-      <span className="label reglages__groupe">Mes données</span>
+      <span className="t-titre reglages__groupe">Mes données</span>
       <ul className="hist">
         <li>
           <LigneExport n={n} />
@@ -73,8 +73,8 @@ export default function Reglages() {
         <li>
           <Button className="hist__item reglages__ligne" onPress={importer}>
             <div>
-              <div className="label reglages__intitule">Importer une sauvegarde</div>
-              <div className="reglages__etat">Récupère les séances d’un export</div>
+              <div className="t-intitule reglages__intitule">Importer une sauvegarde</div>
+              <div className="reglages__etat t-precision">Récupère les séances d’un export</div>
             </div>
             <svg className="reglages__icone" viewBox="0 0 20 20" aria-hidden="true">
               <path d="M10 12.5V3M6 7l4-4 4 4M3.5 13.5v3h13v-3" />
@@ -89,7 +89,7 @@ export default function Reglages() {
           n'a jamais bougé, et un numéro qui ne bouge pas ne distingue pas deux
           builds installés à une semaine d'écart (sujet 14). */}
       {import.meta.env.VITE_COMMIT && (
-        <footer className="reglages__pied">{import.meta.env.VITE_COMMIT}</footer>
+        <footer className="reglages__pied t-titre">{import.meta.env.VITE_COMMIT}</footer>
       )}
     </div>
   )
@@ -109,8 +109,8 @@ function LigneCapteur() {
   return (
     <Button className="hist__item reglages__ligne" onPress={action}>
       <div>
-        <div className="label reglages__intitule">Capteur cardio</div>
-        <div className="reglages__etat">
+        <div className="t-intitule reglages__intitule">Capteur cardio</div>
+        <div className="reglages__etat t-precision">
           {ligne.etat === 'rien' && 'Non connecté'}
           {ligne.etat === 'recherche' && (
             <>
@@ -136,7 +136,7 @@ function LigneCapteur() {
           {ligne.etat === 'aucun' && 'Aucun capteur trouvé'}
         </div>
       </div>
-      <span className="hist__value reglages__vide reglages__action">
+      <span className="t-valeur reglages__vide reglages__action">
         {ACTIONS.map(([etat, mot]) => (
           <span key={etat} data-actif={etat === ligne.etat || undefined}>
             {mot}
@@ -197,8 +197,8 @@ function LigneExport({ n }: { n: number }) {
   return (
     <Button className="hist__item reglages__ligne" isDisabled={n === 0} onPress={exporter}>
       <div>
-        <div className="label reglages__intitule">Exporter mes séances</div>
-        <div className="reglages__etat">{n ? seances(n) : 'Aucune séance'}</div>
+        <div className="t-intitule reglages__intitule">Exporter mes séances</div>
+        <div className="reglages__etat t-precision">{n ? seances(n) : 'Aucune séance'}</div>
       </div>
       <svg className="reglages__icone" viewBox="0 0 20 20" aria-hidden="true">
         <path d="M10 3v9.5M6 8.5l4 4 4-4M3.5 13.5v3h13v-3" />

@@ -26,7 +26,7 @@ Un écart à une décision écrite est un arbitrage — il se soumet **avant**, 
 | 3 bis | **React Aria Components** (headless). Aucune bibliothèque de composants stylés |
 | 4 | **Aucune valeur dérivée n'est stockée** — l'efficience se calcule à la lecture. `durationS` est le seul champ obligatoire |
 | 7 | Fond quasi-noir, accent braise `#E8663D`, filets fins et **pas de cartes arrondies**, Space Grotesk + IBM Plex Mono |
-| 7 bis | **Le mono nomme, le Grotesk donne la valeur, la braise agit** — six rôles typographiques ; le gris pâle `fg-4` sur un intitulé veut dire inactif ; un élément inactif garde sa place et son icône, jamais retiré |
+| 7 bis | **Le mono nomme, le Grotesk donne la valeur, la braise agit** — sept rôles typographiques, classes `.t-*` de `src/styles/typo.css`, seul fichier où se fixe la typographie (mur : `typo.test.ts`) ; le gris pâle `fg-4` sur un intitulé veut dire inactif ; un élément inactif garde sa place et son icône, jamais retiré |
 | 8 | Dépôt **public** — rien d'identifiant n'y entre |
 | 9 | Ordre : saisie → graphiques → BLE. Séances factices en attendant la ceinture, purgées par réinstallation |
 | 11 | Données live : le service natif écrit un journal, le JS l'importe en base à la fin. L'affichage live ne passe **jamais** par la base |

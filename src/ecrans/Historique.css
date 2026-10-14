@@ -11,9 +11,3 @@
   padding: 17px 0;
   border-bottom: 1px solid var(--rule-2);
 }
-
-.hist__value {
-  font-size: 14.5px;
-  color: var(--fg-2);
-  font-variant-numeric: tabular-nums;
-}

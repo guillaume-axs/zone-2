@@ -31,11 +31,6 @@
 }
 
 .back__title {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--fg-2);
   margin-right: 12px;
 }
 
@@ -48,32 +43,18 @@
   touch-action: pan-y;
 }
 
-.chart__axe {
-  fill: var(--fg-3);
-  font-family: var(--font-mono);
-  font-size: 9.5px;
-}
-
-.chart__choisi {
-  fill: var(--fg-hero);
-  font-family: var(--font-mono);
-  font-size: 10.5px;
+/* Le texte d'un SVG se peint par `fill` : il prend la couleur de son rôle. */
+.chart text {
+  fill: currentColor;
 }
 
 .detail__vide {
   margin-top: 22px;
-  font-size: 12.5px;
-  color: var(--fg-3);
 }
 
 /* ---------- Dernières séances ---------- */
 
 .listhead {
-  font-family: var(--font-mono);
-  font-size: 9.5px;
-  letter-spacing: 0.13em;
-  text-transform: uppercase;
-  color: var(--fg-3);
   margin-top: 22px;
   padding-bottom: 6px;
 }
@@ -83,23 +64,10 @@
 }
 
 .recent .date {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  color: var(--fg-3);
   width: 60px;
   flex: none;
 }
 
 .recent .meta {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--fg-3);
   flex: 1;
-}
-
-.recent .num {
-  font-family: var(--font-mono);
-  font-size: 14px;
-  color: var(--fg-hero);
-  font-variant-numeric: tabular-nums;
 }

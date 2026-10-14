@@ -28,8 +28,6 @@ html {
 body {
   background: var(--bg);
   color: var(--fg);
-  font-family: var(--font-ui);
-  font-size: 16px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 
@@ -65,11 +63,9 @@ input,
 textarea {
   -webkit-user-select: text;
   user-select: text;
-  font: inherit;
 }
 
 button {
-  font: inherit;
   color: inherit;
   background: none;
   border: none;
@@ -106,7 +102,6 @@ button:active:not(:disabled) {
   opacity: 0.72;
 }
 
-/* Étiquette : petites capitales espacées, en monospace */
 /*
  * Tête d'écran : la marque de l'application devant le titre (sujet 14). Un
  * conteneur plutôt qu'une marge sur la marque elle-même — l'écart du formulaire
@@ -119,14 +114,6 @@ button:active:not(:disabled) {
   display: flex;
   align-items: center;
   gap: 10px;
-}
-
-.label {
-  font-family: var(--font-mono);
-  font-size: 9.5px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--fg-4);
 }
 
 /*
@@ -196,8 +183,6 @@ body::after {
   left: calc(22px + env(safe-area-inset-left));
   right: calc(22px + env(safe-area-inset-right));
   bottom: calc(152px + env(safe-area-inset-bottom));
-  font-family: var(--font-mono);
-  font-size: 12px;
   color: var(--accent);
   text-align: center;
   display: flex;

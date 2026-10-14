@@ -64,7 +64,6 @@
   place-items: center;
   border: 1px solid var(--rule);
   color: var(--fg-2);
-  font-size: 22px;
   transition: border-color 0.12s, color 0.12s;
 }
 
@@ -79,12 +78,10 @@
   border: 0;
   background: none;
   text-align: center;
-  font-family: var(--font-display);
-  font-size: 82px;
   line-height: 0.9;
-  letter-spacing: -0.02em;
-  color: var(--fg-hero);
-  font-variant-numeric: tabular-nums;
+  /* Un champ ne descend pas sous l'interligne de sa police : sans hauteur
+     fixe, il grandit de 13 px quand Instrument Serif arrive, et tout saute. */
+  height: 1.3em;
 }
 
 /* Le champ actif vire à la braise : c'est de l'information (« tu écris ici »),
@@ -95,11 +92,6 @@
 }
 
 .hero-unit {
-  font-family: var(--font-mono);
-  font-size: 9.5px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--fg-3);
 }
 
 /* ---- champs optionnels : en retrait, sans le mot « optionnel » (règle 3) ---- */
@@ -119,7 +111,7 @@
   gap: 16px;
   /* La marge basse est la place réservée de l'erreur : quand elle paraît,
      rien ne bouge — ni ce champ, ni celui où le curseur vient d'arriver. */
-  padding: 12px 0 22px;
+  padding: 12px 0 28px;
   border-bottom: 1px solid var(--rule-2);
 }
 
@@ -138,15 +130,10 @@
   border-bottom: 1px solid var(--rule);
   background: none;
   text-align: right;
-  font-size: 19px;
-  font-weight: 500;
-  color: var(--fg);
-  font-variant-numeric: tabular-nums;
 }
 
 .field__num::placeholder {
   color: var(--fg-5);
-  font-weight: 400;
 }
 
 .field__num:focus {
@@ -161,11 +148,6 @@
 
 .unit {
   width: 34px;
-  font-family: var(--font-mono);
-  font-size: 9.5px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--fg-4);
 }
 
 /* L'erreur passe sous le champ, dans la marge qui lui est réservée. */
@@ -173,11 +155,7 @@
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 6px;
-  font-family: var(--font-mono);
-  font-size: 9.5px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  bottom: 4px;
   color: var(--accent);
 }
 
@@ -189,10 +167,9 @@
 }
 
 .tag {
-  min-height: 44px;
+  min-height: 48px;
   padding: 11px 14px;
   border: 1px solid var(--rule);
-  font-size: 13px;
   color: var(--fg-3);
   transition: color 0.12s, border-color 0.12s;
 }
@@ -225,8 +202,6 @@
   min-height: 56px;
   background: var(--fg-hero);
   color: var(--bg);
-  font-size: 15px;
-  font-weight: 600;
   transition: background 0.12s;
 }
 

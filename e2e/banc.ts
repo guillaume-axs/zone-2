@@ -34,8 +34,13 @@ export const test = base.extend({
       window.__decalages = []
       const polices: [number, number][] = []
       document.fonts.addEventListener('loading', () => polices.push([performance.now(), Infinity]))
-      // Une image de marge : le décalage est daté de l'image où la police s'applique.
-      document.fonts.addEventListener('loadingdone', () => (polices.at(-1)![1] = performance.now() + 20))
+      // Le décalage est daté de l'image où la police s'applique. Sous charge,
+      // cette image tarde bien plus que 16 ms (jusqu'à 375 ms mesurés) : la
+      // fenêtre se ferme donc deux images réellement peintes plus tard.
+      document.fonts.addEventListener('loadingdone', () => {
+        const fenetre = polices.at(-1)!
+        requestAnimationFrame(() => requestAnimationFrame(() => (fenetre[1] = performance.now())))
+      })
       new PerformanceObserver((liste) => {
         type Source = { node?: Node; previousRect: DOMRectReadOnly; currentRect: DOMRectReadOnly }
         type Decalage = { startTime: number; sources: Source[] }
@@ -177,6 +182,19 @@ export async function controler(page: Page, etape: string) {
       const isolees = cibles.filter((el) => !(el.tagName === 'A' && getComputedStyle(el).display === 'inline'))
 
       if (document.documentElement.scrollWidth > vw + 1) fautes.push(`la page défile en largeur`)
+
+      // Aucun texte sans rôle (DECISIONS.md, 2026-10-14) : stylelint voit les
+      // tailles écrites, pas un texte oublié — le bloc Dev des Réglages en était un.
+      const ROLE = '[class^="t-"], [class*=" t-"]'
+      const marcheur = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT)
+      const sansRole = new Set<Element>()
+      for (let n = marcheur.nextNode(); n; n = marcheur.nextNode()) {
+        const el = n.parentElement
+        if (el && n.textContent?.trim() && visible(el) && !el.closest(ROLE)) sansRole.add(el)
+      }
+      for (const el of document.querySelectorAll('input:not([type=hidden]), textarea'))
+        if (visible(el) && !el.closest(ROLE)) sansRole.add(el)
+      for (const el of sansRole) fautes.push(`texte sans rôle : ${nom(el)}`)
 
       for (const el of isolees) {
         const r = el.getBoundingClientRect()

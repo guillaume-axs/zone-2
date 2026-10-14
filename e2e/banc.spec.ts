@@ -8,14 +8,23 @@ import { controler, expect, geste, premierAffichage, test } from './banc.ts'
  */
 
 // La balise viewport de l'app : sans elle, Chromium mobile met la page à 980 px.
-const nue = (page: Page, html: string) =>
-  page.setContent(`<meta name="viewport" content="width=device-width, initial-scale=1">${html}`)
+// Le corps porte un rôle, comme dans l'app : chaque test vise un seul défaut.
+const nue = (page: Page, html: string, role = 't-valeur') =>
+  page.setContent(
+    `<meta name="viewport" content="width=device-width, initial-scale=1"><body class="${role}">${html}</body>`,
+  )
 
 const BOUTON = 'style="display:block;width:200px;height:56px;margin:16px"'
 
 test('une page saine passe', async ({ page }) => {
   await nue(page, `<button ${BOUTON}>Un</button><button ${BOUTON}>Deux</button>`)
   await controler(page, 'page saine')
+})
+
+test('un texte sans rôle est signalé', async ({ page }) => {
+  await nue(page, `<p>Enregistre ta première séance</p><input value="12">`, '')
+  await expect(controler(page, 'sans rôle')).rejects.toThrow(/texte sans rôle : Enregistre ta première séance/)
+  await expect(controler(page, 'sans rôle')).rejects.toThrow(/texte sans rôle : <input/)
 })
 
 test('un élément qui saute est nommé', async ({ page }) => {

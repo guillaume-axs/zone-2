@@ -1,0 +1,108 @@
+/*
+ * Barème typographique — DECISIONS.md, sujet 7, précisions du 2026-10-11, du
+ * 2026-10-12 et du 2026-10-14. « Le mono nomme, le Grotesk donne la valeur, la braise agit. »
+ *
+ * Seul fichier où se fixent police, taille, graisse, espacement de lettres et
+ * capitales : `typo.test.ts` refuse ces propriétés partout ailleurs. Un écran
+ * ne choisit pas une taille, il choisit un rôle. Un rôle nouveau est un
+ * arbitrage du PO, écrit dans DECISIONS.md avant d'arriver ici.
+ *
+ * La couleur donnée ici est celle du rôle au repos : les feuilles d'écran
+ * gardent la main sur les états (choisi, inactif, amélioration). D'où la
+ * couche `roles` : toute règle d'écran l'emporte sur elle, quel que soit
+ * l'ordre de chargement — sans elle, `.point` perdait sa braise. Une règle
+ * d'élément de base.css aussi : `button { color: inherit }` passe avant la
+ * couleur d'un rôle posé sur un bouton.
+ */
+
+@layer roles {
+  /* Le socle tient dans la couche, avant les rôles : hors d'elle,
+     `button { font: inherit }` écrasait le rôle d'un bouton. */
+  body {
+    font-family: var(--font-ui);
+    font-size: 16px;
+  }
+
+  input,
+  textarea,
+  button {
+    font: inherit;
+  }
+
+  /* Chiffre héros : Instrument Serif, réservée à lui seul. */
+  .t-hero {
+    font-family: var(--font-display);
+    font-size: 80px;
+    font-weight: 400;
+    line-height: 0.94;
+    letter-spacing: -0.02em;
+    color: var(--fg-hero);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Intitulé d'une ligne : ce que la ligne nomme. */
+  .t-intitule {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--fg-2);
+  }
+
+  /* Valeur, et le texte qu'on lit. */
+  .t-valeur {
+    font-family: var(--font-ui);
+    font-size: 15px;
+    color: var(--fg-hero);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Précision : ce qui complète une valeur ou un titre ; texte de la bulle d'aide. */
+  .t-precision {
+    font-family: var(--font-ui);
+    font-size: 12.5px;
+    color: var(--fg-3);
+  }
+
+  /* Titre, intertitre, unité, axe. */
+  .t-titre {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--fg-4);
+  }
+
+  /* Commande en texte : sélecteur de fenêtre, « ANNULER », étiquettes de la
+     saisie. Sa couleur suit son état. */
+  .t-commande {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+  }
+
+  /* Onglets du bas, sous l'icône : l'exception assumée de la charte. */
+  .t-onglet {
+    font-family: var(--font-ui);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+  }
+
+  /* Message du toast : 14 px, le body-medium du snackbar Material 3. */
+  .t-message {
+    font-family: var(--font-ui);
+    font-size: 14px;
+  }
+
+  /* Bouton plein (`.save`) : un seul par écran, la seule graisse 600. */
+  .t-bouton {
+    font-family: var(--font-ui);
+    font-size: 15px;
+    font-weight: 600;
+  }
+}

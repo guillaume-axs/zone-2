@@ -32,39 +32,9 @@
 @font-face {
   font-family: 'Space Grotesk';
   font-style: normal;
-  font-weight: 300;
-  font-display: block;
-  src: url('/fonts/SpaceGrotesk-300.woff2') format('woff2');
-}
-
-@font-face {
-  font-family: 'Space Grotesk';
-  font-style: normal;
-  font-weight: 400;
+  /* Police variable : ce seul fichier porte toutes ces graisses. */
+  font-weight: 300 700;
   font-display: block;
   src: url('/fonts/SpaceGrotesk-400.woff2') format('woff2');
 }
 
-@font-face {
-  font-family: 'Space Grotesk';
-  font-style: normal;
-  font-weight: 500;
-  font-display: block;
-  src: url('/fonts/SpaceGrotesk-500.woff2') format('woff2');
-}
-
-@font-face {
-  font-family: 'Space Grotesk';
-  font-style: normal;
-  font-weight: 600;
-  font-display: block;
-  src: url('/fonts/SpaceGrotesk-600.woff2') format('woff2');
-}
-
-@font-face {
-  font-family: 'Space Grotesk';
-  font-style: normal;
-  font-weight: 700;
-  font-display: block;
-  src: url('/fonts/SpaceGrotesk-700.woff2') format('woff2');
-}

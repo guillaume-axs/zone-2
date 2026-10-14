@@ -163,12 +163,12 @@ export default function Zone2() {
           </svg>
         </Link>
         <Marque />
-        <span className="label">Zone 2</span>
+        <span className="t-titre">Zone 2</span>
       </header>
 
       <section className="form__rest">
         <div className="field">
-          <span className="label">Âge</span>
+          <span className="t-intitule">Âge</span>
           <span className="field__in">
             <input
               ref={ageRef}
@@ -180,23 +180,23 @@ export default function Zone2() {
                 finRef.current?.focus()
               }}
               onFocus={(e) => e.target.select()}
-              className="field__num"
+              className="field__num t-valeur"
               type="text"
               inputMode="numeric"
               enterKeyHint="next"
               placeholder="—"
               aria-label="Âge"
             />
-            <span className="unit">ans</span>
+            <span className="unit t-titre">ans</span>
           </span>
         </div>
 
         <div className={`field${errors.z2MaxBpm ? ' field--bad' : ''}`}>
-          <span className="label">Fin de zone</span>
+          <span className="t-intitule">Fin de zone</span>
           <span className="field__in">
             <input
               {...numerique('z2MaxBpm', finRef, debutRef)}
-              className="field__num"
+              className="field__num t-valeur"
               type="text"
               inputMode="numeric"
               enterKeyHint="next"
@@ -204,21 +204,21 @@ export default function Zone2() {
               aria-label="Fin de zone en battements par minute"
               aria-invalid={errors.z2MaxBpm ? true : undefined}
             />
-            <span className="unit">bpm</span>
+            <span className="unit t-titre">bpm</span>
           </span>
           {errors.z2MaxBpm && (
-            <p className="field__err" role="alert">
+            <p className="field__err t-titre" role="alert">
               {errors.z2MaxBpm.message}
             </p>
           )}
         </div>
 
         <div className={`field${errors.z2MinBpm ? ' field--bad' : ''}`}>
-          <span className="label">Début de zone</span>
+          <span className="t-intitule">Début de zone</span>
           <span className="field__in">
             <input
               {...numerique('z2MinBpm', debutRef)}
-              className="field__num"
+              className="field__num t-valeur"
               type="text"
               inputMode="numeric"
               enterKeyHint="done"
@@ -226,10 +226,10 @@ export default function Zone2() {
               aria-label="Début de zone en battements par minute"
               aria-invalid={errors.z2MinBpm ? true : undefined}
             />
-            <span className="unit">bpm</span>
+            <span className="unit t-titre">bpm</span>
           </span>
           {errors.z2MinBpm && (
-            <p className="field__err" role="alert">
+            <p className="field__err t-titre" role="alert">
               {errors.z2MinBpm.message}
             </p>
           )}
@@ -242,7 +242,7 @@ export default function Zone2() {
       <div className="form__bottom">
         <button
           type="submit"
-          className="save"
+          className="save t-bouton"
           disabled={isSubmitting || debut === undefined || fin === undefined}
         >
           Enregistrer
