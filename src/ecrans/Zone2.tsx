@@ -242,7 +242,7 @@ export default function Zone2() {
       <div className="form__bottom">
         <button
           type="submit"
-          className="save t-commande"
+          className="save t-bouton"
           disabled={isSubmitting || debut === undefined || fin === undefined}
         >
           Enregistrer

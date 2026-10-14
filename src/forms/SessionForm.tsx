@@ -303,7 +303,7 @@ export default function SessionForm({ onSaved, initial }: Props) {
       {/* Règle 5 — l'action est en bas, pleine largeur, et se relève au-dessus
           du clavier au lieu d'être recouverte par lui. */}
       <div className="form__bottom">
-        <button type="submit" className="save t-commande" disabled={isSubmitting}>
+        <button type="submit" className="save t-bouton" disabled={isSubmitting}>
           Enregistrer
         </button>
       </div>

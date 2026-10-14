@@ -42,7 +42,7 @@ function ListeSeances() {
   // dit ce qui la remplit, et l'action est le bouton « + » qu'elle désigne.
   if (sessions?.length === 0) {
     return (
-      <div className="point">
+      <div className="point t-precision">
         <span>↓</span>
         <span>Enregistre ta première séance</span>
       </div>

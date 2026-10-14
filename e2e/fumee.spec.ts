@@ -25,3 +25,14 @@ test('la saisie s’ouvre sans saut, que la police du chiffre soit là ou non', 
   await page.locator('.stepper__value').waitFor()
   expect(await hauteur()).toBe(chargee)
 })
+
+// Sans son fichier, une graisse 500 ou 600 serait simulée par le navigateur :
+// un faux gras qui épaissit le dessin au lieu d'employer celui de la police.
+test('les graisses du barème viennent de leurs fichiers', async ({ page }) => {
+  await ouvrir(page, '/seance/nouvelle')
+  const chargees = await page.evaluate(async () => {
+    await document.fonts.ready
+    return [...document.fonts].filter((f) => f.status === 'loaded').map((f) => `${f.family} ${f.weight}`)
+  })
+  expect(chargees).toEqual(expect.arrayContaining(['IBM Plex Mono 500', 'Space Grotesk 300 700']))
+})

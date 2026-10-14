@@ -573,6 +573,41 @@ Ramené au barème par lots : Accueil et Efficience (lot 1), Historique, Réglag
 (lot 2), saisie et Zone 2 (lot 3). Les feuilles pas encore ramenées sont listées dans
 `stylelint.config.mjs`, et la liste se vide lot après lot.
 
+### Précision du 2026-10-14 — tailles et graisses, d'après le marché *(choix du PO, option B)*
+
+**Constat.** Les rôles des 2026-10-11 et 2026-10-12 sont nés d'un ménage des tailles du code, sans
+benchmark, et ne disaient rien des graisses : tout est passé en 400, et les fichiers des autres
+graisses ont été supprimés sans que le PO l'ait décidé. Le benchmark fait ensuite donne ceci :
+- **Apple (HIG Typography)** : 11 pt minimum sur iOS, 17 pt par défaut ; éviter les graisses fines.
+- **Material 3 (jetons `md.sys.typescale`)** : le plus petit rôle, label-small, fait 11 px en 500 ;
+  le texte d'un bouton, label-large, fait 14 px en 500.
+- **Whoop, Oura, Strava (captures Play Store)** : rien sous environ 11 px. Whoop et Strava emploient
+  deux graisses. Oura met un serif d'affichage dans son chiffre héros.
+
+Nos capitales mono de 9,5 px étaient donc sous le minimum des deux plateformes.
+
+**Règle : deux graisses, chacune avec un sens.** 400 pour lire ; 500 pour les petites capitales mono
+et les onglets, qui sans elle s'effacent sur le fond noir ; 600 pour un seul bouton plein par écran.
+
+| Rôle | Forme |
+|---|---|
+| Chiffre héros | Instrument Serif 80 px, 400 *(inchangé)* |
+| Intitulé | IBM Plex Mono **11 px, 500**, capitales, `fg-2` |
+| Valeur, texte lu | Space Grotesk 15 px, 400 *(inchangé)* |
+| Précision | Space Grotesk 12,5 px, 400 *(inchangé)* |
+| Titre, intertitre, unité | IBM Plex Mono **11 px, 500**, capitales, `fg-4` |
+| Commande | IBM Plex Mono **12 px, 500**, capitales : sélecteur de fenêtre, « ANNULER », étiquettes de la saisie |
+| Onglet | Space Grotesk **12 px, 500** |
+| **Bouton** *(nouveau)* | Space Grotesk 15 px, **600** : le bouton plein `.save` (« Enregistrer » de la saisie et de Zone 2) |
+
+Le rôle s'appelle « Bouton » et non « Action » : « Action », plus haut, désigne la couleur braise.
+Space Grotesk est une police variable, et un seul fichier porte les graisses de 300 à 700. Seul
+IBM Plex Mono 500 revient en fichier.
+
+**Garde-fou.** Le banc refuse tout texte visible qui n'a pas de rôle `.t-*`, sur lui ou sur l'un
+de ses parents. Le mur de stylelint ne voyait que les propriétés écrites, pas un texte oublié : le
+2026-10-12, le bloc Dev des Réglages est sorti sans rôle, et rien ne l'a arrêté.
+
 ---
 
 ## Sujet 8 — Publication et posture de sécurité ✅ *(décidé le 2026-08-13)*

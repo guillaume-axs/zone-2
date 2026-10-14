@@ -52,5 +52,8 @@ voulait dire « inactif ») ; états des Réglages en Précision ; toast en Vale
 | Historique, Réglages, Zone 2, saisie avec erreur : rendu relu avant / après | captures Playwright relues par Claude, montrées au PO |
 | Étiquettes chaleur / fatigue / à jeun / malade à 48 px (44 px sur `main`, défaut antérieur) | contrôle du banc à l'ouverture de la saisie |
 | Le chiffre de la durée garde sa hauteur que sa police soit chargée ou non (sinon −, + et « MINUTES » sautent de 13 px) | Playwright `fumee.spec` |
-| Lisibilité des 9,5 px pendant l'effort | angle mort — S22 |
-| « Enregistrer » en Commande, plus discret, reste repérable mains moites | angle mort — S22 |
+| Aucun texte visible ni champ sans rôle `.t-*` (garde-fou, DECISIONS.md 2026-10-14) | contrôle du banc sur chaque écran ; rouge prouvé sur l'ancien bloc Dev et dans `banc.spec` |
+| Barème révisé (option B) : capitales mono à 11–12 px en 500, onglets 12 px en 500, « Enregistrer » en Bouton 15 px 600 | captures Playwright relues par Claude, montrées au PO ; banc (débordements, chevauchements) |
+| IBM Plex Mono 500 et Space Grotesk 600 chargés, sans graisse simulée par le navigateur | test Playwright : `document.fonts.check` sur les deux graisses |
+| Lisibilité des capitales de 11 px pendant l'effort | angle mort — S22 |
+| « Enregistrer » en Bouton reste repérable mains moites | angle mort — S22 |

@@ -178,6 +178,19 @@ export async function controler(page: Page, etape: string) {
 
       if (document.documentElement.scrollWidth > vw + 1) fautes.push(`la page défile en largeur`)
 
+      // Aucun texte sans rôle (DECISIONS.md, 2026-10-14) : stylelint voit les
+      // tailles écrites, pas un texte oublié — le bloc Dev des Réglages en était un.
+      const ROLE = '[class^="t-"], [class*=" t-"]'
+      const marcheur = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT)
+      const sansRole = new Set<Element>()
+      for (let n = marcheur.nextNode(); n; n = marcheur.nextNode()) {
+        const el = n.parentElement
+        if (el && n.textContent?.trim() && visible(el) && !el.closest(ROLE)) sansRole.add(el)
+      }
+      for (const el of document.querySelectorAll('input:not([type=hidden]), textarea'))
+        if (visible(el) && !el.closest(ROLE)) sansRole.add(el)
+      for (const el of sansRole) fautes.push(`texte sans rôle : ${nom(el)}`)
+
       for (const el of isolees) {
         const r = el.getBoundingClientRect()
         if (r.width < CIBLE - 0.5 || r.height < CIBLE - 0.5)
