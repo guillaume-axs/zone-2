@@ -34,8 +34,13 @@ export const test = base.extend({
       window.__decalages = []
       const polices: [number, number][] = []
       document.fonts.addEventListener('loading', () => polices.push([performance.now(), Infinity]))
-      // Une image de marge : le décalage est daté de l'image où la police s'applique.
-      document.fonts.addEventListener('loadingdone', () => (polices.at(-1)![1] = performance.now() + 20))
+      // Le décalage est daté de l'image où la police s'applique. Sous charge,
+      // cette image tarde bien plus que 16 ms (jusqu'à 375 ms mesurés) : la
+      // fenêtre se ferme donc deux images réellement peintes plus tard.
+      document.fonts.addEventListener('loadingdone', () => {
+        const fenetre = polices.at(-1)!
+        requestAnimationFrame(() => requestAnimationFrame(() => (fenetre[1] = performance.now())))
+      })
       new PerformanceObserver((liste) => {
         type Source = { node?: Node; previousRect: DOMRectReadOnly; currentRect: DOMRectReadOnly }
         type Decalage = { startTime: number; sources: Source[] }
