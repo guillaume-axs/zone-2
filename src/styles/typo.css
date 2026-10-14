@@ -50,7 +50,7 @@
     color: var(--fg-2);
   }
 
-  /* Valeur, et tout texte qu'on lit : bulle d'aide, toast. */
+  /* Valeur, et le texte qu'on lit. */
   .t-valeur {
     font-family: var(--font-ui);
     font-size: 15px;
@@ -58,7 +58,7 @@
     font-variant-numeric: tabular-nums;
   }
 
-  /* Précision : ce qui complète une valeur ou un titre. */
+  /* Précision : ce qui complète une valeur ou un titre ; texte de la bulle d'aide. */
   .t-precision {
     font-family: var(--font-ui);
     font-size: 12.5px;
@@ -91,6 +91,12 @@
     font-size: 12px;
     font-weight: 500;
     letter-spacing: 0.03em;
+  }
+
+  /* Message du toast : 14 px, le body-medium du snackbar Material 3. */
+  .t-message {
+    font-family: var(--font-ui);
+    font-size: 14px;
   }
 
   /* Bouton plein (`.save`) : un seul par écran, la seule graisse 600. */

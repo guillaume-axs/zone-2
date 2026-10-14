@@ -56,7 +56,7 @@ export function Aide({ children }: { children: ReactNode }) {
       <Button className="help" aria-label="Pourquoi ?">
         <i className="t-titre">?</i>
       </Button>
-      <Popover className="pop t-valeur" placement="top" offset={10} containerPadding={22}>
+      <Popover className="pop t-precision" placement="top" offset={10} containerPadding={22}>
         <OverlayArrow className="pop__arrow">
           <svg width="12" height="12" viewBox="0 0 12 12"><path d="M0 0 L6 6 L12 0" /></svg>
         </OverlayArrow>

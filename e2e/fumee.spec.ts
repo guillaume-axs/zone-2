@@ -36,3 +36,17 @@ test('les graisses du barème viennent de leurs fichiers', async ({ page }) => {
   })
   expect(chargees).toEqual(expect.arrayContaining(['IBM Plex Mono 500', 'Space Grotesk 300 700']))
 })
+
+// Le message d'erreur passe dans la marge réservée sous le champ : à 11 px, il
+// venait buter contre le trait de la saisie.
+test('l’erreur d’un champ garde son écart avec le trait du champ', async ({ page }) => {
+  await ouvrir(page, '/seance/nouvelle')
+  const champ = page.locator('.field', { hasText: 'Puissance moy.' })
+  await champ.locator('.field__num').fill('9999')
+  await champ.locator('.field__num').press('Tab')
+  const [trait, erreur] = await Promise.all([
+    champ.locator('.field__num').evaluate((e) => e.getBoundingClientRect().bottom),
+    champ.locator('.field__err').evaluate((e) => e.getBoundingClientRect().top),
+  ])
+  expect(erreur - trait).toBeGreaterThanOrEqual(6)
+})

@@ -126,7 +126,7 @@ export default function Onglets() {
           return (
           <Toast
             toast={toast}
-            className="toast t-valeur"
+            className="toast t-message"
             {...balayage(() => annonces.close(toast.key))}
           >
             <ToastContent>
