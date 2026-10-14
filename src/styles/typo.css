@@ -1,6 +1,6 @@
 /*
  * Barème typographique — DECISIONS.md, sujet 7, précisions du 2026-10-11, du
- * 2026-10-12 et du 2026-10-14. « Le mono nomme, le Grotesk donne la valeur, la braise agit. »
+ * 2026-10-12, du 2026-10-14 et du 2026-10-15. « Le mono nomme, le Grotesk donne la valeur, la braise agit. »
  *
  * Seul fichier où se fixent police, taille, graisse, espacement de lettres et
  * capitales : `typo.test.ts` refuse ces propriétés partout ailleurs. Un écran
@@ -44,8 +44,7 @@
   .t-intitule {
     font-family: var(--font-mono);
     font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 0.2em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--fg-2);
   }
@@ -69,8 +68,7 @@
   .t-titre {
     font-family: var(--font-mono);
     font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 0.2em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--fg-4);
   }
@@ -80,9 +78,16 @@
   .t-commande {
     font-family: var(--font-mono);
     font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 0.11em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
+  }
+
+  /* Note : le pied des Réglages, qu'on cherche sans le lire. Seule exception
+     au plancher de 11 px (choix du PO, 2026-10-15). */
+  .t-note {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--fg-5);
   }
 
   /* Onglets du bas, sous l'icône : l'exception assumée de la charte. */

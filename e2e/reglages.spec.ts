@@ -433,3 +433,16 @@ test('toast : mouvement réduit, rien ne glisse', async ({ page }) => {
   expect(vues.filter((v) => !v.startsWith('toast__anneau '))).toEqual([])
   expect(toasts).toBe(1)
 })
+
+// Le pied se cherche après une installation, il ne se lit pas : 9 px, gris le plus pâle.
+// Seule exception au plancher de 11 px (choix du PO, 2026-10-15).
+test('le pied des Réglages reste discret', async ({ page }) => {
+  await ouvrir(page, '/reglages')
+  const pied = page.locator('.reglages__pied')
+  await expect(pied).toHaveCSS('font-size', '9px')
+  const pale = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--fg-5').trim())
+  await expect(pied).toHaveCSS('color', await page.evaluate((c) => {
+    const e = document.createElement('i'); e.style.color = c; document.body.append(e)
+    const r = getComputedStyle(e).color; e.remove(); return r
+  }, pale))
+})

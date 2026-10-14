@@ -64,7 +64,7 @@ export default function Efficience() {
           <div className="recent">
             {points.slice(-5).reverse().map(({ session: s, ef }) => (
               <div key={s.id} className="row">
-                <span className="date t-intitule">{date(s.startedAt)}</span>
+                <span className="date t-titre">{date(s.startedAt)}</span>
                 <span className="meta t-precision">
                   {duree(s.durationS)} · {s.avgPowerW} W · {s.avgHrBpm} bpm
                 </span>
@@ -129,7 +129,7 @@ function Courbe({ points }: { points: Point[] }) {
 
       <path d={`M${sx} ${Y0}v${Y1 - Y0}`} stroke="var(--fg-4)" strokeWidth="1" strokeDasharray="2 3" />
       <text
-        className="t-valeur"
+        className="t-precision"
         x={sx > 200 ? sx - 7 : sx + 7}
         y={Y0 + 11}
         textAnchor={sx > 200 ? 'end' : 'start'}
