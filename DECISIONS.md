@@ -596,7 +596,7 @@ et les onglets, qui sans elle s'effacent sur le fond noir ; 600 pour un seul bou
 | Valeur, texte lu | Space Grotesk 15 px, 400 *(inchangé)* |
 | Précision | Space Grotesk 12,5 px, 400 *(inchangé)* ; aussi le texte de la bulle d'aide (Material 3 : body-small, 12 px) |
 | Titre, intertitre, unité | IBM Plex Mono **11 px, 500**, capitales, `fg-4` |
-| Commande | IBM Plex Mono **12 px, 500**, capitales : sélecteur de fenêtre, « ANNULER », étiquettes de la saisie |
+| Commande | IBM Plex Mono **11 px, 500**, capitales, la taille de l'Intitulé (« ANNULER » trouvé trop gros à 12 px par le PO) : sélecteur de fenêtre, « ANNULER », étiquettes de la saisie |
 | Onglet | Space Grotesk **12 px, 500** |
 | **Message** *(nouveau)* | Space Grotesk 14 px, 400 : le texte du toast (Material 3 : body-medium du snackbar, 14 px) |
 | **Bouton** *(nouveau)* | Space Grotesk 15 px, **600** : le bouton plein `.save` (« Enregistrer » de la saisie et de Zone 2) |

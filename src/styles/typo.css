@@ -79,7 +79,7 @@
      saisie. Sa couleur suit son état. */
   .t-commande {
     font-family: var(--font-mono);
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 500;
     letter-spacing: 0.11em;
     text-transform: uppercase;
