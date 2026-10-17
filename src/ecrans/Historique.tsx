@@ -38,14 +38,18 @@ function ListeSeances() {
     [],
   )
 
-  // Même invitation que l'Accueil vide, au même endroit : une liste vide
-  // dit ce qui la remplit, et l'action est le bouton « + » qu'elle désigne.
+  // Une liste vide dit ce qui viendra ici, puis ce qui la remplit : la même
+  // invitation que l'Accueil vide, au même endroit, vers le bouton « + ».
+  // Pendant la lecture de la base, `sessions` est indéfini : rien ne s'affiche.
   if (sessions?.length === 0) {
     return (
-      <div className="point t-precision">
-        <span>↓</span>
-        <span>Enregistre ta première séance</span>
-      </div>
+      <>
+        <p className="hist__vide t-precision">Aucune séance pour l'instant.</p>
+        <div className="point t-precision">
+          <span>↓</span>
+          <span>Enregistre ta première séance</span>
+        </div>
+      </>
     )
   }
 

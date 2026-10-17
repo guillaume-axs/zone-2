@@ -3,6 +3,11 @@
   margin-top: 6px;
 }
 
+/* Le même écart sous le titre que le message vide d'Efficience. */
+.hist__vide {
+  margin-top: 22px;
+}
+
 .hist__item {
   display: flex;
   align-items: baseline;
