@@ -1463,6 +1463,22 @@ Pas de comparaison pixel à pixel : trop de fausses alertes. Les captures serven
 **Chaque maquette liste les états de son écran** — vide, chargement, partiel, erreur, nominal, et
 les transitoires (toast, clavier ouvert, texte long). Les parcours les traversent tous.
 
+**Valider un écran vide : quatre critères** *(choix du PO, 2026-10-18)*. Sources : NN/g, Material,
+Apple (`ContentUnavailableView`), et trois écrans réels — Zumba, Noxogy, une app de budget. Aucune
+app de vélo ou de cardio ne montre le sien : leurs vitrines sont toujours pleines.
+
+| # | Critère | Vérifié par |
+|---|---|---|
+| 1 | **Pas de faux vide** : le message « rien » n'apparaît ni pendant le chargement, ni quand des données existent | test, base remplie |
+| 2 | **Il dit ce qui viendra ici**, en une phrase qui ne ressemble pas à un bouton | test |
+| 3 | **Il montre comment le remplir** : l'action qui le remplit est visible et mène à la saisie | test |
+| 4 | **Il garde le cadre** : titre, barre du bas et places restent (sujet 7 bis) | test + banc |
+
+Écartés : le contenu d'exemple de Material (sujet 9 : rien de factice), l'illustration décorative
+(composant hors charte, sujet 7), le lien « en savoir plus » (un seul utilisateur). Un formulaire
+n'est pas un écran vide : son **état initial** se valide sur deux critères — chaque champ montre
+une valeur de départ sensée ou qu'il est vide, et Enregistrer est atteignable sans défiler.
+
 **Le PO ne fait plus qu'une passe sur le S22**, quand tout est vert. La PR lui donne la liste des
 angles morts du banc : le ressenti, les formulations, la vraie ceinture, les marges système.
 
