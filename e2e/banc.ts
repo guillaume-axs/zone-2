@@ -26,26 +26,15 @@ declare global {
 export const test = base.extend({
   page: async ({ page }, utiliser) => {
     // Au chargement il n'y a aucune action de l'utilisateur : le CLS standard
-    // s'applique tel quel, contrairement aux sauts qui suivent un geste. Un
-    // décalage pendant qu'une police charge ne se voit pas : en
-    // `font-display: block`, le texte reste invisible jusqu'à l'arrivée de sa
-    // police, puis paraît directement à sa place (fichiers locaux, < 100 ms).
+    // s'applique tel quel, sans aucune tolérance. Un décalage pendant le
+    // chargement d'une police se voit : le texte est invisible, mais pas le
+    // cadre qui le porte. D'où `main.tsx`, qui attend les polices avant d'afficher.
     await page.addInitScript(() => {
       window.__decalages = []
-      const polices: [number, number][] = []
-      document.fonts.addEventListener('loading', () => polices.push([performance.now(), Infinity]))
-      // Le décalage est daté de l'image où la police s'applique. Sous charge,
-      // cette image tarde bien plus que 16 ms (jusqu'à 375 ms mesurés) : la
-      // fenêtre se ferme donc deux images réellement peintes plus tard.
-      document.fonts.addEventListener('loadingdone', () => {
-        const fenetre = polices.at(-1)!
-        requestAnimationFrame(() => requestAnimationFrame(() => (fenetre[1] = performance.now())))
-      })
       new PerformanceObserver((liste) => {
         type Source = { node?: Node; previousRect: DOMRectReadOnly; currentRect: DOMRectReadOnly }
         type Decalage = { startTime: number; sources: Source[] }
         for (const e of liste.getEntries() as unknown as Decalage[]) {
-          if (polices.some(([de, a]) => e.startTime >= de && e.startTime <= a)) continue
           for (const { node, previousRect: a, currentRect: b } of e.sources) {
             // Sous le pixel, l'œil ne voit rien : arrondis de police, demi-pixels.
             if (Math.abs(a.x - b.x) < 1 && Math.abs(a.y - b.y) < 1) continue
