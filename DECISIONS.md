@@ -1556,6 +1556,30 @@ elle, ne garde rien.
 **Gel jusqu'à J1** : banc d'essai, polish d'écrans existants, règles de méthode. Seul un bug qui
 gêne l'usage réel passe devant.
 
+### J1 — le périmètre *(validé par le PO, 2026-10-18)*
+
+**Un seul but : qu'une vraie séance laisse tous ses battements dans l'app.** Le sujet 12 reste la
+cible ; J1 n'en prend que ce qui sert à enregistrer.
+
+**Dedans** : Démarrer (bouton central, puis « Démarrer » une fois la ceinture trouvée) · le service
+natif écrit chaque battement dans son journal, écran éteint compris, et se reconnecte seul (sujet 11)
+· un écran d'effort sobre : FC en héros, temps écoulé, temps en zone, écran maintenu allumé ·
+Terminer par appui long de 2 s · la séance est rangée (durée, FC moyenne, battements) et le
+formulaire existant s'ouvre prérempli pour les watts.
+
+**Dehors, pour plus tard** : alertes de sortie de zone (vibrations, plein écran verrouillé) — la
+console du vélo affiche déjà la FC · pause · état « Échauffement » · signature du battement ·
+mini-courbe de fin · puissance (J1 bis, sujet 4).
+
+**Sobre ne veut pas dire à part.** L'écran d'effort suit la charte comme les autres (sujets 7 et
+7 bis) : il reprend les composants existants, sa maquette charge le CSS réel et passe par l'étude UX
+(méthode de `CLAUDE.md`). Un composant nouveau se soumet au PO.
+
+**Critère** : une séance de 45 min sur le S22, écran éteint au moins une fois, est rangée avec
+environ 3 500 battements. Au même instant, l'app et la console du vélo affichent la même FC — elles
+lisent la même ceinture. Les moyennes, elles, peuvent différer de 1 ou 2 bpm : les deux appareils ne
+démarrent ni ne s'arrêtent à la même seconde.
+
 ### Le produit : un test, pas un chantier
 
 Transformer l'application en produit n'est pas un objectif. C'est une hypothèse, testée à bas coût,
