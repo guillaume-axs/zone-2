@@ -78,3 +78,12 @@ test('une date de liste : même rôle sur l’Historique et l’Efficience, autr
   await ouvrir(page, '/efficience', { sessions: plein, zones: zoneDefinie })
   expect(await style('.recent .date, .row .date')).toEqual(date)
 })
+
+// L'app attend ses polices avant de s'afficher (main.tsx) : un fichier qui ne
+// répond jamais ne doit pas la laisser sur un écran vide.
+test('une police qui ne répond pas ne bloque pas l’affichage', async ({ page }) => {
+  await page.route('**/IBMPlexMono-400.woff2', () => {})
+  // Pas d'attente du chargement complet : la police en suspens ne finit jamais.
+  await page.goto('/', { waitUntil: 'commit' })
+  await expect(page.getByText('Efficience', { exact: true })).toBeVisible({ timeout: 15000 })
+})
