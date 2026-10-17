@@ -403,7 +403,7 @@ Le motif du pas de 5 s était le quota gratuit de Supabase (500 Mo). Recalculé 
 par séance, ~0,35 Mo index compris, ~35 Mo par an à deux séances par semaine — quatorze ans de quota.
 Si un jour la place manque, les battements d'une séance tiennent dans une seule ligne (~1 Mo/an).
 `hr_sample` devient donc une ligne par battement : `session_id`, `t_ms` (depuis le début), `rr_ms`.
-Reste ouvert : `power_w` dans la série, tant que le scan nRF Connect ci-dessous n'est pas fait.
+La puissance n'y entre pas : elle vient d'un autre appareil, à un autre rythme (voir « Vélo de salle »).
 
 ### Vélo de salle
 
@@ -412,6 +412,17 @@ TrainerRoad et les autres ne s'y connectent pas. **Le rétro-ingéniérer est ex
 → La puissance reste en saisie manuelle.
 
 *Vérification gratuite à faire une fois :* scanner avec **nRF Connect** à côté du vélo. Si `0x1826` apparaît, réviser.
+
+**Révision** *(scan nRF Connect du PO, 2026-10-15 ; choix du PO, 2026-10-17)* : **le vélo diffuse sa
+puissance en direct, au format standard.** Il annonce le service Cycling Power (`0x1818`), connectable
+sans appairage ; la mesure (`0x2A63`) arrive en notification avec la puissance et les tours de pédale
+(donc la cadence). Une trame relevée en pédalant se lit 144 W. Il annonce aussi FTMS (`0x1826`), mais
+ses valeurs sont incohérentes (FC à 2 bpm, puissance instantanée à 0 W) : **on lit Cycling Power, pas
+FTMS.** Aucune rétro-ingénierie : c'est le protocole public que lisent Garmin, Wahoo ou Zwift.
+Le paragraphe ci-dessus ne vaut plus que pour FTMS.
+**Ordre** : J1 capture la FC seule — deux appareils à la fois doublent les causes de panne. La
+puissance live arrive juste après, en **J1 bis**, dans sa propre série (une ligne par mesure du vélo,
+détail cadré avec J1 bis). La saisie manuelle de la puissance reste jusque-là.
 
 ---
 
