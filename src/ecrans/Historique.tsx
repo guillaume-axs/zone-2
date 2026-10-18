@@ -44,7 +44,7 @@ function ListeSeances() {
   if (sessions?.length === 0) {
     return (
       <>
-        <p className="hist__vide t-precision">Aucune séance pour l'instant.</p>
+        <p className="hist__vide t-filigrane">Aucune séance pour l'instant.</p>
         <div className="point t-precision">
           <span>↓</span>
           <span>Enregistre ta première séance</span>
