@@ -3,9 +3,18 @@
   margin-top: 6px;
 }
 
-/* Le même écart sous le titre que le message vide d'Efficience. */
+/* Au centre du vide, entre le titre et l'invitation : comme `.point`, hors du
+   flux et fixe, pour ne dépendre ni de la hauteur de la page ni du défilement. */
 .hist__vide {
-  margin-top: 22px;
+  position: fixed;
+  top: calc(64px + env(safe-area-inset-top));
+  right: calc(22px + env(safe-area-inset-right));
+  bottom: calc(210px + env(safe-area-inset-bottom));
+  left: calc(22px + env(safe-area-inset-left));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 
 .hist__item {

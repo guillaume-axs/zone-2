@@ -64,6 +64,14 @@
     color: var(--fg-3);
   }
 
+  /* Filigrane : le message d'un écran vide, dans le gris du fond. Exception
+     au contraste, assumée au sujet 17 de DECISIONS.md (2026-10-18). */
+  .t-filigrane {
+    font-family: var(--font-ui);
+    font-size: 17px;
+    color: var(--fg-5);
+  }
+
   /* Titre, intertitre, unité, axe. */
   .t-titre {
     font-family: var(--font-mono);

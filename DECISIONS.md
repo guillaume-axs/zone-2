@@ -1479,6 +1479,14 @@ app de vélo ou de cardio ne montre le sien : leurs vitrines sont toujours plein
 n'est pas un écran vide : son **état initial** se valide sur deux critères — chaque champ montre
 une valeur de départ sensée ou qu'il est vide, et Enregistrer est atteignable sans défiler.
 
+**Le message d'un écran vide est un filigrane** *(choix du PO, 2026-10-18, après essai sur le S22)*.
+Centré entre le titre et l'invitation, 17 px, dans le gris `fg-5` : il fait partie du fond, comme
+sur les écrans vides du marché, et ne se confond jamais avec une action. **Exception assumée** au
+contraste WCAG (≈ 2:1 au lieu de 4,5:1) et aux six rôles du sujet 7 bis — un septième, `.t-filigrane` : l'information utile est
+portée par l'invitation braise, le filigrane ne fait que confirmer le vide. Écartés : la même
+phrase en haut à gauche (un trou jusqu'au « + »), en `fg-3` ou `fg-4` (posée sur le fond, pas
+dedans), avec la marque ECG agrandie (doublon de l'en-tête).
+
 **Le PO ne fait plus qu'une passe sur le S22**, quand tout est vert. La PR lui donne la liste des
 angles morts du banc : le ressenti, les formulations, la vraie ceinture, les marges système.
 

@@ -31,6 +31,19 @@ test("l'Historique vide dit qu'il n'a rien, et comment le remplir", async ({ pag
   await ouvrir(page, '/historique')
   await cadre(page, 'Historique')
   await expect(page.getByText(VIDE)).toBeVisible()
+  // Le filigrane est au centre du vide : centré en largeur, à mi-hauteur entre
+  // le titre et l'invitation, à quelques pixels près.
+  const boite = (texte: string) =>
+    page.locator('main').getByText(texte, { exact: true }).evaluate((e) => {
+      const r = document.createRange()
+      r.selectNodeContents(e)
+      const b = r.getBoundingClientRect()
+      return { haut: b.top, bas: b.bottom, milieuX: b.left + b.width / 2 }
+    })
+  const [titre, vide, invitation] = await Promise.all([boite('Historique'), boite(VIDE), boite(INVITATION)])
+  expect(Math.abs(vide.milieuX - 180)).toBeLessThan(4)
+  const milieu = (titre.bas + invitation.haut) / 2
+  expect(Math.abs((vide.haut + vide.bas) / 2 - milieu)).toBeLessThan(40)
   await versLaSaisie(page)
 })
 
