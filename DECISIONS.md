@@ -1580,6 +1580,24 @@ environ 3 500 battements. Au même instant, l'app et la console du vélo affiche
 lisent la même ceinture. Les moyennes, elles, peuvent différer de 1 ou 2 bpm : les deux appareils ne
 démarrent ni ne s'arrêtent à la même seconde.
 
+### J1 — le cahier des charges *(arbitrages du PO, 2026-10-19)*
+
+Détail, critères et découpage : `docs/superpowers/specs/2026-10-19-j1-capture-live-design.md`.
+
+- **Une séance tuée est retrouvée** au lancement suivant, rangée seule, durée modifiable — dans J1.
+  Sans cela, la première séance interrompue serait perdue.
+- **Sans zone réglée, on démarre quand même** : temps en zone `—`, une invite mène aux Réglages.
+  Écart assumé au sujet 12 (« renvoi vers le réglage ») : bloquer coûterait une séance pour un chiffre.
+- **Durée et FC moyenne d'une séance live ne se corrigent pas** — elles viennent des battements ;
+  les modifier ferait deux vérités. Seule exception : la séance retrouvée.
+- **Le service de séance est le seul détenteur de la ceinture**, et c'est lui qui compte temps écoulé
+  et temps en zone : écran verrouillé, le JavaScript est gelé. L'écran affiche, il ne calcule pas.
+  Deux accès en parallèle (greffon pour l'écran, service pour le journal) sont proscrits.
+- **L'export porte les battements** (format version 2), ajouté au périmètre : sans cela, un export
+  perdrait la série sans le dire.
+- **Démarrer ou saisir une séance finie** : la précision du sujet 3 (lien « Saisir à la main » en bas)
+  est rouverte, à trancher par le benchmark de l'écran Démarrer.
+
 ### Le produit : un test, pas un chantier
 
 Transformer l'application en produit n'est pas un objectif. C'est une hypothèse, testée à bas coût,
