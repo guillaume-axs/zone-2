@@ -160,7 +160,7 @@ class CapteurPlugin : Plugin() {
         ceinture = null
     }
 
-    /** Connecté, le capteur doit parler : chaque battement relance le délai. */
+    /** Connecté, le capteur doit parler : chaque battement porté relance le délai. */
     private fun guetter() {
         fil.removeCallbacks(silence)
         fil.postDelayed(silence, SILENCE_MS)
@@ -169,6 +169,7 @@ class CapteurPlugin : Plugin() {
     private fun adaptateur() = context.getSystemService(BluetoothManager::class.java)?.adapter
 
     private fun battement(b: Battement) {
+        if (!b.porte) return
         guetter()
         notifyListeners("fc", JSObject().put("bpm", b.bpm))
     }

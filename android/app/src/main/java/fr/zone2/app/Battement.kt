@@ -18,7 +18,14 @@ data class Battement(
     val bpm: Int,
     val contact: Boolean?,
     val rr: List<Int>,
-)
+) {
+    /**
+     * La ceinture est-elle portée ? Seul un capteur qui gère le contact et dit
+     * ne pas le sentir répond non : retiré de la ceinture, le H10 continue
+     * d'émettre, et ses trames ne prouvent plus rien.
+     */
+    val porte: Boolean get() = contact != false
+}
 
 /**
  * Décode la caractéristique « Heart Rate Measurement » (`0x2A37`) du service
