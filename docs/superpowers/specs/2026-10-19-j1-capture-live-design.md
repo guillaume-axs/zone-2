@@ -84,14 +84,19 @@ calcule à l'affichage depuis l'heure de départ du service : il avance même sa
 - Déjà en base → rien n'est écrit (ni écrasé), le fichier est effacé — comme `nouvelles()` de
   `sauvegarde.ts`.
 - Une dernière ligne coupée par un arrêt brutal est ignorée, pas tout le fichier.
-- Un journal illisible n'est **jamais** effacé ; l'erreur s'affiche.
+- Un journal illisible n'est **jamais** effacé : une version corrigée de l'app le rangera seule au
+  lancement. Un message unique — « Une séance n'a pas pu être rangée, elle est gardée » — invite à le
+  signaler.
+- **Trames manquantes** (écriture ratée, ceinture muette) : en fin de séance, une ligne « N min non
+  enregistrées », seulement s'il y a un trou. L'utilisateur peut alors recopier la FC moyenne de la
+  console. C'est la couverture du sujet 15 §2, réduite à l'essentiel.
 - Dexie version 3 : table `trames`, une ligne par séance (sujet 11, point 1).
 
 **Formulaire de fin.** Il **complète** la séance existante (puissance, contexte, durée si retrouvée) ;
 il n'en crée pas une seconde.
 
-**Robustesse du service.** Une écriture ratée s'affiche dans la notification, jamais avalée en
-silence. Un échec de découverte des services BLE ne coupe pas la reconnexion. Le service suit lui-même
+**Robustesse du service.** Une écriture ratée est retentée seule à la trame suivante : en pleine
+séance, l'utilisateur ne pourrait rien en faire. Le trou se dit en fin de séance (voir ci-dessous). Un échec de découverte des services BLE ne coupe pas la reconnexion. Le service suit lui-même
 la coupure du Bluetooth et le silence de 5 s. Écriture vidée à chaque trame, `sync()` toutes les 30 s
 et à l'arrêt.
 
@@ -123,8 +128,8 @@ code de test n'entre dans l'app.
 | 12 | App rouverte pendant qu'une séance tourne : l'écran d'effort revient, rien n'est rangé | banc + S22 |
 | 13 | **Critère J1** : 45 min, écran verrouillé au moins une fois ; trames reçues ≥ 99 % de la durée ; somme des RR = durée à 2 % près ; même FC que la console à l'instant T ; moyennes à 2 bpm près | angle mort — S22 |
 | 14 | App devant : l'écran reste allumé. Verrouillé volontairement : chaque trame est enregistrée, et au déverrouillage l'écran montre FC et temps à jour | banc (retour) + S22 (verrouillé) |
-| 15 | Écriture impossible : la notification le dit | unitaire (Kotlin) ou angle mort — S22 |
-| 16 | Dernière ligne coupée : le reste est rangé. Journal illisible : jamais effacé, erreur affichée | unitaire |
+| 15 | Écriture ratée : retentée à la trame suivante. Trames manquantes : « N min non enregistrées » en fin de séance, rien s'il n'en manque pas | unitaire + banc |
+| 16 | Dernière ligne coupée : le reste est rangé, sans message. Journal illisible : jamais effacé, rangé par une version corrigée ; message unique « Une séance n'a pas pu être rangée, elle est gardée » | unitaire + banc |
 | 17 | Export puis import : les trames reviennent ; un fichier v1 s'importe toujours ; une séance v1 déjà présente reçoit ses trames | unitaire + banc |
 
 ## Livraison — trois PR
