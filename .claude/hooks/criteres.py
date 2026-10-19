@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""Refuse de modifier un écran tant que la feature n'a pas sa liste de critères.
+"""Refuse de modifier un écran tant que la feature n'a pas sa liste de critères
+et son audit du standard Android.
+
+Ajout du 2026-10-19 : la section `## Standard Android` du plan, tirée des skills
+material-3 et capgo. L'audit des PR avait montré des retouches qui rejoignaient
+Material après coup ; le standard se lit désormais avant le premier jet.
 
 Motif (2026-10-11, sujet 17) : le banc ne vérifie que ce qu'on lui apprend. Un
 test écrit après le code vérifie ce que le code fait, pas ce que le PO a
@@ -77,25 +82,40 @@ if branche in ("main", "master"):
 nom = branche.split("/")[-1]
 plans = glob.glob(os.path.join(racine, "docs/superpowers/plans", f"*-{nom}.md"))
 
+def lignes_du_tableau(texte, titre):
+    section = re.search(rf"^## {titre}\s*$(.*?)(?=^## |\Z)", texte, re.M | re.S)
+    if not section:
+        return 0
+    return len([
+        l for l in section.group(1).splitlines()
+        if l.startswith("|") and not re.fullmatch(r"[|\s:-]+", l)
+    ])
+
+
+criteres = audit = False
 for plan in plans:
     with open(plan, encoding="utf-8") as f:
         texte = f.read()
-    section = re.search(r"^## Critères\s*$(.*?)(?=^## |\Z)", texte, re.M | re.S)
-    if not section:
-        continue
-    lignes = [
-        l for l in section.group(1).splitlines()
-        if l.startswith("|") and not re.fullmatch(r"[|\s:-]+", l)
-    ]
-    # La première ligne est l'en-tête du tableau.
-    if len(lignes) >= 2:
-        sys.exit(0)
+    # La première ligne d'un tableau est son en-tête.
+    criteres = criteres or lignes_du_tableau(texte, "Critères") >= 2
+    audit = audit or lignes_du_tableau(texte, "Standard Android") >= 2
 
-refuser(
-    f"Pas de liste de critères pour la branche « {branche} ».\n"
-    f"Avant de toucher un écran : créer docs/superpowers/plans/AAAA-MM-JJ-{nom}.md "
-    "avec une section `## Critères` en tableau « Critère | Vérifié par », bâtie "
-    "depuis la demande du PO, DECISIONS.md et les états fixes (vide, chargement, "
-    "erreur, texte long, clavier, retour, hors ligne) — puis la soumettre au PO "
-    "avec l'approche. Sujet 17 de DECISIONS.md."
-)
+if not criteres:
+    refuser(
+        f"Pas de liste de critères pour la branche « {branche} ».\n"
+        f"Avant de toucher un écran : créer docs/superpowers/plans/AAAA-MM-JJ-{nom}.md "
+        "avec une section `## Critères` en tableau « Critère | Vérifié par », bâtie "
+        "depuis la demande du PO, DECISIONS.md et les états fixes (vide, chargement, "
+        "erreur, texte long, clavier, retour, hors ligne) — puis la soumettre au PO "
+        "avec l'approche. Sujet 17 de DECISIONS.md."
+    )
+if not audit:
+    refuser(
+        f"Pas d'audit du standard pour la branche « {branche} ».\n"
+        "Avant de toucher un écran : charger les skills material-3 (et "
+        "capacitor-keyboard, capacitor-accessibility, safe-area-handling s'ils "
+        "s'appliquent), puis ajouter au plan une section `## Standard Android` en "
+        "tableau « Ce que le standard impose | Source | Appliqué ici » : mesures, "
+        "durées, comportements, états. Un écart au standard est un arbitrage soumis "
+        "au PO. Posture de CLAUDE.md."
+    )

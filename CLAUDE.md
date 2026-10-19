@@ -15,7 +15,12 @@ composant ou comportement **part du standard de la plateforme** — Material 3 (
 comportements), les recommandations Android, une bibliothèque établie — et n'est habillé par la charte
 (sujet 7) qu'ensuite. La charte donne les couleurs et la typographie ; le standard donne le reste.
 **Rien n'est inventé qui existe déjà.** Un écart au standard est un arbitrage soumis au PO, avec son
-motif. Le 2026-10-18, l'audit des PR a montré que les retouches finissaient presque toutes par rejoindre
+motif. Le standard se lit dans les skills, pas de mémoire : `material-3` pour les écrans,
+`capacitor-keyboard`, `capacitor-accessibility` et `safe-area-handling` (Capgo) pour la WebView,
+`android-permissions-security` et `edge-to-edge` (officiels Google, `github.com/android/skills`) pour
+le natif. Installés le 2026-10-19 dans `~/.claude/skills`, après lecture. **Mur** :
+`.claude/hooks/criteres.py` refuse d'éditer un écran tant que le plan de la branche n'a pas sa
+section `## Standard Android` (« Ce que le standard impose | Source | Appliqué ici »). Le 2026-10-18, l'audit des PR a montré que les retouches finissaient presque toutes par rejoindre
 Material (marge du toast, durées, file, cibles de 48 px) : la norme était connue, mais appliquée après
 coup.
 
