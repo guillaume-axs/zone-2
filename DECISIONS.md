@@ -403,6 +403,10 @@ Le motif du pas de 5 s était le quota gratuit de Supabase (500 Mo). Recalculé 
 par séance, ~0,35 Mo index compris, ~35 Mo par an à deux séances par semaine — quatorze ans de quota.
 Si un jour la place manque, les battements d'une séance tiennent dans une seule ligne (~1 Mo/an).
 `hr_sample` devient donc une ligne par battement : `session_id`, `t_ms` (depuis le début), `rr_ms`.
+**Précision** *(choix du PO, 2026-10-19 — A1 du cahier J1)* : on garde **chaque trame** de la ceinture,
+`{ t_ms, bpm, rr[] }`. La FC qu'elle envoie rend la moyenne recalculable et comparable à la console,
+et reste le seul chiffre quand une trame n'a pas de RR. Contact peau et événements de liaison ne
+quittent pas le journal : un trou se voit déjà par l'absence de trames.
 La puissance n'y entre pas : elle vient d'un autre appareil, à un autre rythme (voir « Vélo de salle »).
 
 ### Vélo de salle
@@ -1576,7 +1580,9 @@ mini-courbe de fin · puissance (J1 bis, sujet 4).
 (méthode de `CLAUDE.md`). Un composant nouveau se soumet au PO.
 
 **Critère** : une séance de 45 min sur le S22, écran éteint au moins une fois, est rangée avec
-environ 3 500 battements. Au même instant, l'app et la console du vélo affichent la même FC — elles
+≥ 99 % de trames sur la durée, somme des RR égale à la durée à 2 % près
+*(corrigé le 2026-10-19 : « ~3 500 battements » venait d'une estimation de stockage ; 45 min à
+~125 bpm en font ~5 600)*. Au même instant, l'app et la console du vélo affichent la même FC — elles
 lisent la même ceinture. Les moyennes, elles, peuvent différer de 1 ou 2 bpm : les deux appareils ne
 démarrent ni ne s'arrêtent à la même seconde.
 
@@ -1593,6 +1599,9 @@ Détail, critères et découpage : `docs/superpowers/specs/2026-10-19-j1-capture
 - **Le service de séance est le seul détenteur de la ceinture**, et c'est lui qui compte temps écoulé
   et temps en zone : écran verrouillé, le JavaScript est gelé. L'écran affiche, il ne calcule pas.
   Deux accès en parallèle (greffon pour l'écran, service pour le journal) sont proscrits.
+- **Le service se connecte dès l'écran Démarrer** et y affiche la FC, preuve de connexion ; il
+  n'enregistre qu'au « Démarrer » (A2). Pas de passage de relais entre greffon et service.
+- **On garde chaque trame** : heure, FC envoyée, intervalles RR (A1, voir sujet 4).
 - **L'export porte les battements** (format version 2), ajouté au périmètre : sans cela, un export
   perdrait la série sans le dire.
 - **Démarrer ou saisir une séance finie** : la précision du sujet 3 (lien « Saisir à la main » en bas)
