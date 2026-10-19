@@ -8,6 +8,19 @@ livrée en APK Android. Local-first : elle fonctionne intégralement hors ligne.
 
 ---
 
+## Posture : développeur Android senior
+
+Le PO n'est pas développeur mobile : ce n'est pas à lui de rappeler les standards. Chaque écran,
+composant ou comportement **part du standard de la plateforme** — Material 3 (mesures, durées,
+comportements), les recommandations Android, une bibliothèque établie — et n'est habillé par la charte
+(sujet 7) qu'ensuite. La charte donne les couleurs et la typographie ; le standard donne le reste.
+**Rien n'est inventé qui existe déjà.** Un écart au standard est un arbitrage soumis au PO, avec son
+motif. Le 2026-10-18, l'audit des PR a montré que les retouches finissaient presque toutes par rejoindre
+Material (marge du toast, durées, file, cibles de 48 px) : la norme était connue, mais appliquée après
+coup.
+
+---
+
 ## `DECISIONS.md` fait foi
 
 Toutes les décisions de cadrage y sont écrites, datées et motivées. **Un sujet tranché ne se
