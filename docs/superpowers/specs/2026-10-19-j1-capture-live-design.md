@@ -85,7 +85,7 @@ calcule à l'affichage depuis l'heure de départ du service : il avance même sa
   `sauvegarde.ts`.
 - Une dernière ligne coupée par un arrêt brutal est ignorée, pas tout le fichier.
 - Un journal illisible n'est **jamais** effacé : une version corrigée de l'app le rangera seule au
-  lancement. Un message unique — « Une séance n'a pas pu être rangée, elle est gardée » — invite à le
+  lancement. Un message unique — « Une séance n'a pas pu être rangée » — invite à le
   signaler.
 - **Trames manquantes** (écriture ratée, ceinture muette) : en fin de séance, une ligne « N min non
   enregistrées », seulement s'il y a un trou. L'utilisateur peut alors recopier la FC moyenne de la
@@ -129,7 +129,7 @@ code de test n'entre dans l'app.
 | 13 | **Critère J1** : 45 min, écran verrouillé au moins une fois ; trames reçues ≥ 99 % de la durée ; somme des RR = durée à 2 % près ; même FC que la console à l'instant T ; moyennes à 2 bpm près | angle mort — S22 |
 | 14 | App devant : l'écran reste allumé. Verrouillé volontairement : chaque trame est enregistrée, et au déverrouillage l'écran montre FC et temps à jour | banc (retour) + S22 (verrouillé) |
 | 15 | Écriture ratée : retentée à la trame suivante. Trames manquantes : « N min non enregistrées » en fin de séance, rien s'il n'en manque pas | unitaire + banc |
-| 16 | Dernière ligne coupée : le reste est rangé, sans message. Journal illisible : jamais effacé, rangé par une version corrigée ; message unique « Une séance n'a pas pu être rangée, elle est gardée » | unitaire + banc |
+| 16 | Dernière ligne coupée : le reste est rangé, sans message. Journal illisible : jamais effacé, rangé par une version corrigée ; message unique « Une séance n'a pas pu être rangée » | unitaire + banc |
 | 17 | Export puis import : les trames reviennent ; un fichier v1 s'importe toujours ; une séance v1 déjà présente reçoit ses trames | unitaire + banc |
 
 ## Livraison — trois PR
