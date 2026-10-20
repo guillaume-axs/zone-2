@@ -1,5 +1,8 @@
 package fr.zone2.app
 
+import java.io.File
+import java.io.RandomAccessFile
+
 /**
  * Temps passé dans la zone, cumulé trame après trame.
  *
@@ -59,6 +62,24 @@ object Journal {
     fun relance(ms: Long): String = "R,$ms\n"
 
     fun fin(ms: Long): String = "S,$ms\n"
+
+    /**
+     * Retire du fichier le reste de ligne qui suit le dernier `\n` (arrêt
+     * brutal, écriture coupée). Sans ça, la ligne suivante s'y collerait et
+     * ferait une ligne illisible au milieu, donc un journal illisible. Ce
+     * reste n'a jamais été lisible. Crée le fichier s'il manque.
+     */
+    fun couperReste(f: File) {
+        RandomAccessFile(f, "rw").use { r ->
+            var n = r.length()
+            while (n > 0) {
+                r.seek(n - 1)
+                if (r.read() == '\n'.code) break
+                n--
+            }
+            r.setLength(n)
+        }
+    }
 
     /**
      * Rejoue le journal (son texte entier) pour retrouver les compteurs.

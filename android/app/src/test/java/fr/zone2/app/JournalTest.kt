@@ -3,6 +3,7 @@ package fr.zone2.app
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
+import java.io.File
 
 class JournalTest {
 
@@ -124,5 +125,34 @@ class JournalTest {
         c.compter(5000, 135, 120, 135)
         c.compter(10000, 135, 120, 135)
         assertEquals(10000L, c.enZoneMs)
+    }
+
+    private fun fichier(texte: String) = File.createTempFile("journal", ".log").apply {
+        deleteOnExit()
+        writeText(texte)
+    }
+
+    @Test
+    fun `couperReste retire le fragment final`() {
+        val f = fichier("D,1000,abc,-,-\nB,2000,130,1,800\nB,30")
+        Journal.couperReste(f)
+        assertEquals("D,1000,abc,-,-\nB,2000,130,1,800\n", f.readText())
+    }
+
+    @Test
+    fun `couperReste laisse un journal complet intact`() {
+        val f = fichier("D,1000,abc,-,-\nS,2000\n")
+        Journal.couperReste(f)
+        assertEquals("D,1000,abc,-,-\nS,2000\n", f.readText())
+    }
+
+    @Test
+    fun `couperReste vide un fichier sans aucune ligne complete`() {
+        val f = fichier("D,1000,ab")
+        Journal.couperReste(f)
+        assertEquals("", f.readText())
+        val vide = fichier("")
+        Journal.couperReste(vide)
+        assertEquals("", vide.readText())
     }
 }

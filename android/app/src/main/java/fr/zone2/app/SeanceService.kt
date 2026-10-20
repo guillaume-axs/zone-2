@@ -23,7 +23,6 @@ import com.getcapacitor.JSObject
 import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStreamWriter
-import java.io.RandomAccessFile
 import java.io.Writer
 import java.util.UUID
 
@@ -63,6 +62,18 @@ class SeanceService : Service() {
     private var compteurs = Compteurs()
 
     @Volatile private var seance: Active? = null
+
+    /**
+     * La séance que ce service tient en mémoire — la seule définition de
+     * « séance en cours » pour le greffon, qui ne lit jamais les préférences.
+     */
+    val seanceEnCours: Active? get() = seance
+
+    /** La séance trouvée à la création, à reprendre au premier `onStartCommand` (fil principal). */
+    private var aReprendre: Active? = null
+
+    /** Posé au premier `startForeground` (fil principal). */
+    private var auPremierPlan = false
     @Volatile private var etat = Ceinture.Etat.RECHERCHE.name
     @Volatile private var dernierBpm: Int? = null
     @Volatile private var derniereTrameMs: Long? = null
@@ -106,10 +117,24 @@ class SeanceService : Service() {
             IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED),
             ContextCompat.RECEIVER_NOT_EXPORTED,
         )
+        // Avant de s'exposer au greffon : une séance notée dont le journal
+        // existe encore est à lui. Journal disparu = déjà rangé et effacé
+        // par l'application pendant que le service était mort : on l'oublie,
+        // plutôt que d'écrire un second journal sous le même id.
+        seance = active(this)?.takeIf { fichier(this, it.id).exists() }
+        if (seance == null) oublierActive(this)
+        aReprendre = seance
         enCours = this
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (intent?.action == ACTION_LACHER && !auPremierPlan && aReprendre == null) {
+            // `lacher` est envoyé sans condition (`startService`) : un service
+            // créé par lui n'a rien à lâcher. Surtout pas de `startForeground` —
+            // Bluetooth refusé, Android 14 le refuserait d'une exception.
+            stopSelf()
+            return START_NOT_STICKY
+        }
         // Démarré par `startForegroundService`, le service a 10 s pour s'annoncer :
         // c'est la première chose qu'il fait, quelle que soit la demande.
         ServiceCompat.startForeground(
@@ -118,16 +143,21 @@ class SeanceService : Service() {
                 ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE
             else 0,
         )
+        auPremierPlan = true
 
+        aReprendre?.let { a ->
+            // Relancé seul par Android (`intent == null`), ou recréé avant que
+            // l'application ait rangé la séance tuée : on continue le même
+            // journal. Rien n'est perdu, rien n'est rangé en double.
+            aReprendre = null
+            handler.post { reprendre(a) }
+        }
         if (intent == null) {
-            // Relancé seul par Android : une séance notée se reprend, sinon il
-            // n'y a rien à faire — une écoute ne survit pas à sa mort.
-            val a = active(this)
-            if (a == null) {
+            // Sans séance, une écoute ne survit pas à sa mort.
+            if (seance == null) {
                 stopSelf()
                 return START_NOT_STICKY
             }
-            handler.post { reprendre(a) }
             return START_STICKY
         }
 
@@ -217,7 +247,6 @@ class SeanceService : Service() {
     }
 
     private fun reprendre(a: Active) {
-        seance = a
         ouvrirJournal(a)
         compteurs = runCatching { Journal.rejouer(fichier(this, a.id).readText(), a.min, a.max) }
             .onFailure { Log.w(TAG, "Journal illisible à la reprise, temps en zone repris à zéro", it) }
@@ -237,7 +266,7 @@ class SeanceService : Service() {
         a.min?.let { e.putInt(CLE_MIN, it) }
         a.max?.let { e.putInt(CLE_MAX, it) }
         // Synchrone : la séance doit être sur le disque avant sa première trame.
-        e.commit()
+        if (!e.commit()) Log.w(TAG, "Séance non notée : une relance d'Android ne pourra pas la reprendre")
     }
 
     // --- ceinture -----------------------------------------------------------
@@ -305,15 +334,7 @@ class SeanceService : Service() {
         fermerJournal()
         try {
             val f = fichier(this, a.id)
-            RandomAccessFile(f, "rw").use { r ->
-                var n = r.length()
-                while (n > 0) {
-                    r.seek(n - 1)
-                    if (r.read() == '\n'.code) break
-                    n--
-                }
-                r.setLength(n)
-            }
+            Journal.couperReste(f)
             val s = FileOutputStream(f, true)
             flux = s
             journal = OutputStreamWriter(s, Charsets.UTF_8)
@@ -377,7 +398,10 @@ class SeanceService : Service() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
         val canal = NotificationChannel(CANAL, "Séance en cours", NotificationManager.IMPORTANCE_LOW)
         canal.setShowBadge(false)
-        getSystemService(NotificationManager::class.java).createNotificationChannel(canal)
+        val nm = getSystemService(NotificationManager::class.java)
+        nm.createNotificationChannel(canal)
+        // Le canal du PoC, même nom affiché : sans ça, deux « Séance en cours » dans les réglages.
+        nm.deleteNotificationChannel("survie")
     }
 
     /** Le seul retour visible écran verrouillé : la liaison tient-elle, et la FC. */
@@ -431,7 +455,7 @@ class SeanceService : Service() {
         fun fichier(context: Context, id: String) = File(context.filesDir, "$PREFIXE$id.log")
 
         /** La séance notée sur le disque, qu'un service la tienne encore ou non. */
-        fun active(context: Context): Active? {
+        private fun active(context: Context): Active? {
             val p = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
             val id = p.getString(CLE_ID, null) ?: return null
             return Active(
@@ -442,7 +466,7 @@ class SeanceService : Service() {
             )
         }
 
-        fun oublierActive(context: Context) {
+        private fun oublierActive(context: Context) {
             context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().clear().commit()
         }
 

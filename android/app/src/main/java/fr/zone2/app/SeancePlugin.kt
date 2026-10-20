@@ -25,9 +25,10 @@ import org.json.JSONObject
  * journal fermé. `journaux` et `effacer` servent le rangement : un journal se
  * lit, se range en base, et ne s'efface qu'ensuite.
  *
- * Une séance notée sur le disque sans service vivant est morte avec lui
- * (Q1) : elle est oubliée à la première question, son journal devient un
- * orphelin à ranger. L'ancien `*.log` du PoC n'est jamais listé.
+ * « Séance en cours » = celle que le service vivant tient en mémoire. Sans
+ * service, il n'y en a pas : la séance tuée est un orphelin à ranger (Q1).
+ * Le greffon ne lit ni n'écrit jamais les préférences du service. L'ancien
+ * `*.log` du PoC n'est jamais listé.
  */
 @CapacitorPlugin(
     name = "Seance",
@@ -101,22 +102,31 @@ class SeancePlugin : Plugin() {
         call.resolve(JSObject().put("lance", true))
     }
 
-    /** On quitte l'écran Démarrer : le service s'arrête, sauf séance en cours. */
+    /**
+     * On quitte l'écran Démarrer : le service s'arrête, sauf séance en cours.
+     * Envoyé sans condition : juste après `ecouter`, le service n'est peut-être
+     * pas encore créé, et c'est lui qui décide, sur son fil.
+     */
     @PluginMethod
     fun lacher(call: PluginCall) {
-        if (SeanceService.enCours != null) {
-            context.startService(
-                Intent(context, SeanceService::class.java).setAction(SeanceService.ACTION_LACHER),
-            )
-        }
+        context.startService(
+            Intent(context, SeanceService::class.java).setAction(SeanceService.ACTION_LACHER),
+        )
         call.resolve()
     }
 
     /** `min` et `max` absents : pas de zone réglée (Q2), la séance démarre quand même. */
     @PluginMethod
     fun demarrer(call: PluginCall) {
+        val min = call.getInt("min")
+        val max = call.getInt("max")
+        // Les deux bornes ou aucune : une seule ferait un temps en zone toujours nul, sans le dire.
+        if ((min == null) != (max == null)) return call.reject("Zone incomplète : min et max vont ensemble.")
+        if (min != null && max != null && !(min in 1..max && max <= 255)) {
+            return call.reject("Zone invalide : il faut 1 ≤ min ≤ max ≤ 255.")
+        }
         val service = SeanceService.enCours ?: return call.reject("La ceinture n'est pas écoutée.")
-        service.demarrer(call.getInt("min"), call.getInt("max")) { a ->
+        service.demarrer(min, max) { a ->
             if (a == null) {
                 call.reject("Le service de séance s'est arrêté.")
             } else {
@@ -184,18 +194,8 @@ class SeancePlugin : Plugin() {
         call.resolve()
     }
 
-    /**
-     * La séance en cours : notée sur le disque **et** tenue par un service
-     * vivant. Notée sans service, elle est morte avec le processus : on
-     * l'oublie, pour qu'une relance tardive ne la reprenne pas dans un
-     * journal déjà rangé.
-     */
-    private fun actif(): SeanceService.Active? {
-        val a = SeanceService.active(context) ?: return null
-        if (SeanceService.enCours != null) return a
-        SeanceService.oublierActive(context)
-        return null
-    }
+    /** La séance tenue en mémoire par le service vivant, s'il y en a un. */
+    private fun actif(): SeanceService.Active? = SeanceService.enCours?.seanceEnCours
 
     private companion object {
         const val TAG = "SeancePlugin"
