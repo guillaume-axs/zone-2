@@ -94,6 +94,31 @@ describe("lireJournal", () => {
     expect(lire(["D,1000,u1,-,-", "S,1000"])?.session.durationS).toBe(1);
   });
 
+  it("rr à 0 au milieu : null, en dernière ligne : ignoré", () => {
+    expect(
+      lire(["D,0,u1,-,-", "B,1000,120,1,0", "B,2000,120,1,800"]),
+    ).toBeNull();
+    expect(
+      lire(["D,0,u1,-,-", "B,2000,120,1,800", "B,3000,120,1,0"])?.trames,
+    ).toHaveLength(1);
+  });
+
+  it("ligne antérieure au D (t_ms négatif) : mauvaise ligne", () => {
+    expect(
+      lire(["D,5000,u1,-,-", "B,1000,120,1,800", "B,6000,120,1,800"]),
+    ).toBeNull();
+    expect(
+      lire(["D,5000,u1,-,-", "B,6000,120,1,800", "B,1000,120,1,800"])?.trames,
+    ).toHaveLength(1);
+  });
+
+  it("un second D est une mauvaise ligne", () => {
+    expect(lire(["D,0,u1,-,-", "D,500,u2,-,-", "B,1000,120,1,800"])).toBeNull();
+    expect(
+      lire(["D,0,u1,-,-", "B,1000,120,1,800", "D,2000,u2,-,-"])?.session.id,
+    ).toBe("u1");
+  });
+
   it("bpm hors 0-255 : ligne illisible", () => {
     expect(lire(["D,0,u1,-,-", "B,1000,300,1,", "S,2000"])).toBeNull();
   });

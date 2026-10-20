@@ -62,30 +62,43 @@ export function lireJournal(
   if (complet === "") return null;
   const brutes = complet.slice(0, -1).split("\n");
 
-  const lues: NonNullable<ReturnType<typeof lireLigne>>[] = [];
-  for (let i = 0; i < brutes.length; i++) {
-    const l = lireLigne(brutes[i]);
-    if (l) lues.push(l);
-    else if (i < brutes.length - 1) return null;
-  }
-  const depart = lues[0];
-  if (depart?.[0] !== "D") return null;
-  const debutMs = depart[1];
+  // Une ligne est mauvaise si elle ne se lit pas, si un D n'est pas le premier,
+  // ou si sa trame viole trameSchema. Mauvaise au milieu : journal illisible ;
+  // la dernière seule est ignorée.
+  const premiere = lireLigne(brutes[0]);
+  if (premiere?.[0] !== "D") return null;
+  const debutMs = premiere[1];
 
   const trames: Trame[] = [];
   let fin = debutMs;
-  for (const l of lues) {
+  let stopMs: number | undefined;
+  for (let i = 1; i < brutes.length; i++) {
+    const l = lireLigne(brutes[i]);
+    let trame: Trame | undefined;
+    let bonne = l !== null && l[0] !== "D";
+    if (l?.[0] === "B") {
+      const r = trameSchema.safeParse({
+        t_ms: l[1] - debutMs,
+        bpm: l[2],
+        rr: l[4],
+      });
+      bonne = r.success;
+      if (r.success) trame = r.data;
+    }
+    if (!l || !bonne) {
+      if (i < brutes.length - 1) return null;
+      break;
+    }
     fin = l[1];
-    if (l[0] === "B")
-      trames.push({ t_ms: l[1] - debutMs, bpm: l[2], rr: l[4] });
+    if (trame) trames.push(trame);
+    if (l[0] === "S") stopMs = l[1];
   }
-  const stop = lues.find((l) => l[0] === "S");
-  if (stop) fin = stop[1];
+  if (stopMs !== undefined) fin = stopMs;
 
   const positifs = trames.filter((t) => t.bpm > 0);
   const iso = maintenant.toISOString();
   const session: Session = {
-    id: depart[2],
+    id: premiere[2],
     startedAt: new Date(debutMs).toISOString(),
     durationS: Math.max(1, Math.round((fin - debutMs) / 1000)),
     source: "live",
