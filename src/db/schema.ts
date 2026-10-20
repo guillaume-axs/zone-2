@@ -72,3 +72,9 @@ export interface Trame {
   bpm: number
   rr: number[]
 }
+
+/** Les trames d'une séance live, rangées à part : la liste d'historique ne les charge jamais. `id` est celui de la séance. */
+export interface TramesSeance {
+  id: string
+  trames: Trame[]
+}

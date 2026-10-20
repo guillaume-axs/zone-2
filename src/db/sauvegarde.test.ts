@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { lireFichier, nomDuFichier, nouvelles, versFichier } from './sauvegarde'
-import type { Session } from './schema'
+import type { Session, TramesSeance } from './schema'
 
 const seance = (id: string, extra: Partial<Session> = {}): Session => ({
   id,
@@ -14,14 +14,44 @@ const seance = (id: string, extra: Partial<Session> = {}): Session => ({
   ...extra,
 })
 
+const trames = (id: string): TramesSeance => ({
+  id,
+  trames: [
+    { t_ms: 0, bpm: 120, rr: [500, 510] },
+    { t_ms: 1000, bpm: 0, rr: [] },
+  ],
+})
+
 describe('lireFichier', () => {
   it('relit ce que versFichier écrit, séances supprimées comprises', () => {
     const sessions = [seance('a'), seance('b', { deletedAt: '2026-10-02T08:00:00.000Z' })]
-    expect(lireFichier(versFichier(sessions))).toEqual(sessions)
+    expect(lireFichier(versFichier(sessions, []))).toEqual({ sessions, trames: [] })
+  })
+
+  it('relit un fichier v2, trames comprises', () => {
+    const sessions = [seance('a', { source: 'live' })]
+    const t = [trames('a')]
+    expect(lireFichier(versFichier(sessions, t))).toEqual({ sessions, trames: t })
+  })
+
+  it('lit encore un fichier v1 : trames vides', () => {
+    const sessions = [seance('a')]
+    const v1 = JSON.stringify({
+      app: 'zone2',
+      version: 1,
+      exportedAt: '2026-10-02T08:00:00.000Z',
+      sessions,
+    })
+    expect(lireFichier(v1)).toEqual({ sessions, trames: [] })
+  })
+
+  it('refuse une trame mal formée', () => {
+    const mauvaise: TramesSeance = { id: 'a', trames: [{ t_ms: 0, bpm: -1, rr: [] }] }
+    expect(lireFichier(versFichier([seance('a')], [mauvaise]))).toBeNull()
   })
 
   it('accepte un fichier sans séance', () => {
-    expect(lireFichier(versFichier([]))).toEqual([])
+    expect(lireFichier(versFichier([], []))).toEqual({ sessions: [], trames: [] })
   })
 
   it('refuse ce qui n’est pas du JSON', () => {
@@ -33,13 +63,13 @@ describe('lireFichier', () => {
   })
 
   it('refuse le fichier entier si une seule séance est mal formée', () => {
-    const texte = versFichier([seance('a'), seance('b', { durationS: -1 })])
+    const texte = versFichier([seance('a'), seance('b', { durationS: -1 })], [])
     expect(lireFichier(texte)).toBeNull()
   })
 
   it('écarte les champs inconnus', () => {
-    const texte = versFichier([{ ...seance('a'), intrus: 1 } as Session])
-    expect(lireFichier(texte)).toEqual([seance('a')])
+    const texte = versFichier([{ ...seance('a'), intrus: 1 } as Session], [])
+    expect(lireFichier(texte)).toEqual({ sessions: [seance('a')], trames: [] })
   })
 })
 
