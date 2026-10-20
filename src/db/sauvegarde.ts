@@ -6,8 +6,8 @@ import type { Session, TramesSeance } from './schema'
 /**
  * Le fichier d'export — sujet 15.
  *
- * Il porte les séances et, depuis la version 2, les trames des séances live. Pas les bornes de zone permettraient de déduire
- * l'âge. Les séances supprimées partent aussi, avec leur `deletedAt` : une
+ * Il porte les séances et, depuis la version 2, les trames des séances live.
+ * Les bornes de zone n'y sont pas : elles permettraient de déduire l'âge. Les séances supprimées partent aussi, avec leur `deletedAt` : une
  * sauvegarde qui les écarterait perdrait de la donnée.
  */
 
@@ -84,6 +84,24 @@ export function nouvelles(sessions: Session[], presents: Set<string>): Session[]
   return sessions.filter((s) => !presents.has(s.id))
 }
 
+/**
+ * Les trames à ajouter : celles d'une séance connue (du fichier ou de la base)
+ * qui n'a pas encore de trames. Un identifiant répété dans le fichier garde sa
+ * première occurrence — `bulkAdd` refuserait le doublon et ferait tout échouer.
+ */
+export function tramesAAjouter(
+  trames: TramesSeance[],
+  seancesConnues: Set<string>,
+  dejaTrames: Set<string>,
+): TramesSeance[] {
+  const vus = new Set(dejaTrames)
+  return trames.filter((t) => {
+    if (!seancesConnues.has(t.id) || vus.has(t.id)) return false
+    vus.add(t.id)
+    return true
+  })
+}
+
 /** Toutes les séances, supprimées comprises. */
 export function toutesLesSeances(): Promise<Session[]> {
   return db.sessions.toArray()
@@ -107,7 +125,8 @@ export function importerSeances(sessions: Session[], trames: TramesSeance[] = []
     const ajout = nouvelles(sessions, presents)
     await db.sessions.bulkAdd(ajout)
     const dejaTrames = new Set((await db.trames.toCollection().primaryKeys()) as string[])
-    await db.trames.bulkAdd(trames.filter((t) => !dejaTrames.has(t.id)))
+    const connues = new Set([...presents, ...sessions.map((s) => s.id)])
+    await db.trames.bulkAdd(tramesAAjouter(trames, connues, dejaTrames))
     return ajout.filter((s) => !s.deletedAt).length
   })
 }

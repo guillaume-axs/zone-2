@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { lireFichier, nomDuFichier, nouvelles, versFichier } from './sauvegarde'
+import { lireFichier, nomDuFichier, nouvelles, tramesAAjouter, versFichier } from './sauvegarde'
 import type { Session, TramesSeance } from './schema'
 
 const seance = (id: string, extra: Partial<Session> = {}): Session => ({
@@ -77,6 +77,19 @@ describe('nouvelles', () => {
   it('garde les séances absentes, ignore celles déjà là', () => {
     const r = nouvelles([seance('a'), seance('b')], new Set(['a']))
     expect(r.map((s) => s.id)).toEqual(['b'])
+  })
+})
+
+describe('tramesAAjouter', () => {
+  it('garde la première trame d’un identifiant répété', () => {
+    const a = trames('a')
+    const doublon = { ...trames('a'), trames: [] }
+    expect(tramesAAjouter([a, doublon], new Set(['a']), new Set())).toEqual([a])
+  })
+
+  it('écarte les trames sans séance connue et celles déjà rangées', () => {
+    const r = tramesAAjouter([trames('a'), trames('b'), trames('x')], new Set(['a', 'b']), new Set(['b']))
+    expect(r.map((t) => t.id)).toEqual(['a'])
   })
 })
 
