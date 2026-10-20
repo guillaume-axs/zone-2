@@ -61,16 +61,16 @@ object Journal {
     fun fin(ms: Long): String = "S,$ms\n"
 
     /**
-     * Rejoue le journal pour retrouver les compteurs. Chaque ligne arrive avec
-     * son `\n` final, tel que le journal l'a écrite : une ligne sans `\n` est
-     * un reste coupé par un arrêt brutal, elle est ignorée même si elle se lit
-     * encore. Seules les lignes `B` bien formées comptent.
+     * Rejoue le journal (son texte entier) pour retrouver les compteurs.
+     * Tout ce qui suit le dernier `\n` est un reste coupé par un arrêt brutal :
+     * il est ignoré même s'il se lit encore. Seules les lignes `B` bien formées
+     * comptent.
      */
-    fun rejouer(lignes: Sequence<String>, min: Int?, max: Int?): Compteurs {
+    fun rejouer(texte: String, min: Int?, max: Int?): Compteurs {
         val c = Compteurs()
-        for (ligne in lignes) {
-            if (!ligne.endsWith("\n")) continue
-            val p = ligne.removeSuffix("\n").split(",")
+        val complet = texte.substring(0, texte.lastIndexOf('\n') + 1)
+        for (ligne in complet.split('\n')) {
+            val p = ligne.split(",")
             if (p.size != 5 || p[0] != "B") continue
             val ms = p[1].toLongOrNull() ?: continue
             val bpm = p[2].toIntOrNull() ?: continue
