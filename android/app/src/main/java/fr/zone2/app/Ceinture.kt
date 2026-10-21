@@ -228,6 +228,12 @@ class Ceinture(
 
         @SuppressLint("MissingPermission")
         override fun onServicesDiscovered(g: BluetoothGatt, status: Int) {
+            if (status != BluetoothGatt.GATT_SUCCESS) {
+                // Découverte ratée, souvent passagère : on raccroche sans
+                // renoncer, la déconnexion relance la reconnexion.
+                g.disconnect()
+                return
+            }
             val mesure = g.getService(SERVICE)?.getCharacteristic(MESURE)
             if (mesure == null) {
                 // Pas un capteur cardiaque après tout : on lâche, sans

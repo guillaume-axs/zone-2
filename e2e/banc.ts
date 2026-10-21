@@ -70,6 +70,9 @@ export async function ouvrir(
 ) {
   await page.goto(chemin)
   if (sessions.length || zones.length) {
+    // Dexie crée la base à la première requête de l'app : ouvrir `zone2` avant
+    // elle la créerait vide, sans ses magasins.
+    await page.waitForFunction(async () => (await indexedDB.databases()).some((d) => d.name === 'zone2'))
     await page.evaluate(
       ({ sessions, zones }) =>
         new Promise<void>((ok, ko) => {
@@ -147,8 +150,12 @@ export async function geste(
   })
 }
 
-/** Les contrôles qui valent pour n'importe quel état d'écran. */
+/**
+ * Les contrôles qui valent pour n'importe quel état d'écran, mesurés écran
+ * posé : un toast encore en train de glisser n'est pas à sa place.
+ */
 export async function controler(page: Page, etape: string) {
+  await stabiliser(page)
   const fautes = await page.evaluate(
     ({ CIBLE, ECART, ANCRE }) => {
       const fautes: string[] = []

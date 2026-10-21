@@ -10,6 +10,7 @@ import NouvelleSeance from './ecrans/NouvelleSeance'
 import Onglets from './ecrans/Onglets'
 import Reglages from './ecrans/Reglages'
 import Zone2 from './ecrans/Zone2'
+import { rangerAuLancement } from './seance/rangement'
 
 export default function App() {
   const navigate = useNavigate()
@@ -40,6 +41,11 @@ export default function App() {
    */
   useEffect(() => {
     document.fonts.ready.then(() => SplashScreen.hide())
+  }, [])
+
+  /** Une séance laissée par un service tué en route est rangée, puis annoncée. */
+  useEffect(() => {
+    void rangerAuLancement()
   }, [])
 
   return (

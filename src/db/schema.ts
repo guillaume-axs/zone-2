@@ -65,3 +65,16 @@ export interface ZoneConfig {
   z2MinBpm: number
   z2MaxBpm: number
 }
+
+/** Une trame de la ceinture, rangée avec la séance live. `t_ms` part du début de la séance. */
+export interface Trame {
+  t_ms: number
+  bpm: number
+  rr: number[]
+}
+
+/** Les trames d'une séance live, rangées à part : la liste d'historique ne les charge jamais. `id` est celui de la séance. */
+export interface TramesSeance {
+  id: string
+  trames: Trame[]
+}

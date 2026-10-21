@@ -393,6 +393,22 @@ C'est le module testé qui sert de pièce vitrine, et ça élimine toute désync
 **Série FC : pas de 5 secondes, en lignes SQL** (~540 points/séance). Interrogeable en SQL, branchable sur
 dbt/Metabase/notebook — c'est l'usage qui justifie d'avoir choisi Postgres.
 
+**Révision** *(choix du PO, 2026-10-13)* : **chaque battement est gardé, pas une moyenne sur 5 s.**
+La ceinture envoie l'intervalle entre deux battements (RR, en millisecondes) ; le journal natif les
+reçoit déjà un par un. Les moyenner à l'import détruisait la donnée la plus riche, sans retour
+possible — or le cap (sujet 18) est de garder les données pour toujours, et la variabilité
+cardiaque (DFA α1, piste citée plus haut) n'existe qu'à partir des RR bruts. La moyenne sur 5 s était
+aussi une valeur dérivée stockée, ce que ce sujet interdit : la courbe 5 s se calcule à la lecture.
+Le motif du pas de 5 s était le quota gratuit de Supabase (500 Mo). Recalculé : ~3 500 battements
+par séance, ~0,35 Mo index compris, ~35 Mo par an à deux séances par semaine — quatorze ans de quota.
+Si un jour la place manque, les battements d'une séance tiennent dans une seule ligne (~1 Mo/an).
+`hr_sample` devient donc une ligne par battement : `session_id`, `t_ms` (depuis le début), `rr_ms`.
+**Précision** *(choix du PO, 2026-10-19 — A1 du cahier J1)* : on garde **chaque trame** de la ceinture,
+`{ t_ms, bpm, rr[] }`. La FC qu'elle envoie rend la moyenne recalculable et comparable à la console,
+et reste le seul chiffre quand une trame n'a pas de RR. Contact peau et événements de liaison ne
+quittent pas le journal : un trou se voit déjà par l'absence de trames.
+La puissance n'y entre pas : elle vient d'un autre appareil, à un autre rythme (voir « Vélo de salle »).
+
 ### Vélo de salle
 
 **Technogym — ne diffuse pas en FTMS.** Protocole BLE propriétaire intégré au cas par cas par Zwift ;
@@ -400,6 +416,17 @@ TrainerRoad et les autres ne s'y connectent pas. **Le rétro-ingéniérer est ex
 → La puissance reste en saisie manuelle.
 
 *Vérification gratuite à faire une fois :* scanner avec **nRF Connect** à côté du vélo. Si `0x1826` apparaît, réviser.
+
+**Révision** *(scan nRF Connect du PO, 2026-10-15 ; choix du PO, 2026-10-17)* : **le vélo diffuse sa
+puissance en direct, au format standard.** Il annonce le service Cycling Power (`0x1818`), connectable
+sans appairage ; la mesure (`0x2A63`) arrive en notification avec la puissance et les tours de pédale
+(donc la cadence). Une trame relevée en pédalant se lit 144 W. Il annonce aussi FTMS (`0x1826`), mais
+ses valeurs sont incohérentes (FC à 2 bpm, puissance instantanée à 0 W) : **on lit Cycling Power, pas
+FTMS.** Aucune rétro-ingénierie : c'est le protocole public que lisent Garmin, Wahoo ou Zwift.
+Le paragraphe ci-dessus ne vaut plus que pour FTMS.
+**Ordre** : J1 capture la FC seule — deux appareils à la fois doublent les causes de panne. La
+puissance live arrive juste après, en **J1 bis**, dans sa propre série (une ligne par mesure du vélo,
+détail cadré avec J1 bis). La saisie manuelle de la puissance reste jusque-là.
 
 ---
 
@@ -986,6 +1013,14 @@ somme des points de la courbe divisée par leur nombre, les tranches absentes ne
 → Conséquence UX à instruire avec l'écran de fin de séance : ce champ n'a plus lieu d'être saisi pour
 une séance live.
 
+*Révisé le 2026-10-19 (J1, A1)* — **point 1** : la table `trames` garde chaque trame
+`{ t_ms, bpm, rr[] }`, plus de courbe à 5 s ; la courbe se calcule à la lecture. **Point 2** :
+`avgHrBpm` est la moyenne arrondie des `bpm > 0` des trames rangées ; elle est absente s'il n'y en a
+aucune. **Une trame sans contact (contact 0) est un trou** : ôté de la sangle, le H10 émet encore une
+FC figée (constat S22 de #51). Elle reste écrite au journal, mais n'est ni rangée, ni dans `avgHrBpm`,
+ni dans le temps en zone, et ne relance pas le délai de 5 s : la séance passe muette. Le contact
+« inconnu » (`-`) reste une trame normale. La suppression logique de la séance couvre toujours ses trames.
+
 **3. L'alerte de sortie de zone est déclenchée par le service natif.** Il est le seul éveillé écran
 verrouillé ; l'application lui passe les bornes de zone au démarrage de la séance. Forme retenue :
 **vibration** pour le corps, **notification** pour l'œil — elle doit se lire sur l'écran verrouillé.
@@ -1200,6 +1235,18 @@ règles le complètent, sans lesquelles il ne tient pas sa promesse :
 4. **La couverture est calculée et affichée en fin de séance** — trames reçues rapportées à la durée,
    la ceinture en émettant exactement une par seconde. Un chiffre qui dit la vérité plutôt qu'une
    impression. Elle se calcule à la lecture et **ne se stocke pas** (sujet 4).
+
+*Révisé le 2026-10-19 (J1, A1)* — **règle 2** : le journal retrouvé est **rangé seul**, puis
+annoncé (Q1) ; il n'est plus « proposé ». Un journal vide (0 octet) est effacé sans message ; tout
+autre journal illisible est gardé et signalé à chaque lancement par « Une séance n'a pas pu être
+rangée ». **Règle 4** : la couverture se dit en « N min non enregistrées », seulement s'il y a un
+trou. **Lecture du journal** : une ligne coupée (fragment final sans retour à la ligne) est ignorée,
+et le service la retire avant de rouvrir un journal. Une ligne complète mal formée au milieu rend le
+journal illisible ; en dernière ligne, elle est ignorée. Une trame bien formée mais hors bornes (rr 0,
+bpm > 255, heure antérieure au départ) est sautée seule : on perd la trame, pas la séance. **Reprise** :
+seul Android, en relançant le service, reprend la séance notée ; recréé par une autre demande, le
+service l'oublie et son journal est rangé comme orphelin au lancement suivant. **Séance en cours** : c'est celle que le service
+tient en mémoire ; le greffon n'écrit jamais l'état de séance.
 
 **Ce qu'on ne promet pas** : ne jamais être interrompu. Aucune pile ne l'empêche. Ce qu'on promet,
 c'est qu'une interruption coûte une seconde.
@@ -1532,6 +1579,53 @@ elle, ne garde rien.
 
 **Gel jusqu'à J1** : banc d'essai, polish d'écrans existants, règles de méthode. Seul un bug qui
 gêne l'usage réel passe devant.
+
+### J1 — le périmètre *(validé par le PO, 2026-10-18)*
+
+**Un seul but : qu'une vraie séance laisse tous ses battements dans l'app.** Le sujet 12 reste la
+cible ; J1 n'en prend que ce qui sert à enregistrer.
+
+**Dedans** : Démarrer (bouton central, puis « Démarrer » une fois la ceinture trouvée) · le service
+natif écrit chaque battement dans son journal, écran éteint compris, et se reconnecte seul (sujet 11)
+· un écran d'effort sobre : FC en héros, temps écoulé, temps en zone, écran maintenu allumé ·
+Terminer par appui long de 2 s · la séance est rangée (durée, FC moyenne, battements) et le
+formulaire existant s'ouvre prérempli pour les watts.
+
+**Dehors, pour plus tard** : alertes de sortie de zone (vibrations, plein écran verrouillé) — la
+console du vélo affiche déjà la FC · pause · état « Échauffement » · signature du battement ·
+mini-courbe de fin · puissance (J1 bis, sujet 4).
+
+**Sobre ne veut pas dire à part.** L'écran d'effort suit la charte comme les autres (sujets 7 et
+7 bis) : il reprend les composants existants, sa maquette charge le CSS réel et passe par l'étude UX
+(méthode de `CLAUDE.md`). Un composant nouveau se soumet au PO.
+
+**Critère** : une séance de 45 min sur le S22, écran éteint au moins une fois, est rangée avec
+≥ 99 % de trames sur la durée, somme des RR égale à la durée à 2 % près
+*(corrigé le 2026-10-19 : « ~3 500 battements » venait d'une estimation de stockage ; 45 min à
+~125 bpm en font ~5 600)*. Au même instant, l'app et la console du vélo affichent la même FC — elles
+lisent la même ceinture. Les moyennes, elles, peuvent différer de 1 ou 2 bpm : les deux appareils ne
+démarrent ni ne s'arrêtent à la même seconde.
+
+### J1 — le cahier des charges *(arbitrages du PO, 2026-10-19)*
+
+Détail, critères et découpage : `docs/superpowers/specs/2026-10-19-j1-capture-live-design.md`.
+
+- **Une séance tuée est retrouvée** au lancement suivant, rangée seule, durée modifiable — dans J1.
+  Sans cela, la première séance interrompue serait perdue.
+- **Sans zone réglée, on démarre quand même** : temps en zone `—`, une invite mène aux Réglages.
+  Écart assumé au sujet 12 (« renvoi vers le réglage ») : bloquer coûterait une séance pour un chiffre.
+- **Durée et FC moyenne d'une séance live ne se corrigent pas** — elles viennent des battements ;
+  les modifier ferait deux vérités. Seule exception : la séance retrouvée.
+- **Le service de séance est le seul détenteur de la ceinture**, et c'est lui qui compte temps écoulé
+  et temps en zone : écran verrouillé, le JavaScript est gelé. L'écran affiche, il ne calcule pas.
+  Deux accès en parallèle (greffon pour l'écran, service pour le journal) sont proscrits.
+- **Le service se connecte dès l'écran Démarrer** et y affiche la FC, preuve de connexion ; il
+  n'enregistre qu'au « Démarrer » (A2). Pas de passage de relais entre greffon et service.
+- **On garde chaque trame** : heure, FC envoyée, intervalles RR (A1, voir sujet 4).
+- **L'export porte les battements** (format version 2), ajouté au périmètre : sans cela, un export
+  perdrait la série sans le dire.
+- **Démarrer ou saisir une séance finie** : la précision du sujet 3 (lien « Saisir à la main » en bas)
+  est rouverte, à trancher par le benchmark de l'écran Démarrer.
 
 ### Le produit : un test, pas un chantier
 

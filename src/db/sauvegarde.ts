@@ -1,12 +1,13 @@
 import { z } from 'zod'
 import { db } from './db'
-import type { Session } from './schema'
+import { trameSchema } from '../seance/journal'
+import type { Session, TramesSeance } from './schema'
 
 /**
  * Le fichier d'export — sujet 15.
  *
- * Il ne porte que les séances : les bornes de zone permettraient de déduire
- * l'âge. Les séances supprimées partent aussi, avec leur `deletedAt` : une
+ * Il porte les séances et, depuis la version 2, les trames des séances live.
+ * Les bornes de zone n'y sont pas : elles permettraient de déduire l'âge. Les séances supprimées partent aussi, avec leur `deletedAt` : une
  * sauvegarde qui les écarterait perdrait de la donnée.
  */
 
@@ -28,17 +29,26 @@ const sessionSchema = z.object({
   deletedAt: iso.optional(),
 }) satisfies z.ZodType<Session>
 
-const fichierSchema = z.object({
-  app: z.literal('zone2'),
-  version: z.literal(1),
-  exportedAt: iso,
-  sessions: z.array(sessionSchema),
-})
+const tramesSchema = z.object({
+  id: z.string().min(1),
+  trames: z.array(trameSchema),
+}) satisfies z.ZodType<TramesSeance>
+
+const entete = { app: z.literal('zone2'), exportedAt: iso, sessions: z.array(sessionSchema) }
+
+const fichierSchema = z.union([
+  z.object({ ...entete, version: z.literal(1) }),
+  z.object({ ...entete, version: z.literal(2), trames: z.array(tramesSchema) }),
+])
 
 /** Le contenu du fichier, prêt à écrire. */
-export function versFichier(sessions: Session[], maintenant = new Date()): string {
+export function versFichier(
+  sessions: Session[],
+  trames: TramesSeance[],
+  maintenant = new Date(),
+): string {
   return JSON.stringify(
-    { app: 'zone2', version: 1, exportedAt: maintenant.toISOString(), sessions },
+    { app: 'zone2', version: 2, exportedAt: maintenant.toISOString(), sessions, trames },
     null,
     2,
   )
@@ -51,11 +61,13 @@ export function nomDuFichier(maintenant = new Date()): string {
 }
 
 /**
- * Les séances du fichier, ou `null` s'il n'est pas une sauvegarde Zone 2.
+ * Le contenu du fichier (v1 : sans trames, v2), ou `null` s'il n'est pas une sauvegarde Zone 2.
  * Tout ou rien : une seule séance mal formée fait refuser le fichier entier,
  * plutôt que d'en importer une partie sans le dire.
  */
-export function lireFichier(texte: string): Session[] | null {
+export function lireFichier(
+  texte: string,
+): { sessions: Session[]; trames: TramesSeance[] } | null {
   let brut: unknown
   try {
     brut = JSON.parse(texte)
@@ -63,7 +75,8 @@ export function lireFichier(texte: string): Session[] | null {
     return null
   }
   const r = fichierSchema.safeParse(brut)
-  return r.success ? r.data.sessions : null
+  if (!r.success) return null
+  return { sessions: r.data.sessions, trames: 'trames' in r.data ? r.data.trames : [] }
 }
 
 /** Les séances absentes de la base. Un identifiant déjà là n'est jamais remplacé. */
@@ -71,21 +84,49 @@ export function nouvelles(sessions: Session[], presents: Set<string>): Session[]
   return sessions.filter((s) => !presents.has(s.id))
 }
 
+/**
+ * Les trames à ajouter : celles d'une séance connue (du fichier ou de la base)
+ * qui n'a pas encore de trames. Un identifiant répété dans le fichier garde sa
+ * première occurrence — `bulkAdd` refuserait le doublon et ferait tout échouer.
+ */
+export function tramesAAjouter(
+  trames: TramesSeance[],
+  seancesConnues: Set<string>,
+  dejaTrames: Set<string>,
+): TramesSeance[] {
+  const vus = new Set(dejaTrames)
+  return trames.filter((t) => {
+    if (!seancesConnues.has(t.id) || vus.has(t.id)) return false
+    vus.add(t.id)
+    return true
+  })
+}
+
 /** Toutes les séances, supprimées comprises. */
 export function toutesLesSeances(): Promise<Session[]> {
   return db.sessions.toArray()
 }
 
+/** Toutes les trames rangées. */
+export function toutesLesTrames(): Promise<TramesSeance[]> {
+  return db.trames.toArray()
+}
+
 /**
- * Ajoute les séances nouvelles, en une transaction : tout est écrit, ou rien.
+ * Ajoute les séances nouvelles et les trames qui manquent, en une transaction :
+ * tout est écrit, ou rien. Les trames d'une séance déjà présente sont ajoutées
+ * si la base n'en a pas encore — une séance importée d'un fichier v1 les attend.
  * Rend le nombre de séances visibles ajoutées — celles que l'utilisateur
  * retrouvera dans son historique.
  */
-export function importerSeances(sessions: Session[]): Promise<number> {
-  return db.transaction('rw', db.sessions, async () => {
+export function importerSeances(sessions: Session[], trames: TramesSeance[] = []): Promise<number> {
+  return db.transaction('rw', db.sessions, db.trames, async () => {
     const presents = new Set((await db.sessions.toCollection().primaryKeys()) as string[])
     const ajout = nouvelles(sessions, presents)
     await db.sessions.bulkAdd(ajout)
+    const dejaTrames = new Set((await db.trames.toCollection().primaryKeys()) as string[])
+    const connues = new Set([...presents, ...sessions.map((s) => s.id)])
+    await db.trames.bulkAdd(tramesAAjouter(trames, connues, dejaTrames))
     return ajout.filter((s) => !s.deletedAt).length
   })
 }

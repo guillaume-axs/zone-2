@@ -26,13 +26,11 @@
 
         <!--
             Type `connectedDevice` : c'est l'unique catégorie legale pour du BLE
-            depuis Android 14. Elle est declaree des maintenant, alors que
-            l'etage 1 du PoC ne touche pas au Bluetooth, parce que c'est
-            justement cette declaration qu'on teste — un service d'un autre type
-            se comporterait autrement face a One UI.
+            depuis Android 14. C'est celle dont le PoC a mesure la tenue face a
+            One UI : le service de seance la garde.
         -->
         <service
-            android:name=".SurvieService"
+            android:name=".SeanceService"
             android:exported="false"
             android:foregroundServiceType="connectedDevice" />
 

@@ -1,5 +1,5 @@
 import Dexie, { type EntityTable } from 'dexie'
-import type { Session, ZoneConfig } from './schema'
+import type { Session, TramesSeance, ZoneConfig } from './schema'
 
 /**
  * Base locale. C'est la source de vérité : l'application fonctionne intégralement
@@ -11,6 +11,7 @@ import type { Session, ZoneConfig } from './schema'
 const db = new Dexie('zone2') as Dexie & {
   sessions: EntityTable<Session, 'id'>
   zoneConfigs: EntityTable<ZoneConfig, 'id'>
+  trames: EntityTable<TramesSeance, 'id'>
 }
 
 db.version(1).stores({
@@ -23,6 +24,12 @@ db.version(1).stores({
 // passer à la 2 au lieu d'être rejetée.
 db.version(2).stores({
   zoneConfigs: 'id, validFrom',
+})
+
+// Les trames de la ceinture (J1), une ligne par séance live. Même principe :
+// table ajoutée, aucune séance touchée.
+db.version(3).stores({
+  trames: 'id',
 })
 
 export { db }

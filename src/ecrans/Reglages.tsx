@@ -3,7 +3,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { Button, Link } from 'react-aria-components'
 import { useCapteur } from '../capteur/useCapteur'
 import { db } from '../db/db'
-import { importerSeances, lireFichier, nomDuFichier, toutesLesSeances, versFichier } from '../db/sauvegarde'
+import { importerSeances, lireFichier, nomDuFichier, toutesLesSeances, toutesLesTrames, versFichier } from '../db/sauvegarde'
 import { bornesEnVigueur } from '../db/zones'
 import GroupeDev from '../dev/GroupeDev'
 import Marque from './Marque'
@@ -186,7 +186,7 @@ function LigneExport({ n }: { n: number }) {
     try {
       const { fait } = await Sauvegarde.exporter({
         nom: nomDuFichier(),
-        contenu: versFichier(await toutesLesSeances()),
+        contenu: versFichier(await toutesLesSeances(), await toutesLesTrames()),
       })
       if (fait) annoncer(`${seances(n)} ${n === 1 ? 'exportée' : 'exportées'}`)
     } catch {
@@ -213,9 +213,9 @@ async function importer() {
   try {
     const { fait, contenu } = await Sauvegarde.importer()
     if (!fait) return
-    const sessions = contenu === undefined ? null : lireFichier(contenu)
-    if (!sessions?.length) return annoncer('Ce fichier ne contient aucune séance')
-    const n = await importerSeances(sessions)
+    const lu = contenu === undefined ? null : lireFichier(contenu)
+    if (!lu?.sessions.length) return annoncer('Ce fichier ne contient aucune séance')
+    const n = await importerSeances(lu.sessions, lu.trames)
     annoncer(n ? `${seances(n)} ${n === 1 ? 'importée' : 'importées'}` : 'Aucune nouvelle séance')
   } catch {
     annoncer('Import impossible')
