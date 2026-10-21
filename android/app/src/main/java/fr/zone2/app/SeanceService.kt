@@ -37,7 +37,8 @@ import java.util.UUID
  * La séance active est notée sur le disque avant la première trame. Relancé
  * seul par Android (`START_STICKY`, intent `null`), le service la relit,
  * rejoue son journal pour retrouver le temps en zone et continue dans le même
- * fichier. Aucun fichier n'est jamais supprimé ici : c'est le rangement, côté
+ * fichier. Recréé par toute autre demande, il l'oublie : son journal est un
+ * orphelin, que le rangement retrouvera au prochain lancement. Aucun fichier n'est jamais supprimé ici : c'est le rangement, côté
  * application, qui efface un journal une fois en base.
  *
  * Tout ce qui touche à la ceinture et au journal se passe sur [fil] : un seul
@@ -69,7 +70,7 @@ class SeanceService : Service() {
      */
     val seanceEnCours: Active? get() = seance
 
-    /** La séance trouvée à la création, à reprendre au premier `onStartCommand` (fil principal). */
+    /** La séance trouvée à la création, tranchée au premier `onStartCommand` (fil principal). */
     private var aReprendre: Active? = null
 
     /** Posé au premier `startForeground` (fil principal). */
@@ -117,18 +118,27 @@ class SeanceService : Service() {
             IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED),
             ContextCompat.RECEIVER_NOT_EXPORTED,
         )
-        // Avant de s'exposer au greffon : une séance notée dont le journal
-        // existe encore est à lui. Journal disparu = déjà rangé et effacé
+        // Une séance notée dont le journal existe encore ; `onStartCommand`
+        // décide si elle se reprend. Journal disparu = déjà rangé et effacé
         // par l'application pendant que le service était mort : on l'oublie,
         // plutôt que d'écrire un second journal sous le même id.
-        seance = active(this)?.takeIf { fichier(this, it.id).exists() }
-        if (seance == null) oublierActive(this)
-        aReprendre = seance
+        aReprendre = active(this)?.takeIf { fichier(this, it.id).exists() }
+        if (aReprendre == null) oublierActive(this)
         enCours = this
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (intent?.action == ACTION_LACHER && !auPremierPlan && aReprendre == null) {
+        val notee = aReprendre
+        aReprendre = null
+        if (notee != null) {
+            // Seul Android relance sans intent : la séance n'a jamais été
+            // terminée, on continue son journal. Recréé par l'écoute ou par
+            // `lacher`, le service n'a pas à ressusciter une séance morte
+            // (journal d'hier, durée d'hier) : on l'oublie, le fichier reste
+            // et le rangement le rangera comme orphelin.
+            if (intent == null) seance = notee else oublierActive(this)
+        }
+        if (intent?.action == ACTION_LACHER && !auPremierPlan && seance == null) {
             // `lacher` est envoyé sans condition (`startService`) : un service
             // créé par lui n'a rien à lâcher. Surtout pas de `startForeground` —
             // Bluetooth refusé, Android 14 le refuserait d'une exception.
@@ -145,14 +155,8 @@ class SeanceService : Service() {
         )
         auPremierPlan = true
 
-        aReprendre?.let { a ->
-            // Relancé seul par Android (`intent == null`), ou recréé avant que
-            // l'application ait rangé la séance tuée : on continue le même
-            // journal. Rien n'est perdu, rien n'est rangé en double.
-            aReprendre = null
-            handler.post { reprendre(a) }
-        }
         if (intent == null) {
+            if (notee != null) handler.post { reprendre(notee) }
             // Sans séance, une écoute ne survit pas à sa mort.
             if (seance == null) {
                 stopSelf()
@@ -286,16 +290,21 @@ class SeanceService : Service() {
 
     private fun noterBattement(b: Battement) {
         val ms = System.currentTimeMillis()
+        val a = seance
+        // Écrite telle quelle : [Journal.compte] décide, ici comme à la lecture.
+        if (a != null) ecrire(Journal.trame(ms, b))
+        // Ôté de la sangle, le H10 émet encore une FC figée : un trou, pas une
+        // trame. Le délai n'est pas relancé, la séance passe muette en 5 s,
+        // comme la ligne Capteur.
+        if (!b.porte) return
         guetter()
         if (etat == MUETTE) signaler(Ceinture.Etat.CONNECTEE.name)
         val changement = b.bpm != dernierBpm
         dernierBpm = b.bpm
         derniereTrameMs = ms
-        val a = seance
-        if (a != null) {
+        if (a != null && Journal.compte(ms - a.debutMs, b.bpm, b.contact, b.rr)) {
             compteurs.compter(ms, b.bpm, a.min, a.max)
             enZoneS = compteurs.enZoneMs / 1000
-            ecrire(Journal.trame(ms, b))
         }
         auditeur?.invoke("fc", JSObject().put("bpm", b.bpm).put("enZoneS", enZoneS))
         if (changement) majNotification()
