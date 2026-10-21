@@ -1013,6 +1013,11 @@ somme des points de la courbe divisée par leur nombre, les tranches absentes ne
 → Conséquence UX à instruire avec l'écran de fin de séance : ce champ n'a plus lieu d'être saisi pour
 une séance live.
 
+*Révisé le 2026-10-19 (J1, A1)* — **point 1** : la table `trames` garde chaque trame
+`{ t_ms, bpm, rr[] }`, plus de courbe à 5 s ; la courbe se calcule à la lecture. **Point 2** :
+`avgHrBpm` est la moyenne arrondie des `bpm > 0` des trames (un 0 veut dire contact perdu) ; elle est
+absente s'il n'y en a aucune. La suppression logique de la séance couvre toujours ses trames.
+
 **3. L'alerte de sortie de zone est déclenchée par le service natif.** Il est le seul éveillé écran
 verrouillé ; l'application lui passe les bornes de zone au démarrage de la séance. Forme retenue :
 **vibration** pour le corps, **notification** pour l'œil — elle doit se lire sur l'écran verrouillé.
@@ -1227,6 +1232,14 @@ règles le complètent, sans lesquelles il ne tient pas sa promesse :
 4. **La couverture est calculée et affichée en fin de séance** — trames reçues rapportées à la durée,
    la ceinture en émettant exactement une par seconde. Un chiffre qui dit la vérité plutôt qu'une
    impression. Elle se calcule à la lecture et **ne se stocke pas** (sujet 4).
+
+*Révisé le 2026-10-19 (J1, A1)* — **règle 2** : le journal retrouvé est **rangé seul**, puis
+annoncé (Q1) ; il n'est plus « proposé ». Un journal vide (0 octet) est effacé sans message ; tout
+autre journal illisible est gardé et signalé à chaque lancement par « Une séance n'a pas pu être
+rangée ». **Règle 4** : la couverture se dit en « N min non enregistrées », seulement s'il y a un
+trou. **Lecture du journal** : une ligne coupée (fragment final sans retour à la ligne) est ignorée,
+et le service la retire avant de rouvrir un journal. **Séance en cours** : c'est celle que le service
+tient en mémoire ; le greffon n'écrit jamais l'état de séance.
 
 **Ce qu'on ne promet pas** : ne jamais être interrompu. Aucune pile ne l'empêche. Ce qu'on promet,
 c'est qu'une interruption coûte une seconde.
