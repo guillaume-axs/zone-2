@@ -102,4 +102,15 @@ class BattementTest {
     fun `RR annoncés mais absents`() {
         assertTrue(lireBattement(trame(0x10, 60))!!.rr.isEmpty())
     }
+
+    @Test
+    fun `contact géré mais absent, la ceinture n'est pas portée`() {
+        assertEquals(false, lireBattement(trame(0x04, 60))!!.porte)
+    }
+
+    @Test
+    fun `contact détecté ou non géré, la ceinture est portée`() {
+        assertEquals(true, lireBattement(trame(0x06, 60))!!.porte)
+        assertEquals(true, lireBattement(trame(0x00, 60))!!.porte)
+    }
 }
