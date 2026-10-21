@@ -150,8 +150,12 @@ export async function geste(
   })
 }
 
-/** Les contrôles qui valent pour n'importe quel état d'écran. */
+/**
+ * Les contrôles qui valent pour n'importe quel état d'écran, mesurés écran
+ * posé : un toast encore en train de glisser n'est pas à sa place.
+ */
 export async function controler(page: Page, etape: string) {
+  await stabiliser(page)
   const fautes = await page.evaluate(
     ({ CIBLE, ECART, ANCRE }) => {
       const fautes: string[] = []
