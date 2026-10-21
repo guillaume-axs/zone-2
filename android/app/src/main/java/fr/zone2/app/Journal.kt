@@ -45,6 +45,18 @@ class Compteurs(
 object Journal {
     const val SILENCE_MS = 5_000L
 
+    /**
+     * La trame compte-t-elle ? Sans contact (`0`), le H10 ôté de la sangle
+     * émet encore une FC figée : c'est un trou, pas une mesure (sujet 11).
+     * Hors des bornes de `trameSchema` (journal.ts), elle est perdue seule,
+     * pas la séance. Ces trames restent écrites ; le compteur en direct,
+     * [rejouer] et `lireJournal` les sautent tous trois.
+     *
+     * @param tMs instant de la trame depuis le début de la séance.
+     */
+    fun compte(tMs: Long, bpm: Int, contact: Boolean?, rr: List<Int>): Boolean =
+        contact != false && tMs >= 0 && bpm in 0..255 && rr.all { it > 0 }
+
     fun depart(id: String, debutMs: Long, min: Int?, max: Int?): String =
         "D,$debutMs,$id,${min ?: "-"},${max ?: "-"}\n"
 
@@ -85,17 +97,27 @@ object Journal {
      * Rejoue le journal (son texte entier) pour retrouver les compteurs.
      * Tout ce qui suit le dernier `\n` est un reste coupé par un arrêt brutal :
      * il est ignoré même s'il se lit encore. Seules les lignes `B` bien formées
-     * comptent.
+     * et qui [compte]nt sont comptées.
      */
     fun rejouer(texte: String, min: Int?, max: Int?): Compteurs {
         val c = Compteurs()
         val complet = texte.substring(0, texte.lastIndexOf('\n') + 1)
+        val d = complet.substringBefore('\n').split(",")
+        val debutMs = if (d.size == 5 && d[0] == "D") d[1].toLongOrNull() ?: 0L else 0L
         for (ligne in complet.split('\n')) {
             val p = ligne.split(",")
             if (p.size != 5 || p[0] != "B") continue
             val ms = p[1].toLongOrNull() ?: continue
             val bpm = p[2].toIntOrNull() ?: continue
-            c.compter(ms, bpm, min, max)
+            val contact = when (p[3]) {
+                "1" -> true
+                "0" -> false
+                "-" -> null
+                else -> continue
+            }
+            val rr = if (p[4].isEmpty()) emptyList() else p[4].split(";").map { it.toIntOrNull() ?: -1 }
+            if (rr.any { it < 0 }) continue
+            if (compte(ms - debutMs, bpm, contact, rr)) c.compter(ms, bpm, min, max)
         }
         return c
     }

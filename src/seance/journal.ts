@@ -4,7 +4,10 @@ import type { Session, Trame } from "../db/schema";
 /**
  * Lecture du journal de séance écrit par le service natif (format : Journal.kt).
  * Le service coupe tout reste de ligne avant de réécrire : une ligne illisible
- * au milieu est donc une vraie corruption.
+ * au milieu est donc une vraie corruption. Une trame bien formée mais hors des
+ * bornes de trameSchema n'en est pas une : elle est sautée, comme une trame
+ * sans contact (contact 0), qui est un trou (sujet 11). Journal.rejouer, côté
+ * Kotlin, applique les mêmes règles.
  */
 
 export interface Lu {
@@ -38,7 +41,7 @@ const ligneD = z.tuple([
 const ligneB = z.tuple([
   z.literal("B"),
   nombre,
-  nombre.pipe(trameSchema.shape.bpm),
+  nombre,
   z.enum(["1", "0", "-"]),
   rrSchema,
 ]);
@@ -62,9 +65,9 @@ export function lireJournal(
   if (complet === "") return null;
   const brutes = complet.slice(0, -1).split("\n");
 
-  // Une ligne est mauvaise si elle ne se lit pas, si un D n'est pas le premier,
-  // ou si sa trame viole trameSchema. Mauvaise au milieu : journal illisible ;
-  // la dernière seule est ignorée.
+  // Une ligne est mauvaise si elle ne se lit pas ou si un D n'est pas le
+  // premier. Mauvaise au milieu : journal illisible ; la dernière seule est
+  // ignorée.
   const premiere = lireLigne(brutes[0]);
   if (premiere?.[0] !== "D") return null;
   const debutMs = premiere[1];
@@ -74,23 +77,22 @@ export function lireJournal(
   let stopMs: number | undefined;
   for (let i = 1; i < brutes.length; i++) {
     const l = lireLigne(brutes[i]);
-    let trame: Trame | undefined;
-    let bonne = l !== null && l[0] !== "D";
-    if (l?.[0] === "B") {
+    if (!l || l[0] === "D") {
+      if (i < brutes.length - 1) return null;
+      break;
+    }
+    if (l[0] === "B" && l[3] !== "0") {
       const r = trameSchema.safeParse({
         t_ms: l[1] - debutMs,
         bpm: l[2],
         rr: l[4],
       });
-      bonne = r.success;
-      if (r.success) trame = r.data;
-    }
-    if (!l || !bonne) {
-      if (i < brutes.length - 1) return null;
-      break;
+      // Hors bornes (rr 0, bpm > 255, horloge reculée) : la trame est perdue,
+      // pas la séance.
+      if (!r.success) continue;
+      trames.push(r.data);
     }
     fin = l[1];
-    if (trame) trames.push(trame);
     if (l[0] === "S") stopMs = l[1];
   }
   if (stopMs !== undefined) fin = stopMs;

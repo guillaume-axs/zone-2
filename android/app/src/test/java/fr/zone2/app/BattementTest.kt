@@ -113,4 +113,11 @@ class BattementTest {
         assertEquals(true, lireBattement(trame(0x06, 60))!!.porte)
         assertEquals(true, lireBattement(trame(0x00, 60))!!.porte)
     }
+
+    @Test
+    fun `un RR qui s'arrondit à 0 ms est tu`() {
+        // 0x0001 et 0x0000 donnent 0 ms ; 0x0400 donne 1000 ms.
+        val b = lireBattement(trame(0x10, 60, 0x01, 0x00, 0x00, 0x04, 0x00, 0x00))!!
+        assertEquals(listOf(1000), b.rr)
+    }
 }

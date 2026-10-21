@@ -79,7 +79,9 @@ fun lireBattement(octets: ByteArray): Battement? {
         // l'abandonne plutôt que d'inventer sa moitié manquante.
         while (i + 1 < octets.size) {
             val brut = octets.octet(i) or (octets.octet(i + 1) shl 8)
-            rr += brut * 1000 / 1024
+            // Un brut de 0 ou 1 s'arrondit à 0 ms : pas un intervalle, on le tait.
+            val ms = brut * 1000 / 1024
+            if (ms > 0) rr += ms
             i += 2
         }
     }

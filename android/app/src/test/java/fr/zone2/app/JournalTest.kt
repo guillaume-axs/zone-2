@@ -155,4 +155,40 @@ class JournalTest {
         Journal.couperReste(vide)
         assertEquals("", vide.readText())
     }
+
+    @Test
+    fun `compte ecarte le contact perdu et les valeurs hors bornes`() {
+        assertEquals(true, Journal.compte(0, 130, true, listOf(800)))
+        assertEquals(true, Journal.compte(0, 130, null, emptyList()))
+        assertEquals(false, Journal.compte(0, 130, false, listOf(800)))
+        assertEquals(false, Journal.compte(-1, 130, true, emptyList()))
+        assertEquals(false, Journal.compte(0, 256, true, emptyList()))
+        assertEquals(false, Journal.compte(0, 130, true, listOf(0)))
+    }
+
+    @Test
+    fun `rejouer saute le contact perdu comme un trou`() {
+        // 130 dans la zone de 1000 à 2000, puis 3 s sans contact : la trame de
+        // 5000 est à 3 s de la dernière qui compte, rien n'est crédité de plus.
+        val texte = Journal.depart("abc", 500, 120, 135) +
+            Journal.trame(1000, Battement(150, true, emptyList())) +
+            Journal.trame(2000, Battement(130, true, emptyList())) +
+            Journal.trame(3000, Battement(130, false, emptyList())) +
+            Journal.trame(4000, Battement(130, false, emptyList())) +
+            Journal.trame(8000, Battement(130, null, emptyList()))
+        val c = Journal.rejouer(texte, 120, 135)
+        assertEquals(0L, c.enZoneMs)
+        assertEquals(8000L, c.derniereMs)
+    }
+
+    @Test
+    fun `rejouer saute une trame hors bornes et lit la suite`() {
+        val texte = Journal.depart("abc", 500, 120, 135) +
+            Journal.trame(1000, Battement(130, true, emptyList())) +
+            "B,1500,300,1,\n" + "B,1600,130,1,0\n" + "B,100,130,1,800\n" +
+            Journal.trame(2000, Battement(130, true, emptyList()))
+        val c = Journal.rejouer(texte, 120, 135)
+        assertEquals(1000L, c.enZoneMs)
+        assertEquals(2000L, c.derniereMs)
+    }
 }
