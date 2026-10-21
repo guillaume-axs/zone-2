@@ -70,6 +70,9 @@ export async function ouvrir(
 ) {
   await page.goto(chemin)
   if (sessions.length || zones.length) {
+    // Dexie crée la base à la première requête de l'app : ouvrir `zone2` avant
+    // elle la créerait vide, sans ses magasins.
+    await page.waitForFunction(async () => (await indexedDB.databases()).some((d) => d.name === 'zone2'))
     await page.evaluate(
       ({ sessions, zones }) =>
         new Promise<void>((ok, ko) => {

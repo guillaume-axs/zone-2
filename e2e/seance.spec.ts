@@ -49,9 +49,17 @@ const lire = (page: import('@playwright/test').Page, magasin: 'sessions' | 'tram
     magasin,
   )
 
-/** Le toast, s'il venait, suivrait de quelques ms la dernière écriture : on lui laisse ce temps. */
-async function aucunToast(page: import('@playwright/test').Page) {
-  await page.waitForTimeout(500)
+/**
+ * Aucun toast ne vient. On attend le dernier appel que le lancement fait au
+ * greffon, puis deux images : le toast suit cet appel d'un tour de boucle.
+ */
+async function aucunToast(
+  page: import('@playwright/test').Page,
+  seance: Awaited<ReturnType<typeof fauxSeance>>,
+  dernier: string,
+) {
+  await seance.attendre(dernier)
+  await page.evaluate(() => new Promise((ok) => requestAnimationFrame(() => requestAnimationFrame(ok))))
   await expect(toast(page)).toHaveCount(0)
 }
 
@@ -85,13 +93,13 @@ test('déjà rangée : rien n’est réécrit', async ({ page }) => {
   await ouvrir(page, '/historique', { sessions: [{ ...uneSeance[0], id: U1, avgPowerW: 140 }] })
   await seance.armer(journal(U1, 45))
 
-  await expect.poll(async () => noms(await seance.appels())).toContain('effacer')
+  await seance.attendre('effacer')
   expect(await seance.restants()).toEqual([])
   const sessions = await lire(page, 'sessions')
   expect(sessions).toHaveLength(1)
   expect(sessions[0]).toMatchObject({ id: U1, avgPowerW: 140, source: 'manual' })
   expect(await lire(page, 'trames')).toEqual([])
-  await aucunToast(page)
+  await aucunToast(page, seance, 'effacer')
 })
 
 test('séance active : rien n’est rangé', async ({ page }) => {
@@ -99,11 +107,11 @@ test('séance active : rien n’est rangé', async ({ page }) => {
   await ouvrir(page, '/historique')
   await seance.armer(journal(U1, 45))
 
-  await expect.poll(async () => noms(await seance.appels())).toContain('seanceActive')
+  await seance.attendre('seanceActive')
   expect(noms(await seance.appels())).toEqual(['seanceActive'])
   expect(await seance.restants()).toEqual([U1])
   expect(await lire(page, 'sessions')).toEqual([])
-  await aucunToast(page)
+  await aucunToast(page, seance, 'seanceActive')
 })
 
 test('journal illisible : gardé, un message', async ({ page }) => {
@@ -124,7 +132,7 @@ test('journal vide : effacé sans un mot', async ({ page }) => {
 
   await expect.poll(async () => await seance.restants()).toEqual([])
   expect(await lire(page, 'sessions')).toEqual([])
-  await aucunToast(page)
+  await aucunToast(page, seance, 'effacer')
 })
 
 test('deux orphelins : les deux rangés, un toast', async ({ page }) => {
@@ -150,6 +158,17 @@ test('un illisible parmi deux : l’autre est rangée, un seul message', async (
   expect(await seance.restants()).toEqual([U1])
 })
 
+test('greffon qui échoue : rien n’est effacé, aucun message', async ({ page }) => {
+  const seance = await fauxSeance(page, { echec: 'effacer' })
+  await ouvrir(page, '/historique')
+  await seance.armer(journal(U1, 45))
+
+  await seance.attendre('effacer')
+  await page.evaluate(() => new Promise((ok) => requestAnimationFrame(() => requestAnimationFrame(ok))))
+  expect(await seance.restants()).toEqual([U1])
+  await expect(toast(page)).toHaveCount(0)
+})
+
 test('import v2 : une séance déjà là reçoit ses trames', async ({ page }) => {
   const sauvegarde = await fauxSauvegarde(page)
   await ouvrir(page, '/reglages', { sessions: [{ ...uneSeance[0], id: U1 }] })
@@ -165,8 +184,11 @@ test('import v2 : une séance déjà là reçoit ses trames', async ({ page }) =
     }),
   )
 
-  await geste(page, 'appui sur Importer', page.getByRole('button', { name: /Importer une sauvegarde/ }))
-  await expect(toast(page)).toContainText('Aucune nouvelle séance')
+  // Le toast entre après l'écriture : on l'attend avant que `geste` mesure l'écran.
+  await geste(page, 'appui sur Importer', page.getByRole('button', { name: /Importer une sauvegarde/ }), async (l) => {
+    await l.click()
+    await expect(toast(page)).toContainText('Aucune nouvelle séance')
+  })
   expect(await lire(page, 'trames')).toEqual([{ id: U1, trames }])
   expect(await lire(page, 'sessions')).toHaveLength(1)
 })
