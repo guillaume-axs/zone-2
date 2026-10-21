@@ -1015,8 +1015,11 @@ une séance live.
 
 *Révisé le 2026-10-19 (J1, A1)* — **point 1** : la table `trames` garde chaque trame
 `{ t_ms, bpm, rr[] }`, plus de courbe à 5 s ; la courbe se calcule à la lecture. **Point 2** :
-`avgHrBpm` est la moyenne arrondie des `bpm > 0` des trames (un 0 veut dire contact perdu) ; elle est
-absente s'il n'y en a aucune. La suppression logique de la séance couvre toujours ses trames.
+`avgHrBpm` est la moyenne arrondie des `bpm > 0` des trames rangées ; elle est absente s'il n'y en a
+aucune. **Une trame sans contact (contact 0) est un trou** : ôté de la sangle, le H10 émet encore une
+FC figée (constat S22 de #51). Elle reste écrite au journal, mais n'est ni rangée, ni dans `avgHrBpm`,
+ni dans le temps en zone, et ne relance pas le délai de 5 s : la séance passe muette. Le contact
+« inconnu » (`-`) reste une trame normale. La suppression logique de la séance couvre toujours ses trames.
 
 **3. L'alerte de sortie de zone est déclenchée par le service natif.** Il est le seul éveillé écran
 verrouillé ; l'application lui passe les bornes de zone au démarrage de la séance. Forme retenue :
@@ -1238,7 +1241,11 @@ annoncé (Q1) ; il n'est plus « proposé ». Un journal vide (0 octet) est effa
 autre journal illisible est gardé et signalé à chaque lancement par « Une séance n'a pas pu être
 rangée ». **Règle 4** : la couverture se dit en « N min non enregistrées », seulement s'il y a un
 trou. **Lecture du journal** : une ligne coupée (fragment final sans retour à la ligne) est ignorée,
-et le service la retire avant de rouvrir un journal. **Séance en cours** : c'est celle que le service
+et le service la retire avant de rouvrir un journal. Une ligne complète mal formée au milieu rend le
+journal illisible ; en dernière ligne, elle est ignorée. Une trame bien formée mais hors bornes (rr 0,
+bpm > 255, heure antérieure au départ) est sautée seule : on perd la trame, pas la séance. **Reprise** :
+seul Android, en relançant le service, reprend la séance notée ; recréé par une autre demande, le
+service l'oublie et son journal est rangé comme orphelin au lancement suivant. **Séance en cours** : c'est celle que le service
 tient en mémoire ; le greffon n'écrit jamais l'état de séance.
 
 **Ce qu'on ne promet pas** : ne jamais être interrompu. Aucune pile ne l'empêche. Ce qu'on promet,
