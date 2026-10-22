@@ -1613,6 +1613,9 @@ Détail, critères et découpage : `docs/superpowers/specs/2026-10-19-j1-capture
 - **Une séance tuée est retrouvée** au lancement suivant, rangée seule, durée modifiable — dans J1.
   Sans cela, la première séance interrompue serait perdue.
 - **Sans zone réglée, on démarre quand même** : temps en zone `—`, une invite mène aux Réglages.
+  Précisé le 2026-10-22 (maquette Démarrer) : l'invite paraît à l'appui sur « Démarrer » et offre
+  les deux — « Régler ma zone » (Réglages, puis retour à Démarrer) ou « Démarrer quand même ».
+  Bloquer le départ a été écarté : une séance sans bornes vaut mieux qu'une séance perdue.
   Écart assumé au sujet 12 (« renvoi vers le réglage ») : bloquer coûterait une séance pour un chiffre.
 - **Durée et FC moyenne d'une séance live ne se corrigent pas** — elles viennent des battements ;
   les modifier ferait deux vérités. Seule exception : la séance retrouvée.
