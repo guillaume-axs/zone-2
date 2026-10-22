@@ -1624,8 +1624,11 @@ Détail, critères et découpage : `docs/superpowers/specs/2026-10-19-j1-capture
 - **On garde chaque trame** : heure, FC envoyée, intervalles RR (A1, voir sujet 4).
 - **L'export porte les battements** (format version 2), ajouté au périmètre : sans cela, un export
   perdrait la série sans le dire.
-- **Démarrer ou saisir une séance finie** : la précision du sujet 3 (lien « Saisir à la main » en bas)
-  est rouverte, à trancher par le benchmark de l'écran Démarrer.
+- **Démarrer ou saisir une séance finie** : tranché le 2026-10-22 par le benchmark de l'écran
+  Démarrer — la précision du sujet 3 tient, lien « Saisir à la main » en bas de l'écran Démarrer.
+  Écart assumé au marché : Strava range la saisie manuelle derrière le « + » de son fil, Polar ne
+  l'offre que sur son site ; ici on saisit à la main surtout quand la ceinture ne répond pas, ce qui
+  se découvre justement sur l'écran Démarrer.
 
 ### Le produit : un test, pas un chantier
 

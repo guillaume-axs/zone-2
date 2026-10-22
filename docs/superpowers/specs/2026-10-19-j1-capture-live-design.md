@@ -39,7 +39,7 @@ battement · mini-courbe de fin · puissance live (J1 bis).
 | A1 | Ce qu'on garde de chaque trame | **Heure de réception, FC envoyée, intervalles RR.** Contact peau et événements de liaison restent dans le journal, pas en base |
 | A2 | Qui cherche la ceinture avant « Démarrer » | **Le service, dès l'ouverture de l'écran Démarrer.** Il se connecte et affiche la FC — preuve de connexion — mais n'enregistre qu'au « Démarrer » |
 | — | Qui tient la ceinture pendant la séance | **Le service seul.** Deux accès en parallèle sont proscrits |
-| — | Démarrer ou saisir une séance finie | **Ouvert** : tranché par le benchmark de l'écran Démarrer (rouvre la précision du sujet 3) |
+| — | Démarrer ou saisir une séance finie | **Lien « Saisir à la main » en bas de l'écran Démarrer** (benchmark du 2026-10-22, précision du sujet 3 maintenue) |
 
 ## Choix techniques (dev)
 
@@ -114,7 +114,7 @@ code de test n'entre dans l'app.
 
 | # | Critère | Vérifié par |
 |---|---|---|
-| 1 | Depuis le bouton central, on peut démarrer une séance live **ou** saisir une séance finie — forme fixée par le benchmark | banc |
+| 1 | Depuis le bouton central, on peut démarrer une séance live **ou** saisir une séance finie, par le lien « Saisir à la main » en bas de l'écran Démarrer | banc |
 | 2 | L'écran Démarrer affiche la FC dès la ceinture connectée ; « Démarrer » ne s'active qu'à ce moment. Bluetooth coupé ou accès refusé suivent le parcours de la ligne Capteur (sujet 16) | banc |
 | 3 | Sans zone réglée : la séance démarre, le temps en zone affiche `—`, une invite mène aux Réglages | banc |
 | 4 | Écran d'effort : la FC suit chaque trame ; le temps écoulé avance chaque seconde, trame ou non ; le temps en zone vient du service | banc |
