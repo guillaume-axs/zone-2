@@ -1623,7 +1623,15 @@ Détail, critères et découpage : `docs/superpowers/specs/2026-10-19-j1-capture
   et temps en zone : écran verrouillé, le JavaScript est gelé. L'écran affiche, il ne calcule pas.
   Deux accès en parallèle (greffon pour l'écran, service pour le journal) sont proscrits.
 - **Le service se connecte dès l'écran Démarrer** et y affiche la FC, preuve de connexion ; il
-  n'enregistre qu'au « Démarrer » (A2). Pas de passage de relais entre greffon et service.
+  n'enregistre qu'au « Démarrer » (A2).
+- **Une seule liaison avec la ceinture dans toute l'app** (amendé le 2026-10-22, revue d'architecture
+  avant l'écran Démarrer). La ligne Capteur des Réglages et le service de séance tenaient chacun leur
+  propre liaison, copiée et déjà divergente (silence de 5 s, Bluetooth coupé, nom du capteur) ; rien
+  ne cassait, la H10 acceptant deux connexions. Désormais un seul objet natif tient la liaison : les
+  Réglages s'en servent sans notification, le service la prend telle quelle à l'ouverture de Démarrer
+  et la garde jusqu'à la fin de la séance. Une ceinture connectée dans les Réglages l'est donc déjà
+  sur Démarrer, sans recherche. Remplace « pas de passage de relais entre greffon et service » : le
+  relais est voulu, c'est la seconde liaison qui est proscrite.
 - **On garde chaque trame** : heure, FC envoyée, intervalles RR (A1, voir sujet 4).
 - **L'export porte les battements** (format version 2), ajouté au périmètre : sans cela, un export
   perdrait la série sans le dire.
