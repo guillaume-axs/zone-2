@@ -38,7 +38,7 @@ battement · mini-courbe de fin · puissance live (J1 bis).
 | Q3 | Durée et FC préremplies | Non modifiables (texte). Seule exception : la séance retrouvée, dont la durée se corrige |
 | A1 | Ce qu'on garde de chaque trame | **Heure de réception, FC envoyée, intervalles RR.** Contact peau et événements de liaison restent dans le journal, pas en base |
 | A2 | Qui cherche la ceinture avant « Démarrer » | **Le service, dès l'ouverture de l'écran Démarrer.** Il se connecte et affiche la FC — preuve de connexion — mais n'enregistre qu'au « Démarrer » |
-| — | Qui tient la ceinture pendant la séance | **Le service seul.** Deux accès en parallèle sont proscrits |
+| — | Qui tient la ceinture pendant la séance | **Une seule liaison** pour toute l'app (`Liaison`), prise par le service à l'ouverture de Démarrer — celle des Réglages telle quelle si elle tient déjà — et gardée jusqu'à la fin. Deux accès en parallèle sont proscrits (amendement du 2026-10-22) |
 | — | Démarrer ou saisir une séance finie | **Lien « Saisir à la main » en bas de l'écran Démarrer** (benchmark du 2026-10-22, précision du sujet 3 maintenue) |
 
 ## Choix techniques (dev)
@@ -132,15 +132,20 @@ code de test n'entre dans l'app.
 | 16 | Dernière ligne coupée : le reste est rangé, sans message. Journal illisible : jamais effacé, rangé par une version corrigée ; message unique « Une séance n'a pas pu être rangée » | unitaire + banc |
 | 17 | Export puis import : les trames reviennent ; un fichier v1 s'importe toujours ; une séance v1 déjà présente reçoit ses trames | unitaire + banc |
 
-## Livraison — trois PR
+## Livraison — quatre PR
 
 1. **Service et rangement** — séance active et `seanceActive()`, journal par séance, compteurs,
    instantané, arrêt attendu, robustesse, Dexie v3, export v2, orphelin au lancement. Toute l'API du
    service y naît, pour que la PR 3 ne la réinvente pas. Critères 8, 9, 11, 12, 15, 16, 17.
+1 bis. **Une seule liaison** — refonte native : `Relais` décide, `Liaison` exécute ; les Réglages et
+   le service partagent la même ceinture (amendement du 2026-10-22). Aucun écran ne change.
 2. **Écran Démarrer** — benchmark (deux apps premium qui offrent live et saisie), maquette, code.
    Critères 1 à 3.
 3. **Écran d'effort et fin** — benchmark, maquette, code, formulaire qui complète. Critères 4 à 7, 10,
    14 ; puis le critère 13 sur le S22.
+
+Démarrer et l'écran d'effort sont mergées ensemble : Démarrer seul ouvrirait une séance sans écran
+pour la suivre.
 
 Chaque écran suit la méthode de `CLAUDE.md` : standard Material d'abord, deux captures du marché,
 maquette sur le CSS réel.
