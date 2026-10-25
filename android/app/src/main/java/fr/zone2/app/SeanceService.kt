@@ -277,7 +277,7 @@ class SeanceService : Service() {
 
     private fun demarrerCeinture() {
         ceinture?.arreter()
-        ceinture = Ceinture(this, handler, reconnecter = true, ::noterBattement, ::noterEtat).also { it.demarrer() }
+        ceinture = Ceinture(this, handler, reconnecter = { true }, ::noterBattement, ::noterEtat).also { it.demarrer() }
     }
 
     /** Bluetooth coupé : la ceinture s'arrête, elle repartira au retour de la radio. */
