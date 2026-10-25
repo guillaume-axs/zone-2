@@ -31,23 +31,27 @@ import java.util.UUID
  * N'importe quel capteur qui parle ce service convient, ceinture ou brassard
  * optique (sujet 16) : rien ici ne suppose la forme de l'appareil.
  *
- * Les rappels sont délivrés sur le [fil] fourni. Le service de séance lui en
- * donne un à part, parce qu'il écrit sur le disque à chaque battement.
+ * Les rappels sont délivrés sur le [fil] fourni, celui de [Liaison], hors du
+ * fil principal : le service de séance écrit sur le disque à chaque battement.
  *
- * [reconnecter] : le service de séance se rattache seul au capteur qui
- * décroche ; la ligne des Réglages, non — un décrochage la ramène à
- * « Connecter » (sujet 16).
+ * [reconnecter], relu à chaque décrochage : tenue par la séance, la ceinture se
+ * rattache seule au capteur ; tenue par les Réglages, non — un décrochage les
+ * ramène à « Connecter » (sujet 16). La séance reprend la ceinture des
+ * Réglages sans la recréer, d'où une fonction plutôt qu'une valeur figée.
  */
 class Ceinture(
     private val context: Context,
     private val fil: Handler,
-    private val reconnecter: Boolean,
+    private val reconnecter: () -> Boolean,
     private val surBattement: (Battement) -> Unit,
     private val surEtat: (Etat) -> Unit,
 ) {
 
-    /** [INTROUVABLE] : l'écoute a fini sans rien entendre. [ECHEC] : le Bluetooth n'a pas pu chercher, ou le capteur ne donne pas de FC. */
-    enum class Etat { RECHERCHE, TROUVEE, CONNECTEE, DECROCHEE, INTROUVABLE, ECHEC }
+    /**
+     * [INTROUVABLE] : l'écoute a fini sans rien entendre. [ECHEC] : le Bluetooth n'a pas pu chercher, ou le capteur ne donne pas de FC.
+     * [MUETTE] : connectée mais silencieuse depuis [Journal.SILENCE_MS] ; émis par [Liaison], jamais par la ceinture.
+     */
+    enum class Etat { RECHERCHE, TROUVEE, CONNECTEE, DECROCHEE, INTROUVABLE, ECHEC, MUETTE }
 
     /** Le nom que le capteur donne de lui-même (« Polar H10 … »), connu dès qu'il est choisi. */
     var nom: String? = null
@@ -131,7 +135,7 @@ class Ceinture(
         entendus.clear()
         if (choisi == null) {
             surEtat(Etat.INTROUVABLE)
-            if (reconnecter) fil.postDelayed(relance, RELANCE_MS)
+            if (reconnecter()) fil.postDelayed(relance, RELANCE_MS)
             return@Runnable
         }
         prefs.edit().putString(CLE_ADRESSE, choisi.device.address).apply()
@@ -220,7 +224,8 @@ class Ceinture(
                     g.close()
                     if (!arretDemande) {
                         gatt = null
-                        if (reconnecter) fil.post { connecter(g.device, auto = true) }
+                        // Lu sur [fil], comme tout l'état de [Liaison] ; un arrêt survenu entre-temps l'emporte.
+                        fil.post { if (!arretDemande && reconnecter()) connecter(g.device, auto = true) }
                     }
                 }
             }

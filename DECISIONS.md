@@ -1613,6 +1613,9 @@ Détail, critères et découpage : `docs/superpowers/specs/2026-10-19-j1-capture
 - **Une séance tuée est retrouvée** au lancement suivant, rangée seule, durée modifiable — dans J1.
   Sans cela, la première séance interrompue serait perdue.
 - **Sans zone réglée, on démarre quand même** : temps en zone `—`, une invite mène aux Réglages.
+  Précisé le 2026-10-22 (maquette Démarrer) : l'invite paraît à l'appui sur « Démarrer » et offre
+  les deux — « Régler ma zone » (Réglages, puis retour à Démarrer) ou « Démarrer quand même ».
+  Bloquer le départ a été écarté : une séance sans bornes vaut mieux qu'une séance perdue.
   Écart assumé au sujet 12 (« renvoi vers le réglage ») : bloquer coûterait une séance pour un chiffre.
 - **Durée et FC moyenne d'une séance live ne se corrigent pas** — elles viennent des battements ;
   les modifier ferait deux vérités. Seule exception : la séance retrouvée.
@@ -1620,12 +1623,23 @@ Détail, critères et découpage : `docs/superpowers/specs/2026-10-19-j1-capture
   et temps en zone : écran verrouillé, le JavaScript est gelé. L'écran affiche, il ne calcule pas.
   Deux accès en parallèle (greffon pour l'écran, service pour le journal) sont proscrits.
 - **Le service se connecte dès l'écran Démarrer** et y affiche la FC, preuve de connexion ; il
-  n'enregistre qu'au « Démarrer » (A2). Pas de passage de relais entre greffon et service.
+  n'enregistre qu'au « Démarrer » (A2).
+- **Une seule liaison avec la ceinture dans toute l'app** (amendé le 2026-10-22, revue d'architecture
+  avant l'écran Démarrer). La ligne Capteur des Réglages et le service de séance tenaient chacun leur
+  propre liaison, copiée et déjà divergente (silence de 5 s, Bluetooth coupé, nom du capteur) ; rien
+  ne cassait, la H10 acceptant deux connexions. Désormais un seul objet natif tient la liaison : les
+  Réglages s'en servent sans notification, le service la prend telle quelle à l'ouverture de Démarrer
+  et la garde jusqu'à la fin de la séance. Une ceinture connectée dans les Réglages l'est donc déjà
+  sur Démarrer, sans recherche. Remplace « pas de passage de relais entre greffon et service » : le
+  relais est voulu, c'est la seconde liaison qui est proscrite.
 - **On garde chaque trame** : heure, FC envoyée, intervalles RR (A1, voir sujet 4).
 - **L'export porte les battements** (format version 2), ajouté au périmètre : sans cela, un export
   perdrait la série sans le dire.
-- **Démarrer ou saisir une séance finie** : la précision du sujet 3 (lien « Saisir à la main » en bas)
-  est rouverte, à trancher par le benchmark de l'écran Démarrer.
+- **Démarrer ou saisir une séance finie** : tranché le 2026-10-22 par le benchmark de l'écran
+  Démarrer — la précision du sujet 3 tient, lien « Saisir à la main » en bas de l'écran Démarrer.
+  Écart assumé au marché : Strava range la saisie manuelle derrière le « + » de son fil, Polar ne
+  l'offre que sur son site ; ici on saisit à la main surtout quand la ceinture ne répond pas, ce qui
+  se découvre justement sur l'écran Démarrer.
 
 ### Le produit : un test, pas un chantier
 
