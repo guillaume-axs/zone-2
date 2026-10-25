@@ -1,17 +1,20 @@
 package fr.zone2.app
 
 import android.Manifest
+import android.bluetooth.BluetoothAdapter
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import android.util.Log
+import androidx.activity.result.ActivityResult
 import com.getcapacitor.JSArray
 import com.getcapacitor.JSObject
 import com.getcapacitor.PermissionState
 import com.getcapacitor.Plugin
 import com.getcapacitor.PluginCall
 import com.getcapacitor.PluginMethod
+import com.getcapacitor.annotation.ActivityCallback
 import com.getcapacitor.annotation.CapacitorPlugin
 import com.getcapacitor.annotation.Permission
 import com.getcapacitor.annotation.PermissionCallback
@@ -70,30 +73,40 @@ class SeancePlugin : Plugin() {
         apresNotifications(call)
     }
 
+    /** Même parcours que la ligne Capteur : permission, puis Bluetooth allumé (sujet 16). */
     @PermissionCallback
     private fun apresNotifications(call: PluginCall) {
         // Avant Android 12, la recherche et la connexion Bluetooth n'étaient pas
         // des permissions d'exécution : les demander échouerait.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
-            getPermissionState("bluetooth") != PermissionState.GRANTED
-        ) {
-            requestPermissionForAlias("bluetooth", call, "apresBluetooth")
-            return
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return activer(call)
+        when (getPermissionState("bluetooth")) {
+            PermissionState.GRANTED -> activer(call)
+            PermissionState.DENIED -> {
+                Liaison.ouvrirParametres(activity)
+                refuse(call)
+            }
+            else -> requestPermissionForAlias("bluetooth", call, "apresBluetooth")
         }
-        lancer(call)
     }
 
     @PermissionCallback
     private fun apresBluetooth(call: PluginCall) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
-            getPermissionState("bluetooth") != PermissionState.GRANTED
-        ) {
-            // Refus : rien n'a démarré, comme la ligne Capteur (sujet 16).
-            call.resolve(JSObject().put("lance", false))
-            return
-        }
-        lancer(call)
+        if (getPermissionState("bluetooth") == PermissionState.GRANTED) activer(call) else refuse(call)
     }
+
+    /** Bluetooth coupé : la demande d'Android, un appui pour le rallumer. */
+    private fun activer(call: PluginCall) {
+        if (Liaison.radioAllumee(context)) return lancer(call)
+        startActivityForResult(call, Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE), "apresActivation")
+    }
+
+    @ActivityCallback
+    private fun apresActivation(call: PluginCall, @Suppress("UNUSED_PARAMETER") resultat: ActivityResult) {
+        if (Liaison.radioAllumee(context)) lancer(call) else refuse(call)
+    }
+
+    /** Refus : rien n'a démarré, comme la ligne Capteur (sujet 16). */
+    private fun refuse(call: PluginCall) = call.resolve(JSObject().put("lance", false))
 
     private fun lancer(call: PluginCall) {
         context.startForegroundService(
