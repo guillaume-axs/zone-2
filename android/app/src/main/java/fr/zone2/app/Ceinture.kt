@@ -46,8 +46,11 @@ class Ceinture(
     private val surEtat: (Etat) -> Unit,
 ) {
 
-    /** [INTROUVABLE] : l'écoute a fini sans rien entendre. [ECHEC] : le Bluetooth n'a pas pu chercher, ou le capteur ne donne pas de FC. */
-    enum class Etat { RECHERCHE, TROUVEE, CONNECTEE, DECROCHEE, INTROUVABLE, ECHEC }
+    /**
+     * [INTROUVABLE] : l'écoute a fini sans rien entendre. [ECHEC] : le Bluetooth n'a pas pu chercher, ou le capteur ne donne pas de FC.
+     * [MUETTE] : connectée mais silencieuse depuis [Journal.SILENCE_MS] ; émis par [Liaison], jamais par la ceinture.
+     */
+    enum class Etat { RECHERCHE, TROUVEE, CONNECTEE, DECROCHEE, INTROUVABLE, ECHEC, MUETTE }
 
     /** Le nom que le capteur donne de lui-même (« Polar H10 … »), connu dès qu'il est choisi. */
     var nom: String? = null
