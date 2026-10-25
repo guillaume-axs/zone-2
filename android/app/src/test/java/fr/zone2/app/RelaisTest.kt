@@ -62,7 +62,7 @@ class RelaisTest {
     @Test
     fun `prendre S depuis R ne lance ni n'arrête`() {
         val r = sous(R)
-        assertEquals(listOf(Signaler(S, CONNECTEE)), r.prendre(S))
+        assertEquals(listOf(Signaler(R, DECROCHEE), Signaler(S, CONNECTEE)), r.prendre(S))
         assertEquals(S, r.detenteur); assertTrue(r.reconnecte)
     }
 
@@ -183,6 +183,11 @@ class RelaisTest {
         val r = sous(S); r.radio(false); r.radio(false)
         assertEquals(listOf(Lancer), r.radio(true))
         assertEquals(aucun(), r.radio(true))
+    }
+
+    @Test
+    fun `radio revenue après un échec sous S relance`() {
+        assertEquals(coupe + Lancer, sous(S, ECHEC).radio(true))
     }
 
     @Test

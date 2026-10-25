@@ -224,7 +224,8 @@ class Ceinture(
                     g.close()
                     if (!arretDemande) {
                         gatt = null
-                        if (reconnecter()) fil.post { connecter(g.device, auto = true) }
+                        // Lu sur [fil], comme tout l'état de [Liaison] ; un arrêt survenu entre-temps l'emporte.
+                        fil.post { if (!arretDemande && reconnecter()) connecter(g.device, auto = true) }
                     }
                 }
             }

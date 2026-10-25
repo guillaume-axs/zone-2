@@ -49,9 +49,10 @@ class Relais {
     /** Liste vide et détenteur inchangé : refus. */
     fun prendre(par: Detenteur): List<Ordre> = when (detenteur) {
         null -> lancer(par)
+        // Les Réglages perdent la main : leur ligne revient à « Connecter ».
         REGLAGES -> if (par == REGLAGES) couper() + lancer(par) else {
             detenteur = SEANCE
-            listOfNotNull(etat?.let { Signaler(SEANCE, it) })
+            listOfNotNull(Signaler(REGLAGES, Etat.DECROCHEE), etat?.let { Signaler(SEANCE, it) })
         }
         SEANCE -> if (par == SEANCE) listOfNotNull(etat?.let { Signaler(SEANCE, it) }) else emptyList()
     }
@@ -100,7 +101,12 @@ class Relais {
 
     fun radio(allumee: Boolean): List<Ordre> = when {
         detenteur == null -> emptyList()
-        allumee -> if (arreteeParRadio) lancer(SEANCE) else emptyList()
+        // Relancé par Android radio coupée, le service n'a pas vu la coupure : son ECHEC la dit.
+        allumee -> when {
+            arreteeParRadio -> lancer(SEANCE)
+            detenteur == SEANCE && etat == Etat.ECHEC -> couper() + lancer(SEANCE)
+            else -> emptyList()
+        }
         detenteur == REGLAGES -> couper() + Signaler(REGLAGES, Etat.DECROCHEE)
         arreteeParRadio -> emptyList()
         else -> {
